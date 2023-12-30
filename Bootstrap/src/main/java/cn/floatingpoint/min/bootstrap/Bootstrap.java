@@ -96,34 +96,34 @@ public class Bootstrap extends JFrame {
     }
 
     private void clientStart() {
-        new Thread(() -> {
-            try {
-                label.setText("Checking java: ");
-                if (Integer.parseInt(System.getProperty("java.version").split("\\.")[0]) < 17) {
-                    JOptionPane.showMessageDialog(this, "请使用Java17以上版本启动。Please use Java(version upper 17) to launch me!", "ERROR", JOptionPane.ERROR_MESSAGE);
-                    System.exit(0);
-                }
-                label.setText("Checking status: ");
-                String url = WebUtil.getPlatform() + "data.json";
-                progressBar.setValue(33);
-                JSONObject jsonObject = WebUtil.getJSON(url);
-                progressBar.setValue(66);
-                String remoteVersion = jsonObject.getString("CurrentVersion");
-                progressBar.setValue(99);
-                sha1 = jsonObject.getString("Sha-1");
-                if (!remoteVersion.equalsIgnoreCase(getVersion()) || checkSha1NonRight(sha1)) {
-                    progressBar.setValue(100);
-                    deleteJarFile();
-                    downloadJarFile(remoteVersion);
-                } else {
-                    progressBar.setValue(100);
-                    canLaunch = true;
-                }
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Error while grabbing data.", "Error", JOptionPane.ERROR_MESSAGE);
-                System.exit(0);
-            }
-        }).start();
+        //new Thread(() -> {
+        //    try {
+        //        label.setText("Checking java: ");
+        //        if (Integer.parseInt(System.getProperty("java.version").split("\\.")[0]) < 17) {
+        //            JOptionPane.showMessageDialog(this, "请使用Java17以上版本启动。Please use Java(version upper 17) to launch me!", "ERROR", JOptionPane.ERROR_MESSAGE);
+        //            System.exit(0);
+        //        }
+        //        label.setText("Checking status: ");
+        //        String url = WebUtil.getPlatform() + "data.json";
+        //        progressBar.setValue(33);
+        //        JSONObject jsonObject = WebUtil.getJSON(url);
+        //        progressBar.setValue(66);
+        //        String remoteVersion = jsonObject.getString("CurrentVersion");
+        //        progressBar.setValue(99);
+        //        sha1 = jsonObject.getString("Sha-1");
+        //        if (!remoteVersion.equalsIgnoreCase(getVersion()) || checkSha1NonRight(sha1)) {
+        //            progressBar.setValue(100);
+        //            deleteJarFile();
+        //            downloadJarFile(remoteVersion);
+        //        } else {
+        //            progressBar.setValue(100);
+        //            canLaunch = true;
+        //        }
+        //    } catch (Exception e) {
+        //        JOptionPane.showMessageDialog(this, "Error while grabbing data.", "Error", JOptionPane.ERROR_MESSAGE);
+        //        System.exit(0);
+        //    }
+        //}).start();
     }
 
     private void downloadJarFile(String version) {
@@ -166,21 +166,21 @@ public class Bootstrap extends JFrame {
 
     @SuppressWarnings("all")
     private void prepareGame(String[] args) {
-        while (!this.canLaunch) {
-            try {
-                Thread.sleep(1000L);
-            } catch (InterruptedException e) {
-                JOptionPane.showMessageDialog(this, "Error.", "Error", JOptionPane.ERROR_MESSAGE);
-                System.exit(0);
-            }
-        }
+        //while (!this.canLaunch) {
+        //    try {
+        //        Thread.sleep(1000L);
+        //    } catch (InterruptedException e) {
+        //        JOptionPane.showMessageDialog(this, "Error.", "Error", JOptionPane.ERROR_MESSAGE);
+        //        System.exit(0);
+        //    }
+        //}
         this.launchGame(args);
     }
 
     private void launchGame(String[] args) {
         label.setText("                  Launching client...                  ");
         progressBar.setVisible(false);
-        File jar = new File(this.dir, "Game.jar");
+        File jar = new File(this.dir, "Client2-2.10.jar");
         try (URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{jar.toURI().toURL()})) {
             Class<?> launcherClass = urlClassLoader.loadClass("cn.floatingpoint.min.launcher.Launcher");
             Method launchMethod = launcherClass.getMethod("launch", String[].class);
@@ -188,6 +188,7 @@ public class Bootstrap extends JFrame {
             launchMethod.invoke(launcherClass, (Object) args);
         } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
                  IllegalAccessException e) {
+            e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error while launching game.", "Error", JOptionPane.ERROR_MESSAGE);
             System.exit(0);
         } catch (IOException e) {

@@ -58,7 +58,7 @@ public class MINMainMenu extends GuiMainMenu {
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         drawDefaultBackground();
-        drawRect(0, 0, width, height, 0);RenderUtil.drawImage(new ResourceLocation("min/square.png"), width / 2 - 100, height / 2 - 100, 200, 200);
+        drawRect(0, 0, width, height, new Color(0, 0, 0).getRGB());RenderUtil.drawImage(new ResourceLocation("min/square.png"), width / 2 - 100, height / 2 - 100, 200, 200);
         RenderUtil.drawImage(new ResourceLocation("min/uis/mainmenu/multiplayer.png"), width / 2 - 60, height / 2 - 12, 24, 24);
         RenderUtil.drawImage(new ResourceLocation("min/uis/mainmenu/options.png"), width / 2 - 12, height / 2 - 12, 24, 24);
         RenderUtil.drawImage(new ResourceLocation("min/uis/mainmenu/exit.png"), width / 2 + 36, height / 2 - 12, 24, 24);
