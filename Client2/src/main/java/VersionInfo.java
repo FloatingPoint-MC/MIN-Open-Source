@@ -1,5 +1,3 @@
-import cn.floatingpoint.min.MIN;
-
 /**
  * @projectName: MIN
  * @author: vlouboos
@@ -8,6 +6,6 @@ import cn.floatingpoint.min.MIN;
 @SuppressWarnings("unused")
 public class VersionInfo {
     public static String getVersion() {
-        return MIN.VERSION;
+        return "2.10.1";
     }
 }
