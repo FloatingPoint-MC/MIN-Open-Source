@@ -5,6 +5,7 @@ import cn.floatingpoint.min.system.ui.hyt.germ.GermModButton;
 import cn.floatingpoint.min.system.ui.hyt.germ.GuiButtonPage;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.CPacketCustomPayload;
 import org.apache.commons.codec.binary.Base32;
@@ -190,13 +191,6 @@ public class GermModPacket implements CustomPacket {
                 counter = 0;
                 totalBytes = null;
             }
-        } else if (packetId == 76) {
-            //String windowId = packetBuffer.readString(Short.MAX_VALUE);
-            //PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
-            //buffer.writeInt(11);
-            //buffer.writeString(windowId);
-            //mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease", buffer));
-            //System.out.println(windowId);
         } else if (packetId == 79) {
             String type = packetBuffer.readString(Short.MAX_VALUE);
             int action = packetBuffer.readInt();
@@ -233,9 +227,11 @@ public class GermModPacket implements CustomPacket {
                 }
             }
         } else {
-            int size = packetBuffer.readableBytes();
-            if (size > 0) {
-                System.out.println("Unknown packet id: " + packetId + ", size=" + size);
+            if (Minecraft.DEBUG_MODE) {
+                int size = packetBuffer.readableBytes();
+                if (size > 0) {
+                    System.out.println("Unknown packet id: " + packetId + ", size=" + size);
+                }
             }
         }
     }
