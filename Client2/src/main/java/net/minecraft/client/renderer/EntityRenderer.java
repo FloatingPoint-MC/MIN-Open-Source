@@ -2214,10 +2214,6 @@ public class EntityRenderer implements IResourceManagerReloadListener {
             this.updatedWorld = world;
         }
 
-        if (Managers.moduleManager.renderModules.get("MotionBlur").isEnabled()) {
-            mc.entityRenderer.loadShader(new ResourceLocation("min/shaders/post/motion_blur_" + MotionBlur.amplifier.getValue() + "x.json"));
-        }
-
         if (!this.setFxaaShader(Shaders.configAntialiasingLevel)) {
             Shaders.configAntialiasingLevel = 0;
         }

@@ -598,7 +598,11 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
         if (this.serverName != null) {
             this.displayGuiScreen(new GuiDamnJapaneseAction(new GuiConnecting(this.mainMenu, this, this.serverName, this.serverPort)));
         } else {
-            this.displayGuiScreen(new GuiLoading());
+            if (!DEBUG_MODE) {
+                this.displayGuiScreen(new GuiLoading());
+            } else {
+                this.displayGuiScreen(this.mainMenu);
+            }
         }
         this.renderEngine.deleteTexture(this.mojangLogo);
         this.mojangLogo = null;

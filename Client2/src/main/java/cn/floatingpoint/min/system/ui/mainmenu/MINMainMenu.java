@@ -41,7 +41,7 @@ public class MINMainMenu extends GuiMainMenu {
      * window resizes, the buttonList is cleared beforehand.
      */
     public void initGui() {
-        widthCopyright = fontRenderer.getStringWidth("Copyright Mojang AB. Addons by FloatingPoint-MC!");
+        widthCopyright = Managers.fontManager.sourceHansSansCN_Regular_20.getStringWidth("Copyright Mojang AB. Addons by FloatingPoint-MC!");
         widthCopyrightRest = width - widthCopyright - 2;
         multiplayerAlpha = 0;
         optionsAlpha = 0;
@@ -65,10 +65,10 @@ public class MINMainMenu extends GuiMainMenu {
         String s = "MIN Client(Minecraft 1.12.2)";
         s = s + ("release".equalsIgnoreCase(mc.getVersionType()) ? "" : "/" + mc.getVersionType());
 
-        drawString(this.fontRenderer, "Version: " + MIN.VERSION + "(Released on 2023/12/9)", 2, 2, -1);
+        Managers.fontManager.sourceHansSansCN_Regular_20.drawString("Version: " + MIN.VERSION + "(Released on 2023/12/30)", 2, 2, -1);
 
-        drawString(fontRenderer, s, 2, height - 10, -1);
-        drawString(fontRenderer, "Copyright Mojang AB. Addons by FloatingPoint-MC!", widthCopyrightRest, height - 10, -1);
+        Managers.fontManager.sourceHansSansCN_Regular_20.drawString(s, 2, height - 10, -1);
+        Managers.fontManager.sourceHansSansCN_Regular_20.drawString("Copyright Mojang AB. Addons by FloatingPoint-MC!", widthCopyrightRest, height - 10, -1);
 
         if (mouseX > widthCopyrightRest && mouseX < widthCopyrightRest + widthCopyright && mouseY > height - 10 && mouseY < height && Mouse.isInsideWindow()) {
             drawRect(widthCopyrightRest, height - 1, widthCopyrightRest + widthCopyright, height, -1);
