@@ -174,7 +174,6 @@ public class GermModPacket implements CustomPacket {
             int length = packetBuffer.readInt();
             boolean end = packetBuffer.readBoolean();
             byte[] tempBytes = packetBuffer.readByteArray();
-            PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
             if (start) {
                 totalBytes = new byte[length];
             }
