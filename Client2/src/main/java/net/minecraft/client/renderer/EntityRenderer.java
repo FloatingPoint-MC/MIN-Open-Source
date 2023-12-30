@@ -4,6 +4,7 @@ import cn.floatingpoint.min.management.Managers;
 import cn.floatingpoint.min.system.module.Module;
 import cn.floatingpoint.min.system.module.impl.render.RenderModule;
 import cn.floatingpoint.min.system.module.impl.render.impl.FreeLook;
+import cn.floatingpoint.min.system.module.impl.render.impl.MotionBlur;
 import cn.floatingpoint.min.system.module.impl.render.impl.Particles;
 import cn.floatingpoint.min.system.module.impl.render.impl.Zoom;
 import cn.floatingpoint.min.utils.math.FunctionUtil;
@@ -293,7 +294,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
         }
     }
 
-    private void loadShader(ResourceLocation resourceLocationIn) {
+    public void loadShader(ResourceLocation resourceLocationIn) {
         if (OpenGlHelper.isFramebufferEnabled()) {
             try {
                 this.shaderGroup = new ShaderGroup(this.mc.getTextureManager(), this.resourceManager, this.mc.getFramebuffer(), resourceLocationIn);
@@ -2211,6 +2212,10 @@ public class EntityRenderer implements IResourceManagerReloadListener {
             this.lastServerTime = 0L;
             this.lastServerTicks = 0;
             this.updatedWorld = world;
+        }
+
+        if (Managers.moduleManager.renderModules.get("MotionBlur").isEnabled()) {
+            mc.entityRenderer.loadShader(new ResourceLocation("min/shaders/post/motion_blur_" + MotionBlur.amplifier.getValue() + "x.json"));
         }
 
         if (!this.setFxaaShader(Shaders.configAntialiasingLevel)) {

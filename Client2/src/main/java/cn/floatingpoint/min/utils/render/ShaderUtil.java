@@ -49,7 +49,7 @@ public class ShaderUtil {
     }
     
     public ShaderUtil() {
-        this("roundedRect", "min/shaders/vertex.vsh");
+        this("roundedRect", "min/shaders/program/vertex.vsh");
     }
     
     public void init() {

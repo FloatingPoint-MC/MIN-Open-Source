@@ -63,10 +63,21 @@ public class GermModButton {
                     .writeString(path)
                     .writeInt(0))
             ));
-            mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease", new PacketBuffer(Unpooled.buffer().writeInt(11))
-                    .writeString(parentUuid)
-            ));
-            mc.displayGuiScreen(null);
+            whenClick();
+            if (doesCloseOnClickButton()) {
+                mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease", new PacketBuffer(Unpooled.buffer().writeInt(11))
+                        .writeString(parentUuid)
+                ));
+                mc.displayGuiScreen(null);
+            }
         }
+    }
+
+    protected void whenClick() {
+
+    }
+
+    protected boolean doesCloseOnClickButton() {
+        return true;
     }
 }
