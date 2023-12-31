@@ -88,7 +88,7 @@ public class IRCMessageGrabber {
             TextComponentString text = new TextComponentString("\247b[MIN-IRC]" + originMessage);
             if (originMessage.contains(":")) {
                 text.getStyle()
-                        .setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "@" + split[1].split(":")[0] + " "))
+                        .setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, ChatUtil.removeColor("@" + split[1].split(":")[0] + " ")))
                         .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString("\247e@" + originMessage.split(":")[0])));
             }
             ChatUtil.printToChat(text);

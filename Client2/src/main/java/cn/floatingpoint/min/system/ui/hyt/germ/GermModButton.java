@@ -65,10 +65,10 @@ public class GermModButton {
             ));
             whenClick();
             if (doesCloseOnClickButton()) {
+                mc.displayGuiScreen(null);
                 mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease", new PacketBuffer(Unpooled.buffer().writeInt(11))
                         .writeString(parentUuid)
                 ));
-                mc.displayGuiScreen(null);
             }
         }
     }

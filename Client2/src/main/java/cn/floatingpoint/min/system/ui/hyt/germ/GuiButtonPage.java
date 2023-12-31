@@ -2,8 +2,11 @@ package cn.floatingpoint.min.system.ui.hyt.germ;
 
 import cn.floatingpoint.min.management.Managers;
 import cn.floatingpoint.min.utils.render.RenderUtil;
+import io.netty.buffer.Unpooled;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.play.client.CPacketCustomPayload;
 import net.minecraft.util.ResourceLocation;
 
 import java.awt.*;
@@ -49,6 +52,20 @@ public class GuiButtonPage extends GuiScreen {
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         for (GermModButton button : buttons) {
             button.mouseClicked(uuid);
+        }
+    }
+
+    @Override
+    protected void keyTyped(char typedChar, int keyCode) throws IOException {
+        if (keyCode == 1) {
+            this.mc.displayGuiScreen(null);
+
+            if (this.mc.currentScreen == null) {
+                this.mc.setIngameFocus();
+            }
+            mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease", new PacketBuffer(Unpooled.buffer().writeInt(11))
+                    .writeString(uuid)
+            ));
         }
     }
 }
