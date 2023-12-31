@@ -469,10 +469,9 @@ public class GuiIngame extends Gui {
     }
 
     protected void renderHotbar(ScaledResolution sr, float partialTicks) {
-        if (this.mc.getRenderViewEntity() instanceof EntityPlayer) {
+        if (this.mc.getRenderViewEntity() instanceof EntityPlayer entityplayer) {
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             this.mc.getTextureManager().bindTexture(WIDGETS_TEX_PATH);
-            EntityPlayer entityplayer = (EntityPlayer) this.mc.getRenderViewEntity();
             ItemStack itemstack = entityplayer.getHeldItemOffhand();
             EnumHandSide enumhandside = entityplayer.getPrimaryHand().opposite();
             int i = sr.getScaledWidth() / 2;
@@ -726,60 +725,33 @@ public class GuiIngame extends Gui {
 
                 this.drawTexturedModalRect(k4, l4, 16 + i4 * 9, 9 * i5, 9, 9);
 
-                if (!Animation.oldHeartAnimation.getValue()) {
-                    if (flag) {
-                        if (j5 * 2 + 1 < j) {
+                if (flag) {
+                    if (j5 * 2 + 1 < j) {
+                        if (!Animation.noWhiteHeart.getValue()) {
                             this.drawTexturedModalRect(k4, l4, k5 + 54, 9 * i5, 9, 9);
-                        }
-
-                        if (j5 * 2 + 1 == j) {
-                            this.drawTexturedModalRect(k4, l4, k5 + 63, 9 * i5, 9, 9);
                         }
                     }
 
-                    if (l2 > 0) {
-                        if (l2 == k1 && k1 % 2 == 1) {
-                            this.drawTexturedModalRect(k4, l4, k5 + 153, 9 * i5, 9, 9);
-                            --l2;
-                        } else {
-                            this.drawTexturedModalRect(k4, l4, k5 + 144, 9 * i5, 9, 9);
-                            l2 -= 2;
-                        }
-                    } else {
-                        if (j5 * 2 + 1 < i) {
-                            this.drawTexturedModalRect(k4, l4, k5 + 36, 9 * i5, 9, 9);
-                        }
+                    if (j5 * 2 + 1 == j) {
+                        this.drawTexturedModalRect(k4, l4, k5 + 63, 9 * i5, 9, 9);
+                    }
+                }
 
-                        if (j5 * 2 + 1 == i) {
-                            this.drawTexturedModalRect(k4, l4, k5 + 45, 9 * i5, 9, 9);
-                        }
+                if (l2 > 0) {
+                    if (l2 == k1 && k1 % 2 == 1) {
+                        this.drawTexturedModalRect(k4, l4, k5 + 153, 9 * i5, 9, 9);
+                        --l2;
+                    } else {
+                        this.drawTexturedModalRect(k4, l4, k5 + 144, 9 * i5, 9, 9);
+                        l2 -= 2;
                     }
                 } else {
-                    if (flag) {
-                        if (j5 * 2 + 1 < j) {
-                            this.drawTexturedModalRect(k4, l4, k5 + 54, 9 * i5, 9, 9);
-                        }
-
-                        if (j5 * 2 + 1 == j) {
-                            this.drawTexturedModalRect(k4, l4, k5 + 63, 9 * i5, 9, 9);
-                        }
+                    if (j5 * 2 + 1 < i) {
+                        this.drawTexturedModalRect(k4, l4, k5 + 36, 9 * i5, 9, 9);
                     }
-                    if (l2 <= 0.0F) {
-                        if (j5 * 2 + 1 < i) {
-                            this.drawTexturedModalRect(k4, l4, k5 + 36, 9 * i5, 9, 9);
-                        }
 
-                        if (j5 * 2 + 1 == i) {
-                            this.drawTexturedModalRect(k4, l4, k5 + 45, 9 * i5, 9, 9);
-                        }
-                    } else {
-                        if (l2 == k1 && k1 % 2.0F == 1.0F) {
-                            this.drawTexturedModalRect(k4, l4, k5 + 153, 9 * i5, 9, 9);
-                        } else {
-                            this.drawTexturedModalRect(k4, l4, k5 + 144, 9 * i5, 9, 9);
-                        }
-
-                        l2 -= 2;
+                    if (j5 * 2 + 1 == i) {
+                        this.drawTexturedModalRect(k4, l4, k5 + 45, 9 * i5, 9, 9);
                     }
                 }
             }
@@ -837,13 +809,11 @@ public class GuiIngame extends Gui {
     }
 
     private void renderMountHealth(ScaledResolution p_184047_1_) {
-        if (this.mc.getRenderViewEntity() instanceof EntityPlayer) {
-            EntityPlayer entityplayer = (EntityPlayer) this.mc.getRenderViewEntity();
+        if (this.mc.getRenderViewEntity() instanceof EntityPlayer entityplayer) {
             Entity entity = entityplayer.getRidingEntity();
 
-            if (entity instanceof EntityLivingBase) {
+            if (entity instanceof EntityLivingBase entitylivingbase) {
                 this.mc.profiler.endStartSection("mountHealth");
-                EntityLivingBase entitylivingbase = (EntityLivingBase) entity;
                 int i = (int) Math.ceil(entitylivingbase.getHealth());
                 float f = entitylivingbase.getMaxHealth();
                 int j = (int) (f + 0.5F) / 2;

@@ -4,7 +4,6 @@ import cn.floatingpoint.min.management.Managers;
 import cn.floatingpoint.min.system.module.Module;
 import cn.floatingpoint.min.system.module.impl.render.RenderModule;
 import cn.floatingpoint.min.system.module.impl.render.impl.FreeLook;
-import cn.floatingpoint.min.system.module.impl.render.impl.MotionBlur;
 import cn.floatingpoint.min.system.module.impl.render.impl.Particles;
 import cn.floatingpoint.min.system.module.impl.render.impl.Zoom;
 import cn.floatingpoint.min.utils.math.FunctionUtil;

@@ -367,11 +367,10 @@ public class WorldClient extends World {
         }
 
         boolean flag = this.mc.playerController.getCurrentGameType() == GameType.CREATIVE && !itemstack.isEmpty() && itemstack.getItem() == Item.getItemFromBlock(Blocks.BARRIER);
-        BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
+        BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
 
-        for (int j = 0; j < 667; ++j) {
-            this.showBarrierParticles(posX, posY, posZ, 16, random, flag, blockpos$mutableblockpos);
-            this.showBarrierParticles(posX, posY, posZ, 32, random, flag, blockpos$mutableblockpos);
+        for (int j = 0; j < 100; ++j) {
+            this.showBarrierParticles(posX, posY, posZ, 16, random, flag, mutableBlockPos);
         }
     }
 

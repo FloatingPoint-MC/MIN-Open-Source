@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.optifine.Config;
 import net.minecraft.util.ResourceLocation;
 import net.optifine.entity.model.anim.ModelUpdater;
@@ -74,6 +75,7 @@ public class ModelRenderer {
     private String id;
     private ModelUpdater modelUpdater;
     private final RenderGlobal renderGlobal;
+    private boolean firstRender;
 
     public ModelRenderer(ModelBase model, @Nullable String boxNameIn) {
         this.spriteList = new ArrayList<>();
@@ -152,6 +154,9 @@ public class ModelRenderer {
     }
 
     public void render(float scale) {
+        if (!firstRender) {
+            this.compiled = false;
+        }
         if (!this.isHidden && this.showModel) {
             this.checkResetDisplayList();
 
@@ -356,6 +361,8 @@ public class ModelRenderer {
 
         GlStateManager.glNewList(this.displayList, 4864);
         BufferBuilder bufferbuilder = Tessellator.getInstance().getBuffer();
+        this.firstRender = true;
+        bufferbuilder.begin(7, DefaultVertexFormats.OLDMODEL_POSITION_TEX_NORMAL);
 
         for (ModelBox modelBox : this.cubeList) {
             modelBox.render(bufferbuilder, scale);
@@ -365,6 +372,7 @@ public class ModelRenderer {
             modelSprite.render(Tessellator.getInstance(), scale);
         }
 
+        Tessellator.getInstance().draw();
         GlStateManager.glEndList();
         this.compiled = true;
     }
@@ -380,14 +388,6 @@ public class ModelRenderer {
 
     public void addSprite(float p_addSprite_1_, float p_addSprite_2_, float p_addSprite_3_, int p_addSprite_4_, int p_addSprite_5_, int p_addSprite_6_, float p_addSprite_7_) {
         this.spriteList.add(new ModelSprite(this, this.textureOffsetX, this.textureOffsetY, p_addSprite_1_, p_addSprite_2_, p_addSprite_3_, p_addSprite_4_, p_addSprite_5_, p_addSprite_6_, p_addSprite_7_));
-    }
-
-    public boolean getCompiled() {
-        return this.compiled;
-    }
-
-    public int getDisplayList() {
-        return this.displayList;
     }
 
     private void checkResetDisplayList() {

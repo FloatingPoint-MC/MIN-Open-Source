@@ -5,7 +5,11 @@ import cn.floatingpoint.min.management.Managers;
 import cn.floatingpoint.min.runnable.Runnable;
 import cn.floatingpoint.min.utils.client.ChatUtil;
 import cn.floatingpoint.min.utils.client.WebUtil;
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.event.ClickEvent;
+import net.minecraft.util.text.event.HoverEvent;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -74,12 +78,26 @@ public class IRCMessageGrabber {
     }
 
     private static void printMessage(String originMessage) {
-        if (originMessage.contains("\2476[DEVELOPER]") || originMessage.contains("\2474[ADMIN]") || originMessage.contains("\2474[SERVER]")) {
-            String identity = originMessage.split("]")[0].split("\\[")[1];
-            originMessage = originMessage.replaceFirst(identity, Managers.i18NManager.getTranslation("irc." + identity));
+        if (originMessage.contains("]") && originMessage.contains("[")) {
+            String[] split = originMessage.split("]");
+            if (originMessage.contains("\2476[DEVELOPER]") || originMessage.contains("\2474[ADMIN]") || originMessage.contains("\2474[SERVER]") || originMessage.contains("\2473[PLAYER]")) {
+                String identity = split[0].split("\\[")[1];
+                originMessage = originMessage.replaceFirst(identity, Managers.i18NManager.getTranslation("irc." + identity));
+            }
+            String playerName = Minecraft.getMinecraft().player.getName();
+            originMessage = originMessage.replace("@" + playerName, "\247f@" + playerName + "\2477");
+            TextComponentString text = new TextComponentString("\247b[MIN-IRC]" + originMessage);
+            if (originMessage.contains(":")) {
+                text.getStyle()
+                        .setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "@" + split[1].split(":")[0] + " "))
+                        .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString("\247e@" + originMessage.split(":")[0])));
+                ;
+            }
+            ChatUtil.printToChat(text);
+        } else {
+            TextComponentString text = new TextComponentString("\247b[MIN-IRC]" + originMessage);
+            ChatUtil.printToChat(text);
         }
-        TextComponentString text = new TextComponentString("\247b[MIN-IRC]" + originMessage);
-        ChatUtil.printToChat(text);
     }
 
     public static void reset() {
