@@ -12,6 +12,7 @@ import org.apache.commons.codec.binary.Base32;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.yaml.snakeyaml.Yaml;
+import rip.jnic.nativeobfuscator.Native;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -32,12 +33,16 @@ public class GermModPacket implements CustomPacket {
     public String getChannel() {
         return "germplugin-netease";
     }
-
-    // 什么？你问我为什么取消警告？那你删掉试试。
-    @SuppressWarnings("all")
     @Override
     public void process(ByteBuf byteBuf) {
         PacketBuffer packetBuffer = new PacketBuffer(byteBuf);
+        process(packetBuffer);
+    }
+
+    // 什么？你问我为什么取消警告？那你删掉试试。
+    @SuppressWarnings("all")
+    @Native
+    private void process(PacketBuffer packetBuffer) {
         int packetId = packetBuffer.readInt();
         if (packetId == 73) {
             // Gui

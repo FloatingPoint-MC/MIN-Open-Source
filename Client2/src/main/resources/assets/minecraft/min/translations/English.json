@@ -298,6 +298,8 @@
   "module.implement.StatusDisplay.FPS.description": "Display frames per seconds.",
   "module.implement.StatusDisplay.Ping": "Ping",
   "module.implement.StatusDisplay.Ping.description": "Display the ping to the server.",
+  "module.implement.StatusDisplay.Time": "Time",
+  "module.implement.StatusDisplay.Time.description": "Display the time of your current computer.",
   "module.implement.StatusDisplay.Shadow": "Font Shadow",
   "module.implement.StatusDisplay.Shadow.description": "Whether the texts have shadow.",
   "module.implement.StatusDisplay.Background": "Background",

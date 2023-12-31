@@ -11,6 +11,8 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.network.NetworkPlayerInfo;
 
 import java.awt.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * @projectName: MIN
@@ -20,9 +22,11 @@ import java.awt.*;
 public class StatusDisplay extends RenderModule implements DraggableGameView {
     private final OptionValue fps = new OptionValue(true);
     private final OptionValue ping = new OptionValue(true);
+    private final OptionValue time = new OptionValue(false);
     private final ModeValue alignment = new ModeValue(new String[]{"L", "C", "R"}, "C");
     private final OptionValue shadow = new OptionValue(false);
     private final OptionValue background = new OptionValue(true);
+    private final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
     private int height;
     private boolean drawable;
     private float scale = 1.0f;
@@ -31,6 +35,7 @@ public class StatusDisplay extends RenderModule implements DraggableGameView {
         addValues(
                 new Pair<>("FPS", fps),
                 new Pair<>("Ping", ping),
+                new Pair<>("Time", time),
                 new Pair<>("Alignment", alignment),
                 new Pair<>("Shadow", shadow),
                 new Pair<>("Background", background)
@@ -75,6 +80,16 @@ public class StatusDisplay extends RenderModule implements DraggableGameView {
                 if (info != null) {
                     int ping = info.getResponseTime();
                     drawButton(x, height + y, "Ping: " + ping + "ms");
+                    height += 12;
+                }
+            }
+        }
+        if (time.getValue()) {
+            drawable = true;
+            if (mc.player.connection != null) {
+                NetworkPlayerInfo info = mc.player.connection.getPlayerInfo(mc.player.getUniqueID());
+                if (info != null) {
+                    drawButton(x, height + y, format.format(new Date(System.currentTimeMillis())));
                     height += 20;
                 }
             }

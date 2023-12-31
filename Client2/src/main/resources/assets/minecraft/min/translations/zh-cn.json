@@ -298,6 +298,8 @@
   "module.implement.StatusDisplay.FPS.description": "显示每秒帧率。",
   "module.implement.StatusDisplay.Ping": "Ping",
   "module.implement.StatusDisplay.Ping.description": "显示连接到服务器上的延迟。",
+  "module.implement.StatusDisplay.Time": "时间",
+  "module.implement.StatusDisplay.Time.description": "显示当前计算机的时间。",
   "module.implement.StatusDisplay.Shadow": "字体阴影",
   "module.implement.StatusDisplay.Shadow.description": "让文字有阴影。",
   "module.implement.StatusDisplay.Background": "背景",

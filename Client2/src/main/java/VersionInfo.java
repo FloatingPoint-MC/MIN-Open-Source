@@ -1,3 +1,5 @@
+import javax.annotation.Nonnull;
+
 /**
  * @projectName: MIN
  * @author: vlouboos
@@ -5,7 +7,8 @@
  */
 @SuppressWarnings("unused")
 public class VersionInfo {
+    @Nonnull
     public static String getVersion() {
-        return "2.10.2";
+        return "2.11";
     }
 }

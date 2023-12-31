@@ -6,11 +6,13 @@ import cn.floatingpoint.min.system.ui.client.GuiError;
 import cn.floatingpoint.min.threads.AsyncLoopThread;
 import cn.floatingpoint.min.threads.MouseHandlerThread;
 import net.minecraft.client.Minecraft;
+import rip.jnic.nativeobfuscator.Native;
 
 public class MIN {
-    public static final String VERSION = "2.10.2";
+    public static final String VERSION = "2.11";
     private static final AsyncLoopThread asyncLoopThread = new AsyncLoopThread();
 
+    @Native
     public static void init() {
         Managers.init();
         asyncLoopThread.setName("Asynchronous Loop Thread");
@@ -29,6 +31,7 @@ public class MIN {
         AsyncLoopThread.runnableSet.add(runnable);
     }
 
+    @Native
     public static void checkIfAsyncThreadAlive() {
         if (!asyncLoopThread.isAlive() || asyncLoopThread.isInterrupted() || asyncLoopThread.getState().equals(Thread.State.TERMINATED)) {
             Minecraft.getMinecraft().world.sendQuittingDisconnectingPacket();
