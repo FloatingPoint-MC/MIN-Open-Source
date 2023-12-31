@@ -2,6 +2,7 @@ package net.minecraft.util;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.nio.IntBuffer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -9,6 +10,7 @@ import java.util.Date;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 
+import cn.floatingpoint.min.MIN;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
@@ -71,15 +73,6 @@ public class ScreenShotHelper {
                 minecraft.entityRenderer.updateCameraAndRender(minecraft.getRenderPartialTicks(), System.nanoTime());
             }
 
-            BufferedImage bufferedimage = createScreenshot(width, height, buffer);
-
-            if (flag) {
-                minecraft.getFramebuffer().unbindFramebuffer();
-                GlStateManager.popMatrix();
-                Config.getGameSettings().guiScale = i;
-                resize(width, height);
-            }
-
             File file2;
 
             if (screenshotName == null) {
@@ -89,8 +82,50 @@ public class ScreenShotHelper {
             }
 
             file2 = file2.getCanonicalFile();
+            File finalFile = file2;
 
-            ImageIO.write(bufferedimage, "png", file2);
+            if (OpenGlHelper.isFramebufferEnabled()) {
+                width = buffer.framebufferTextureWidth;
+                height = buffer.framebufferTextureHeight;
+            }
+
+            if (pixelBuffer == null || pixelBuffer.capacity() < width * height) {
+                pixelBuffer = BufferUtils.createIntBuffer(width * height);
+                pixelValues = new int[width * height];
+            }
+
+            GlStateManager.glPixelStorei(3333, 1);
+            GlStateManager.glPixelStorei(3317, 1);
+            pixelBuffer.clear();
+
+            if (OpenGlHelper.isFramebufferEnabled()) {
+                GlStateManager.bindTexture(buffer.framebufferTexture);
+                GlStateManager.glGetTexImage(3553, 0, 32993, 33639, pixelBuffer);
+            } else {
+                GlStateManager.glReadPixels(0, 0, width, height, 32993, 33639, pixelBuffer);
+            }
+
+            pixelBuffer.get(pixelValues);
+            int finalWidth = width;
+            int finalHeight = height;
+            MIN.runAsync(() -> {
+                TextureUtil.processPixelValues(pixelValues, finalWidth, finalHeight);
+                BufferedImage bufferedimage = new BufferedImage(finalWidth, finalHeight, 1);
+                bufferedimage.setRGB(0, 0, finalWidth, finalHeight, pixelValues, 0, finalWidth);
+
+                if (flag) {
+                    minecraft.getFramebuffer().unbindFramebuffer();
+                    GlStateManager.popMatrix();
+                    Config.getGameSettings().guiScale = i;
+                    resize(finalWidth, finalHeight);
+                }
+
+                try {
+                    ImageIO.write(bufferedimage, "png", finalFile);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
             ITextComponent itextcomponent = new TextComponentString(file2.getName());
             itextcomponent.getStyle().setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, file2.getAbsolutePath()));
             itextcomponent.getStyle().setUnderlined(Boolean.TRUE);

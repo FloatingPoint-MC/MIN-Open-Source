@@ -345,6 +345,7 @@
   "irc.ADMIN": "管理员",
   "irc.SERVER": "服务器",
   "irc.PLAYER": "玩家",
+  "update.tip": "\u00A7e发现新的版本\u00A7f{0}\u00A7e,请及时重启游戏更新！",
   "error.first": "虽然我们不愿意在此与您见面，但是Minecraft遇到了一个无法修复的错误。",
   "error.second": "因此，我们不得不打断您的游戏。",
   "error.third": "我们对此深感抱歉，您稍后可以重启游戏并继续游玩。",

@@ -345,6 +345,7 @@
   "irc.ADMIN": "ADMIN",
   "irc.SERVER": "SERVER",
   "irc.PLAYER": "PLAYER",
+  "update.tip": "\u00A7eFound a new version: \u00A7f{0}\u00A7e,please restart game and update at time!",
   "error.first": "It's sad for us to meet you here that Minecraft ran into an unfixable error.",
   "error.second": "Therefore, we're forced to interrupt your game.",
   "error.third": "We feel so sorry about this. You can later relaunch the game and continue playing.",
