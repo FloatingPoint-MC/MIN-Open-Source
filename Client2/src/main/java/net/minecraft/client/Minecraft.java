@@ -2,6 +2,7 @@ package net.minecraft.client;
 
 import cn.floatingpoint.min.MIN;
 import cn.floatingpoint.min.management.Managers;
+import cn.floatingpoint.min.system.boost.EntityCulling;
 import cn.floatingpoint.min.system.hyt.packet.impl.Hyt0Packet;
 import cn.floatingpoint.min.system.hyt.world.HYTChunkExecutor;
 import cn.floatingpoint.min.system.irc.IRCMessageGrabber;
@@ -1077,6 +1078,8 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
             this.profiler.endStartSection("toasts");
             this.toastGui.drawToast(new ScaledResolution(this));
             this.profiler.endSection();
+
+            this.addScheduledTask(EntityCulling::check);
         }
 
         this.profiler.endSection();
@@ -1762,6 +1765,9 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
         }
 
         this.profiler.endSection();
+
+        EntityCulling.tick();
+
         this.systemTime = getSystemTime();
     }
 

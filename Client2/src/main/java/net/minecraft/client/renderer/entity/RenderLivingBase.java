@@ -1,6 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
 import cn.floatingpoint.min.management.Managers;
+import cn.floatingpoint.min.system.boost.EntityCulling;
 import cn.floatingpoint.min.system.module.impl.render.impl.Animation;
 import cn.floatingpoint.min.system.module.impl.render.impl.Headless;
 import cn.floatingpoint.min.system.module.impl.render.impl.Spinning;
@@ -93,6 +94,7 @@ public abstract class RenderLivingBase<T extends EntityLivingBase> extends Rende
      * Renders the desired {@code T} type Entity.
      */
     public void doRender(T entity, double x, double y, double z, float entityYaw, float partialTicks) {
+        if (EntityCulling.shouldCancelRenderEntity(entity)) return;
         if (animateModelLiving) {
             entity.limbSwingAmount = 1.0F;
         }

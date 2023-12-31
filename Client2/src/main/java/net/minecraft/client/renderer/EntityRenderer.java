@@ -1,6 +1,7 @@
 package net.minecraft.client.renderer;
 
 import cn.floatingpoint.min.management.Managers;
+import cn.floatingpoint.min.system.boost.EntityCulling;
 import cn.floatingpoint.min.system.module.Module;
 import cn.floatingpoint.min.system.module.impl.render.RenderModule;
 import cn.floatingpoint.min.system.module.impl.render.impl.FreeLook;
@@ -1445,7 +1446,9 @@ public class EntityRenderer implements IResourceManagerReloadListener {
         GlStateManager.pushMatrix();
         RenderHelper.enableStandardItemLighting();
         this.mc.profiler.endStartSection("entities");
+        EntityCulling.shouldPerformCulling = true;
         renderglobal.renderEntities(entity, icamera, partialTicks);
+        EntityCulling.shouldPerformCulling = false;
         RenderHelper.disableStandardItemLighting();
         this.disableLightmap();
 

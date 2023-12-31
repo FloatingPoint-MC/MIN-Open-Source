@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.Random;
 
 import cn.floatingpoint.min.management.Managers;
+import cn.floatingpoint.min.system.boost.EntityCulling;
 import cn.floatingpoint.min.system.module.impl.render.impl.ItemPhysics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -34,7 +35,6 @@ public class RenderEntityItem extends Render<EntityItem> {
         ItemStack itemstack = itemIn.getItem();
         Item item = itemstack.getItem();
 
-        assert Blocks.AIR != null;
         if (item == Item.getItemFromBlock(Blocks.AIR)) {
             return 0;
         } else {
@@ -78,6 +78,7 @@ public class RenderEntityItem extends Render<EntityItem> {
      * Renders the desired {@code T} type Entity.
      */
     public void doRender(EntityItem entity, double x, double y, double z, float entityYaw, float partialTicks) {
+        if (EntityCulling.shouldCancelRenderItem(entity)) return;
         ItemStack itemstack = entity.getItem();
         int i = itemstack.isEmpty() ? 187 : Item.getIdFromItem(itemstack.getItem()) + itemstack.getMetadata();
         this.random.setSeed(i);
