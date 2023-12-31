@@ -2,6 +2,9 @@ package cn.floatingpoint.min.system.module.value.impl;
 
 import cn.floatingpoint.min.system.module.value.Value;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Supplier;
 
 public class ModeValue extends Value<String> {
@@ -33,6 +36,13 @@ public class ModeValue extends Value<String> {
         }
         if (found) {
             setValue(modes[0]);
+        }
+    }
+
+    @Override
+    public void setValue(String value) {
+        if (new ArrayList<>(List.of(modes)).contains(value)) {
+            super.setValue(value);
         }
     }
 

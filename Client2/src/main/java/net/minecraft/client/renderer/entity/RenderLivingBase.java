@@ -110,8 +110,7 @@ public abstract class RenderLivingBase<T extends EntityLivingBase> extends Rende
             float f1 = this.interpolateRotation(entity.prevRotationYawHead, entity.rotationYawHead, partialTicks);
             float f2 = f1 - f;
 
-            if (this.mainModel.isRiding && entity.getRidingEntity() instanceof EntityLivingBase) {
-                EntityLivingBase entitylivingbase = (EntityLivingBase) entity.getRidingEntity();
+            if (this.mainModel.isRiding && entity.getRidingEntity() instanceof EntityLivingBase entitylivingbase) {
                 f = this.interpolateRotation(entitylivingbase.prevRenderYawOffset, entitylivingbase.renderYawOffset, partialTicks);
                 f2 = f1 - f;
                 float f3 = MathHelper.wrapDegrees(f2);

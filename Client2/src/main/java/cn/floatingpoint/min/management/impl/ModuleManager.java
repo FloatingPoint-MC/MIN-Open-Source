@@ -68,6 +68,7 @@ public class ModuleManager implements Manager {
         renderModules.put("Headless", new Headless());
         renderModules.put("ItemPhysics", new ItemPhysics());
         renderModules.put("KeyStrokes", new KeyStrokes());
+        renderModules.put("KillEffect", new KillEffect());
         renderModules.put("MinimizedBobbing", new MinimizedBobbing());
         renderModules.put("MotionBlur", new MotionBlur());
         renderModules.put("NameProtect", new NameProtect());

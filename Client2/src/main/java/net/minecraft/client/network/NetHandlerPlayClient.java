@@ -4,6 +4,7 @@ import cn.floatingpoint.min.management.Managers;
 import cn.floatingpoint.min.system.hyt.packet.CustomPacket;
 import cn.floatingpoint.min.system.hyt.packet.impl.Hyt0Packet;
 import cn.floatingpoint.min.system.module.impl.misc.impl.AutoText;
+import cn.floatingpoint.min.system.module.impl.render.impl.KillEffect;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -19,6 +20,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 
@@ -799,6 +801,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
     public void handleChat(SPacketChat packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
         String text = packetIn.getChatComponent().getUnformattedText();
+        // AutoText
         if (Managers.moduleManager.miscModules.get("AutoText").isEnabled()) {
             if (AutoText.whenToSend.isCurrentMode("End")) {
                 if (text.equals("花雨庭>> You lost the fight.")) {
@@ -810,6 +813,10 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
             if (text.equals("花雨庭>> You won the fight!")) {
                 AutoText.timeToSendGG = true;
             }
+        }
+        // Kill Effect
+        if (this.client.player != null && Managers.moduleManager.renderModules.get("KillEffect").isEnabled()) {
+            KillEffect.makeEffect(Pattern.compile(this.client.player.getName() + "\\[❤.*] \\(.?之队\\)杀死了 (.*?)\\(").matcher(text));
         }
         this.client.ingameGUI.addChatMessage(packetIn.getType(), packetIn.getChatComponent());
     }
