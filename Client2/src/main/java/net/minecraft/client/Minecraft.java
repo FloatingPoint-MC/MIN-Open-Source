@@ -425,7 +425,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
      */
     private String debugProfilerName = "root";
 
-    public static final boolean DEBUG_MODE = true;
+    public static final boolean DEBUG_MODE = false;
     public GuiMainMenu mainMenu;
 
     public Minecraft(GameConfiguration gameConfig) {
