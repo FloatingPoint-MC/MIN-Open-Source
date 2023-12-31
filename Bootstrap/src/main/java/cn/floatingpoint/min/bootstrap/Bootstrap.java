@@ -174,14 +174,14 @@ public class Bootstrap extends JFrame {
         //        System.exit(0);
         //    }
         //}
-        System.out.println(getSha1ByFile(new File(this.dir, "Client2-2.10.1.jar")));
+        System.out.println(getSha1ByFile(new File(this.dir, "Client2-2.10.2.jar")));
         this.launchGame(args);
     }
 
     private void launchGame(String[] args) {
         label.setText("                  Launching client...                  ");
         progressBar.setVisible(false);
-        File jar = new File(this.dir, "Client2-2.10.1.jar");
+        File jar = new File(this.dir, "Client2-2.10.2.jar");
         try (URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{jar.toURI().toURL()})) {
             Class<?> launcherClass = urlClassLoader.loadClass("cn.floatingpoint.min.launcher.Launcher");
             Method launchMethod = launcherClass.getMethod("launch", String[].class);

@@ -65,7 +65,7 @@ public class MINMainMenu extends GuiMainMenu {
         String s = "MIN Client(Minecraft 1.12.2)";
         s = s + ("release".equalsIgnoreCase(mc.getVersionType()) ? "" : "/" + mc.getVersionType());
 
-        Managers.fontManager.sourceHansSansCN_Regular_20.drawString("Version: " + MIN.VERSION + "(Released on 2023/12/30)", 2, 2, -1);
+        Managers.fontManager.sourceHansSansCN_Regular_20.drawString("Version: " + MIN.VERSION + "(Released on 2023/12/31)", 2, 2, -1);
 
         Managers.fontManager.sourceHansSansCN_Regular_20.drawString(s, 2, height - 10, -1);
         Managers.fontManager.sourceHansSansCN_Regular_20.drawString("Copyright Mojang AB. Addons by FloatingPoint-MC!", widthCopyrightRest, height - 10, -1);
