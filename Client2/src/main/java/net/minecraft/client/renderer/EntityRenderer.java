@@ -234,7 +234,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
     private boolean loadVisibleChunks = false;
     private float screenScale = -1;
     private float screenScale2 = -1;
-    private float eyeHeight, prevEyeHeight, eyeHeightAnimation;
+    private float eyeHeight = -1, prevEyeHeight, eyeHeightAnimation;
 
     public EntityRenderer(Minecraft mcIn, IResourceManager resourceManagerIn) {
         this.shaderIndex = SHADER_COUNT;
@@ -731,9 +731,12 @@ public class EntityRenderer implements IResourceManagerReloadListener {
             GlStateManager.translate(0.0F, 0.0F, Managers.moduleManager.renderModules.get("FurtherCamera").isEnabled() ? -0.1F : 0.05F);
         }
 
-        if (eyeHeight != -f) {
+        if (eyeHeight == -1) {
+            eyeHeight = f;
+            prevEyeHeight = f;
+        } else if (eyeHeight != f) {
             prevEyeHeight = eyeHeight;
-            eyeHeight = -f;
+            eyeHeight = f;
         }
 
         if (!this.mc.gameSettings.debugCamEnable) {
@@ -748,12 +751,14 @@ public class EntityRenderer implements IResourceManagerReloadListener {
         }
 
         if (Animation.sneakAnimation.getValue()) {
-            eyeHeightAnimation = FunctionUtil.decreasedSpeed(eyeHeightAnimation, prevEyeHeight, -f, 0.01f);
+            if (eyeHeightAnimation != f) {
+                eyeHeightAnimation = FunctionUtil.increasedSpeed(eyeHeightAnimation, prevEyeHeight, f, 0.00625f);
+            }
         } else {
-            eyeHeightAnimation = -f;
+            eyeHeightAnimation = f;
         }
 
-        GlStateManager.translate(0.0F, eyeHeightAnimation, 0.0F);
+        GlStateManager.translate(0.0F, -eyeHeightAnimation, 0.0F);
     }
 
     /**

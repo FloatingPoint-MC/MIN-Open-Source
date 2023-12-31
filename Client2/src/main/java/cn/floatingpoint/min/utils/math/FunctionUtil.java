@@ -2,6 +2,8 @@ package cn.floatingpoint.min.utils.math;
 
 public class FunctionUtil {
     public static float increasedSpeed(float current, float start, float target, float speed) {
+        if (current < start) return start;
+        if (current > target) return target;
         float k = speed / (target - start);
         return current + (k * (current - start) + speed) * (start > target ? -1 : 1);
     }
