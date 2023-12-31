@@ -82,6 +82,7 @@ public class GermModPacket implements CustomPacket {
                                         if (buttonText.isEmpty()) continue;
                                         buttons.add(new GermModButton("自适应背景$主分类$" + k1, buttonText) {
                                             @Override
+                                            @Native
                                             protected void whenClick() {
                                                 mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
                                                         new PacketBuffer(Unpooled.buffer()
@@ -216,6 +217,7 @@ public class GermModPacket implements CustomPacket {
                             int finalI = i;
                             buttons.add(new GermModButton("自适应背景$细分分类$游戏" + finalI, name) {
                                 @Override
+                                @Native
                                 protected void whenClick() {
                                     mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
                                             new PacketBuffer(Unpooled.buffer()
