@@ -231,7 +231,7 @@ public class GermModPacket implements CustomPacket {
                 }
             }
         } else {
-            if (Minecraft.DEBUG_MODE) {
+            if (Minecraft.DEBUG_MODE()) {
                 int size = packetBuffer.readableBytes();
                 if (size > 0) {
                     System.out.println("Unknown packet id: " + packetId + ", size=" + size);

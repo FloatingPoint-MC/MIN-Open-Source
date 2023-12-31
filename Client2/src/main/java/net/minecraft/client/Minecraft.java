@@ -192,6 +192,7 @@ import org.lwjglx.opengl.Display;
 import org.lwjglx.opengl.DisplayMode;
 import org.lwjglx.opengl.GLContext;
 import org.lwjglx.util.glu.GLU;
+import rip.jnic.nativeobfuscator.Native;
 
 public class Minecraft implements IThreadListener, ISnooperInfo {
     private static final Logger LOGGER = LogManager.getLogger();
@@ -424,8 +425,6 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
      * Profiler currently displayed in the debug screen pie chart
      */
     private String debugProfilerName = "root";
-
-    public static final boolean DEBUG_MODE = false;
     public GuiMainMenu mainMenu;
 
     public Minecraft(GameConfiguration gameConfig) {
@@ -591,16 +590,12 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
         this.checkGLError("Post startup");
         this.ingameGUI = new GuiIngame(this);
 
-        if (DEBUG_MODE) {
-            this.mainMenu = new DebugMainMenu();
-        } else {
-            this.mainMenu = new MINMainMenu();
-        }
+        setMainMenu();
 
         if (this.serverName != null) {
             this.displayGuiScreen(new GuiDamnJapaneseAction(new GuiConnecting(this.mainMenu, this, this.serverName, this.serverPort)));
         } else {
-            if (!DEBUG_MODE) {
+            if (!DEBUG_MODE()) {
                 this.displayGuiScreen(new GuiLoading());
             } else {
                 this.displayGuiScreen(this.mainMenu);
@@ -619,6 +614,15 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
 
         this.renderGlobal.makeEntityOutlineShader();
         MIN.init();
+    }
+
+    @Native
+    private void setMainMenu() {
+        if (DEBUG_MODE()) {
+            this.mainMenu = new DebugMainMenu();
+        } else {
+            this.mainMenu = new MINMainMenu();
+        }
     }
 
     /**
@@ -662,7 +666,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
     }
 
     private void createDisplay() {
-        if (DEBUG_MODE) {
+        if (DEBUG_MODE()) {
             Display.setTitle("MIN Client(Minecraft 1.12.2) - DEBUG MODE");
         } else {
             Display.setTitle("MIN Client(Minecraft 1.12.2) - Release " + MIN.VERSION);
@@ -1721,7 +1725,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
             this.soundHandler.update();
         }
 
-        if (!DEBUG_MODE && player != null && player.ticksExisted > 10) {
+        if (!DEBUG_MODE() && player != null && player.ticksExisted > 10) {
             if (!Hyt0Packet.loadChunk) {
                 world.sendQuittingDisconnectingPacket();
                 player.connection.onDisconnect(new TextComponentString("\247c请进入花雨庭服务器!"));
@@ -2961,4 +2965,9 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
     public DefaultResourcePack getDefaultResourcePack() {
         return defaultResourcePack;
     }
+
+    @Native
+    public static boolean DEBUG_MODE() {
+        return true;
+    };
 }

@@ -96,7 +96,7 @@ public class ModuleManager implements Manager {
                 }
             }
         } catch (Exception e) {
-            if (Minecraft.DEBUG_MODE) {
+            if (Minecraft.DEBUG_MODE()) {
                 e.printStackTrace();
             }
         }
@@ -128,7 +128,7 @@ public class ModuleManager implements Manager {
                 }
             }
         } catch (Exception e) {
-            if (Minecraft.DEBUG_MODE) {
+            if (Minecraft.DEBUG_MODE()) {
                 e.printStackTrace();
             }
         }

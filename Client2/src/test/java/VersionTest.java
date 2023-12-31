@@ -1,9 +1,10 @@
 import cn.floatingpoint.min.MIN;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class VersionTest {
-    public static void main(String[] args) {
-        if (!VersionInfo.getVersion().equals(MIN.VERSION)) {
-            System.exit(-1);
-        }
+    @Test
+    public void testVersion() {
+        Assert.assertEquals(VersionInfo.getVersion(), MIN.VERSION);
     }
 }
