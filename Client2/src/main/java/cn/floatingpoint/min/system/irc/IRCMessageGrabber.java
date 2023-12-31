@@ -6,7 +6,6 @@ import cn.floatingpoint.min.runnable.Runnable;
 import cn.floatingpoint.min.utils.client.ChatUtil;
 import cn.floatingpoint.min.utils.client.WebUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
@@ -91,7 +90,6 @@ public class IRCMessageGrabber {
                 text.getStyle()
                         .setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "@" + split[1].split(":")[0] + " "))
                         .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString("\247e@" + originMessage.split(":")[0])));
-                ;
             }
             ChatUtil.printToChat(text);
         } else {
