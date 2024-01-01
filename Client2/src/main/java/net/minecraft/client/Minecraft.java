@@ -53,6 +53,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 
+import me.konago.nativeobfuscator.Native;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -192,7 +193,6 @@ import org.lwjglx.opengl.Display;
 import org.lwjglx.opengl.DisplayMode;
 import org.lwjglx.opengl.GLContext;
 import org.lwjglx.util.glu.GLU;
-import rip.jnic.nativeobfuscator.Native;
 
 public class Minecraft implements IThreadListener, ISnooperInfo {
     private static final Logger LOGGER = LogManager.getLogger();
@@ -2968,6 +2968,6 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
 
     @Native
     public static boolean DEBUG_MODE() {
-        return true;
-    };
+        return false;
+    }
 }

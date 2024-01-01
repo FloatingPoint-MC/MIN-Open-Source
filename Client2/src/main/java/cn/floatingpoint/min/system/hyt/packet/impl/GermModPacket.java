@@ -5,6 +5,7 @@ import cn.floatingpoint.min.system.ui.hyt.germ.GermModButton;
 import cn.floatingpoint.min.system.ui.hyt.germ.GuiButtonPage;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import me.konago.nativeobfuscator.Native;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.CPacketCustomPayload;
@@ -12,7 +13,6 @@ import org.apache.commons.codec.binary.Base32;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.yaml.snakeyaml.Yaml;
-import rip.jnic.nativeobfuscator.Native;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;

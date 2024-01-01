@@ -240,7 +240,7 @@
             <artifactId>myj2c</artifactId>
             <version>1.0</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/libs/MyJ2C.jar</systemPath>
+            <systemPath>${project.basedir}/libs/annotations.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

@@ -6,10 +6,10 @@ import cn.floatingpoint.min.runnable.Runnable;
 import cn.floatingpoint.min.utils.client.ChatUtil;
 import cn.floatingpoint.min.utils.client.WebUtil;
 import cn.floatingpoint.min.utils.math.TimeHelper;
+import me.konago.nativeobfuscator.Native;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.text.TextComponentString;
 import org.json.JSONObject;
-import rip.jnic.nativeobfuscator.Native;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

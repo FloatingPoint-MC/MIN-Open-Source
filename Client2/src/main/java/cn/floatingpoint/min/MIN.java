@@ -5,8 +5,8 @@ import cn.floatingpoint.min.runnable.Runnable;
 import cn.floatingpoint.min.system.ui.client.GuiError;
 import cn.floatingpoint.min.threads.AsyncLoopThread;
 import cn.floatingpoint.min.threads.MouseHandlerThread;
+import me.konago.nativeobfuscator.Native;
 import net.minecraft.client.Minecraft;
-import rip.jnic.nativeobfuscator.Native;
 
 public class MIN {
     public static final String VERSION = "2.11";

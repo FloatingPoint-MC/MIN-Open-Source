@@ -83,6 +83,9 @@ public class StatusDisplay extends RenderModule implements DraggableGameView {
                     height += 12;
                 }
             }
+            if (background.getValue()) {
+                height += 12;
+            }
         }
         if (time.getValue()) {
             drawable = true;
