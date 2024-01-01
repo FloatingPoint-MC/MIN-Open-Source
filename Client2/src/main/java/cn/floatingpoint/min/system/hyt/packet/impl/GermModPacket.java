@@ -80,22 +80,7 @@ public class GermModPacket implements CustomPacket {
                                                     default -> "";
                                                 };
                                         if (buttonText.isEmpty()) continue;
-                                        buttons.add(new GermModButton("自适应背景$主分类$" + k1, buttonText) {
-                                            @Override
-                                            @Native
-                                            protected void whenClick() {
-                                                mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
-                                                        new PacketBuffer(Unpooled.buffer()
-                                                                .writeInt(26))
-                                                                .writeString("GUI$mainmenu@subject/" + k1.substring(8))
-                                                                .writeString("{\"click\":\"1\"}")));
-                                            }
-
-                                            @Override
-                                            protected boolean doesCloseOnClickButton() {
-                                                return false;
-                                            }
-                                        });
+                                        buttons.add(new GameButton("自适应背景$主分类$" + k1, buttonText, k1));
                                     }
                                     mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
                                             new PacketBuffer(Unpooled.buffer()
@@ -169,7 +154,7 @@ public class GermModPacket implements CustomPacket {
                 PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
                 buffer.writeInt(16);
                 buffer.writeString("3.4.2");
-                buffer.writeString(Base64.getEncoder().encodeToString(encode("花雨庭你为什么要获取我们的计算器信息？").replace("\r\n", "").getBytes(StandardCharsets.UTF_8)));
+                buffer.writeString(Base64.getEncoder().encodeToString(encode("花雨庭你为什么要获取我们的计算机信息？").replace("\r\n", "").getBytes(StandardCharsets.UTF_8)));
                 mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease", buffer));
                 shouldSend = false;
             }
@@ -215,18 +200,7 @@ public class GermModPacket implements CustomPacket {
                             String sid = jsonObject.getString("sid");
                             String name = jsonObject.getString("name").replace("&e&l", "");
                             int finalI = i;
-                            buttons.add(new GermModButton("自适应背景$细分分类$游戏" + finalI, name) {
-                                @Override
-                                @Native
-                                protected void whenClick() {
-                                    mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
-                                            new PacketBuffer(Unpooled.buffer()
-                                                    .writeInt(26))
-                                                    .writeString("GUI$mainmenu@entry/" + finalI)
-                                                    .writeString("{\"entry\":" + finalI + ",\"sid\":\"" + sid + "\"}")
-                                    ));
-                                }
-                            });
+                            buttons.add(new DetailedGameButton("自适应背景$细分分类$游戏" + finalI, name, finalI, sid));
                         }
                     }
                     mc.displayGuiScreen(new GuiButtonPage("mainmenu", buttons));

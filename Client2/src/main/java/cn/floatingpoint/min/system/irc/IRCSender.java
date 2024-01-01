@@ -6,7 +6,6 @@ import cn.floatingpoint.min.runnable.Runnable;
 import cn.floatingpoint.min.utils.client.ChatUtil;
 import cn.floatingpoint.min.utils.client.WebUtil;
 import cn.floatingpoint.min.utils.math.TimeHelper;
-import me.konago.nativeobfuscator.Native;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.text.TextComponentString;
 import org.json.JSONObject;
@@ -25,7 +24,6 @@ public class IRCSender {
     private static final TimeHelper timer = new TimeHelper();
     private static final Minecraft mc = Minecraft.getMinecraft();
 
-    @Native
     public static void sendMessage(String message) {
         if (!IRCMessageGrabber.enabled.get()) {
             TextComponentString textComponents = new TextComponentString("\247b[MIN-IRC] \247cIRC未连接！");
