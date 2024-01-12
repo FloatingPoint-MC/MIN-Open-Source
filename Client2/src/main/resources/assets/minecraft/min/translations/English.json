@@ -357,5 +357,15 @@
   "error.first": "It's sad for us to meet you here that Minecraft ran into an unfixable error.",
   "error.second": "Therefore, we're forced to interrupt your game.",
   "error.third": "We feel so sorry about this. You can later relaunch the game and continue playing.",
-  "error.exit": "Exit Game"
+  "error.exit": "Exit Game",
+  "login.title": "Authentication",
+  "login.username": "Username",
+  "login.password": "Password",
+  "login.confirm": "Confirm Password",
+  "login.remember": "Remember password",
+  "login.login": "Login",
+  "login.register.to": "Don't have an account? Register here.",
+  "login.register.do": "Register",
+  "login.idle": "Idle...",
+  "login.registration": "Registration"
 }

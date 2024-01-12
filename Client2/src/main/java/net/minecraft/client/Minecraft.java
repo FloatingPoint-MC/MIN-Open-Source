@@ -5,7 +5,9 @@ import cn.floatingpoint.min.management.Managers;
 import cn.floatingpoint.min.system.boost.EntityCulling;
 import cn.floatingpoint.min.system.hyt.packet.impl.Hyt0Packet;
 import cn.floatingpoint.min.system.hyt.world.HYTChunkExecutor;
-import cn.floatingpoint.min.system.irc.IRCMessageGrabber;
+import cn.floatingpoint.min.system.irc.GuiLogin;
+import cn.floatingpoint.min.system.irc.IRCClient;
+import cn.floatingpoint.min.system.irc.packet.impl.CPacketJoinServer;
 import cn.floatingpoint.min.system.module.Module;
 import cn.floatingpoint.min.system.module.impl.boost.BoostModule;
 import cn.floatingpoint.min.system.module.impl.misc.MiscModule;
@@ -591,14 +593,15 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
         this.ingameGUI = new GuiIngame(this);
 
         setMainMenu();
+        MIN.init();
 
         if (this.serverName != null) {
-            this.displayGuiScreen(new GuiDamnJapaneseAction(new GuiConnecting(this.mainMenu, this, this.serverName, this.serverPort)));
+            this.displayGuiScreen(new GuiDamnJapaneseAction(new GuiLogin(new GuiConnecting(this.mainMenu, this, this.serverName, this.serverPort))));
         } else {
             if (!DEBUG_MODE()) {
                 this.displayGuiScreen(new GuiLoading());
             } else {
-                this.displayGuiScreen(this.mainMenu);
+                this.displayGuiScreen(new GuiLogin());
             }
         }
         this.renderEngine.deleteTexture(this.mojangLogo);
@@ -613,7 +616,6 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
         Display.setVSyncEnabled(this.gameSettings.enableVsync);
 
         this.renderGlobal.makeEntityOutlineShader();
-        MIN.init();
     }
 
     @Native
@@ -1596,6 +1598,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
                 MIN.runAsync(Managers.fileManager::saveConfig);
                 MIN.runAsync(() -> {
                     if (this.player != null) {
+                        IRCClient.getInstance().addToSendQueue(new CPacketJoinServer(player.getUniqueID()));
                         try {
                             JSONObject json = WebUtil.getJSONFromPost("https://minserver.vlouboos.repl.co/online/activate?username=" + this.player.getName() + "&uuid=" + this.player.getUniqueID());
                             String version = json.getString("version");
@@ -1608,12 +1611,8 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
                     }
                 });
             }
-            if (this.player.ticksExisted == 5) {
-                IRCMessageGrabber.reset();
-            }
             if (this.player.ticksExisted % 60 == 0) {
                 MIN.checkIfAsyncThreadAlive();
-                IRCMessageGrabber.grabMessage();
             }
         }
 
@@ -2968,6 +2967,6 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
 
     @Native
     public static boolean DEBUG_MODE() {
-        return false;
+        return true;
     }
 }

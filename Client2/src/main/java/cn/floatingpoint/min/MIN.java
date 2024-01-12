@@ -2,6 +2,7 @@ package cn.floatingpoint.min;
 
 import cn.floatingpoint.min.management.Managers;
 import cn.floatingpoint.min.runnable.Runnable;
+import cn.floatingpoint.min.system.irc.IRCClient;
 import cn.floatingpoint.min.system.ui.client.GuiError;
 import cn.floatingpoint.min.threads.AsyncLoopThread;
 import cn.floatingpoint.min.threads.MouseHandlerThread;
@@ -21,6 +22,7 @@ public class MIN {
         MouseHandlerThread mouseHandlerThread = new MouseHandlerThread();
         mouseHandlerThread.setName("Mouse Handler Thread");
         mouseHandlerThread.start();
+        new IRCClient();
     }
 
     public static void stop() {

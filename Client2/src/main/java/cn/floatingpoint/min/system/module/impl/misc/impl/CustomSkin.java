@@ -80,12 +80,6 @@ public class CustomSkin extends MiscModule {
                                     }
                                 }, false);
                             }
-                            json = WebUtil.getJSONFromPost("https://minserver.vlouboos.repl.co/online/get?username=" + mc.player.getName());
-                            int id = json.getInt("code");
-                            if (id == 0) {
-                                String raw = json.getString("uuid");
-                                Managers.clientManager.clientMateUuids.put(PlayerUtil.formUUID(raw), id);
-                            }
                         } catch (Exception ignored) {
                         }
                     });

@@ -3,6 +3,7 @@ package cn.floatingpoint.min.system.ui.hyt.germ;
 import cn.floatingpoint.min.management.Managers;
 import cn.floatingpoint.min.utils.render.RenderUtil;
 import io.netty.buffer.Unpooled;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.network.PacketBuffer;
@@ -26,7 +27,7 @@ public class GuiButtonPage extends GuiScreen {
     public GuiButtonPage(String uuid, ArrayList<GermModButton> germModButtons) {
         this.uuid = uuid;
         if (germModButtons.isEmpty()) {
-            mc.displayGuiScreen(null);
+            Minecraft.getMinecraft().displayGuiScreen(null);
             return;
         }
         buttons.addAll(germModButtons);

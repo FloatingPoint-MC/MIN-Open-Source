@@ -2,7 +2,6 @@ package cn.floatingpoint.min.system.hyt.packet.impl;
 
 import cn.floatingpoint.min.system.ui.hyt.germ.GermModButton;
 import io.netty.buffer.Unpooled;
-import me.konago.nativeobfuscator.Native;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.CPacketCustomPayload;
@@ -17,9 +16,7 @@ public class DetailedGameButton extends GermModButton {
         this.sid = sid;
     }
 
-
     @Override
-    @Native
     protected void whenClick() {
         Minecraft.getMinecraft().player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
                 new PacketBuffer(Unpooled.buffer()

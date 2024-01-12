@@ -1,6 +1,7 @@
 package cn.floatingpoint.min.system.ui.loading;
 
 import cn.floatingpoint.min.management.Managers;
+import cn.floatingpoint.min.system.irc.GuiLogin;
 import cn.floatingpoint.min.system.module.Category;
 import cn.floatingpoint.min.utils.math.FunctionUtil;
 import cn.floatingpoint.min.utils.render.RenderUtil;
@@ -84,7 +85,7 @@ public class GuiTutorial extends GuiScreen {
                     background -= 5;
                 }
                 if (background == 0) {
-                    mc.displayGuiScreen(new GuiDamnJapaneseAction(mc.mainMenu));
+                    mc.displayGuiScreen(new GuiDamnJapaneseAction(new GuiLogin()));
                 }
             }
         }

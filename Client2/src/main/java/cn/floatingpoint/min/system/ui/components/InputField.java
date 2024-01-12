@@ -1,7 +1,6 @@
 package cn.floatingpoint.min.system.ui.components;
 
 import cn.floatingpoint.min.management.Managers;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -55,12 +54,24 @@ public class InputField {
      * True if this textbox is visible
      */
     private boolean visible = true;
+    private final boolean hidden;
+    private char replacedChar;
 
     public InputField(int x, int y, int width, int height) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
+        hidden = false;
+    }
+
+    public InputField(int x, int y, int width, int height, char replacedChar) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.replacedChar = replacedChar;
+        hidden = true;
     }
 
     /**
@@ -393,6 +404,9 @@ public class InputField {
             int j = this.cursorPosition - this.lineScrollOffset;
             int k = this.selectionEnd - this.lineScrollOffset;
             String s = Managers.fontManager.sourceHansSansCN_Regular_18.trimStringToWidth(this.text.substring(this.lineScrollOffset), this.getWidth());
+            if (hidden) {
+                s = s.replaceAll(".", String.valueOf(replacedChar));
+            }
             boolean flag = j >= 0 && j <= s.length();
             boolean showCursor = this.isFocused && this.cursorCounter / 10 % 2 == 0 && flag;
             int l = this.x + 4;
@@ -585,5 +599,13 @@ public class InputField {
      */
     public void setVisible(boolean isVisible) {
         this.visible = isVisible;
+    }
+
+    public boolean isFocused() {
+        return isFocused;
+    }
+
+    public boolean isHidden() {
+        return hidden;
     }
 }

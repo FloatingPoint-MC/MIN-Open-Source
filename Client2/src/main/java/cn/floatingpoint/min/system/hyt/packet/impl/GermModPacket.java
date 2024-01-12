@@ -33,6 +33,7 @@ public class GermModPacket implements CustomPacket {
     public String getChannel() {
         return "germplugin-netease";
     }
+
     @Override
     public void process(ByteBuf byteBuf) {
         PacketBuffer packetBuffer = new PacketBuffer(byteBuf);
@@ -41,7 +42,6 @@ public class GermModPacket implements CustomPacket {
 
     // 什么？你问我为什么取消警告？那你删掉试试。
     @SuppressWarnings("all")
-    @Native
     private void process(PacketBuffer packetBuffer) {
         int packetId = packetBuffer.readInt();
         if (packetId == 73) {
@@ -57,7 +57,6 @@ public class GermModPacket implements CustomPacket {
                 lastScreen = guiUuid;
                 objectMap = (Map<String, Object>) objectMap.get(guiUuid);
                 if (objectMap == null) return;
-                ArrayList<GermModButton> buttons = new ArrayList<>();
                 for (String key : objectMap.keySet()) {
                     if (key.equalsIgnoreCase("options") || key.endsWith("_bg")) continue;
                     Map<String, Object> context = (Map<String, Object>) objectMap.get(key);
@@ -68,62 +67,15 @@ public class GermModPacket implements CustomPacket {
                                 context = (Map<String, Object>) context.get("主分类");
                                 if (context.containsKey("relativeParts")) {
                                     context = (Map<String, Object>) context.get("relativeParts");
-                                    for (String k1 : context.keySet()) {
-                                        String buttonText =
-                                                switch (k1) {
-                                                    case "subject_bedwar" -> "起床战争";
-                                                    case "subject_skywar" -> "空岛战争";
-                                                    case "subject_leisure" -> "休闲游戏";
-                                                    case "subject_fight" -> "竞技游戏";
-                                                    case "subject_survive" -> "生存";
-                                                    case "subject_fight_team" -> "战争";
-                                                    default -> "";
-                                                };
-                                        if (buttonText.isEmpty()) continue;
-                                        buttons.add(new GameButton("自适应背景$主分类$" + k1, buttonText, k1));
+                                    ArrayList<GermModButton> buttons = openGui(context.keySet(), guiUuid);
+                                    if (!buttons.isEmpty()) {
+                                        mc.displayGuiScreen(new GuiButtonPage(guiUuid, buttons));
                                     }
-                                    mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
-                                            new PacketBuffer(Unpooled.buffer()
-                                                    .writeInt(4)
-                                                    .writeInt(0)
-                                                    .writeInt(0))
-                                                    .writeString(guiUuid)
-                                                    .writeString(guiUuid)
-                                                    .writeString(guiUuid)
-                                    ));
-                                    mc.displayGuiScreen(new GuiButtonPage(guiUuid, buttons));
                                 }
                             }
                         }
                     } else {
-                        for (String k : context.keySet()) {
-                            if (!k.equalsIgnoreCase("scrollableParts")) continue;
-                            context = (Map<String, Object>) context.get("scrollableParts");
-                            for (String uuid : context.keySet()) {
-                                Map<String, Object> scrollableSubMap = (Map<String, Object>) context.get(uuid);
-                                if (scrollableSubMap.containsKey("relativeParts")) {
-                                    scrollableSubMap = (Map<String, Object>) scrollableSubMap.get("relativeParts");
-                                    for (String k1 : scrollableSubMap.keySet()) {
-                                        scrollableSubMap = (Map<String, Object>) scrollableSubMap.get(k1);
-                                        if (scrollableSubMap.containsKey("texts")) {
-                                            String buttonText = ((ArrayList<String>) scrollableSubMap.get("texts")).get(0);
-                                            buttons.add(new GermModButton(key + "$" + uuid + "$" + k1, buttonText));
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
-                                new PacketBuffer(Unpooled.buffer()
-                                        .writeInt(4)
-                                        .writeInt(0)
-                                        .writeInt(0))
-                                        .writeString(guiUuid)
-                                        .writeString(guiUuid)
-                                        .writeString(guiUuid)
-                        ));
-                        mc.displayGuiScreen(new GuiButtonPage(guiUuid, buttons));
+                        openOldGui(context, key, guiUuid);
                         return;
                     }
                 }
@@ -160,7 +112,7 @@ public class GermModPacket implements CustomPacket {
             }
         } else if (packetId == -1) {
             // Game Menu
-            // Divide an byte array to multiple byte-array-packets
+            // Divide a byte array to multiple byte-array-packets
             boolean start = packetBuffer.readBoolean();
             int length = packetBuffer.readInt();
             boolean end = packetBuffer.readBoolean();
@@ -187,23 +139,7 @@ public class GermModPacket implements CustomPacket {
             String content = packetBuffer.readString(3276700);
             if (type.equals("GUI") && action == 0) {
                 if (lastScreen.equals("mainmenu")) {
-                    StringTokenizer token = new StringTokenizer(content, "@");
-                    token.nextToken();
-                    if (!token.nextToken().equals("data")) return;
-                    String json = token.nextToken();
-                    JSONObject subs = new JSONObject(json);
-                    JSONArray jsonArray = subs.getJSONArray("subs");
-                    ArrayList<GermModButton> buttons = new ArrayList<>();
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        Object o = jsonArray.get(i);
-                        if (o instanceof JSONObject jsonObject) {
-                            String sid = jsonObject.getString("sid");
-                            String name = jsonObject.getString("name").replace("&e&l", "");
-                            int finalI = i;
-                            buttons.add(new DetailedGameButton("自适应背景$细分分类$游戏" + finalI, name, finalI, sid));
-                        }
-                    }
-                    mc.displayGuiScreen(new GuiButtonPage("mainmenu", buttons));
+                    updateScreen(content);
                 }
             }
         } else {
@@ -214,6 +150,103 @@ public class GermModPacket implements CustomPacket {
                 }
             }
         }
+    }
+
+    @Native
+    private void updateScreen(String content) {
+        ArrayList<GermModButton> buttons = getButtons(content);
+        if (!buttons.isEmpty()) {
+            mc.displayGuiScreen(new GuiButtonPage("mainmenu", buttons));
+        }
+    }
+
+    @SuppressWarnings("all")
+    private void openOldGui(Map<String, Object> context, String key, String guiUuid) {
+        ArrayList<GermModButton> buttons = new ArrayList<>();
+        for (String k : context.keySet()) {
+            if (!k.equalsIgnoreCase("scrollableParts")) continue;
+            context = (Map<String, Object>) context.get("scrollableParts");
+            for (String uuid : context.keySet()) {
+                Map<String, Object> scrollableSubMap = (Map<String, Object>) context.get(uuid);
+                if (scrollableSubMap.containsKey("relativeParts")) {
+                    scrollableSubMap = (Map<String, Object>) scrollableSubMap.get("relativeParts");
+                    for (String k1 : scrollableSubMap.keySet()) {
+                        scrollableSubMap = (Map<String, Object>) scrollableSubMap.get(k1);
+                        if (scrollableSubMap.containsKey("texts")) {
+                            String buttonText = ((ArrayList<String>) scrollableSubMap.get("texts")).get(0);
+                            buttons.add(new GermModButton(key + "$" + uuid + "$" + k1, buttonText));
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if (!buttons.isEmpty()) {
+            mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
+                    new PacketBuffer(Unpooled.buffer()
+                            .writeInt(4)
+                            .writeInt(0)
+                            .writeInt(0))
+                            .writeString(guiUuid)
+                            .writeString(guiUuid)
+                            .writeString(guiUuid)
+            ));
+            mc.displayGuiScreen(new GuiButtonPage(guiUuid, buttons));
+        }
+    }
+
+    private ArrayList<GermModButton> getButtons(String content) {
+        StringTokenizer token = new StringTokenizer(content, "@");
+        token.nextToken();
+        if (!token.nextToken().equals("data")) return new ArrayList<>();
+        String json = token.nextToken();
+        JSONObject subs = new JSONObject(json);
+        JSONArray jsonArray = subs.getJSONArray("subs");
+        return analyzeButton(jsonArray);
+    }
+
+    private ArrayList<GermModButton> analyzeButton(JSONArray jsonArray) {
+        ArrayList<GermModButton> buttons = new ArrayList<>();
+        for (int i = 0; i < jsonArray.length(); i++) {
+            Object o = jsonArray.get(i);
+            if (o instanceof JSONObject jsonObject) {
+                String sid = jsonObject.getString("sid");
+                String name = jsonObject.getString("name").replace("&e&l", "");
+                buttons.add(new DetailedGameButton("自适应背景$细分分类$游戏" + i, name, i, sid));
+            }
+        }
+        return buttons;
+    }
+
+    private ArrayList<GermModButton> openGui(Set<String> keys, String uuid) {
+        ArrayList<GermModButton> buttons = new ArrayList<>();
+        for (String k1 : keys) {
+            String buttonText = getText(k1);
+            if (buttonText.isEmpty()) continue;
+            buttons.add(new GameButton("自适应背景$主分类$" + k1, buttonText, k1));
+        }
+        mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
+                new PacketBuffer(Unpooled.buffer()
+                        .writeInt(4)
+                        .writeInt(0)
+                        .writeInt(0))
+                        .writeString(uuid)
+                        .writeString(uuid)
+                        .writeString(uuid)
+        ));
+        return buttons;
+    }
+
+    private String getText(String key) {
+        return switch (key) {
+            case "subject_bedwar" -> "起床战争";
+            case "subject_skywar" -> "空岛战争";
+            case "subject_leisure" -> "休闲游戏";
+            case "subject_fight" -> "竞技游戏";
+            case "subject_survive" -> "生存";
+            case "subject_fight_team" -> "战争";
+            default -> "";
+        };
     }
 
     public String encode(String string) {

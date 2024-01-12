@@ -357,5 +357,15 @@
   "error.first": "虽然我们不愿意在此与您见面，但是Minecraft遇到了一个无法修复的错误。",
   "error.second": "因此，我们不得不打断您的游戏。",
   "error.third": "我们对此深感抱歉，您稍后可以重启游戏并继续游玩。",
-  "error.exit": "退出游戏"
+  "error.exit": "退出游戏",
+  "login.title": "认证",
+  "login.username": "用户名",
+  "login.password": "密码",
+  "login.confirm": "确认密码",
+  "login.remember": "记住密码",
+  "login.login": "登录",
+  "login.register.to": "没有账号?点此注册",
+  "login.register.do": "注册",
+  "login.idle": "空闲中...",
+  "login.registration": "注册账号"
 }

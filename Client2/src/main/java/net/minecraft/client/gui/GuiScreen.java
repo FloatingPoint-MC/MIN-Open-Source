@@ -1,7 +1,7 @@
 package net.minecraft.client.gui;
 
 import cn.floatingpoint.min.management.Managers;
-import cn.floatingpoint.min.system.irc.IRCSender;
+import cn.floatingpoint.min.system.irc.IRCClient;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -25,7 +25,6 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.ITextComponent;
@@ -351,18 +350,18 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback {
      * Used to add chat messages to the client's GuiChat.
      */
     public void sendChatMessage(String msg) {
-        if (!msg.startsWith("/")) {
-            switch (Managers.clientManager.channel) {
-                case WORLD:
-                    this.sendChatMessage(msg, true);
-                    break;
-                case MIN:
-                    IRCSender.sendMessage(msg);
+        switch (Managers.clientManager.channel) {
+            case WORLD:
+                this.sendChatMessage(msg, true);
+                break;
+            case MIN:
+                if (!msg.startsWith("/") || msg.startsWith("/irc")) {
+                    IRCClient.processMessage(msg);
                     this.mc.ingameGUI.getChatGUI().addToSentMessages(msg);
-                    break;
-            }
-        } else {
-            this.sendChatMessage(msg, true);
+                } else {
+                    this.sendChatMessage(msg, true);
+                }
+                break;
         }
     }
 
