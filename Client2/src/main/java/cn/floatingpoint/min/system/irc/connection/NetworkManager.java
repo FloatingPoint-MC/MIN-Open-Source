@@ -18,7 +18,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class NetworkManager extends SimpleChannelInboundHandler<Packet> {
+public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
     private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
     public static final AttributeKey<EnumConnectionState> attrKeyConnectionState = AttributeKey.valueOf("float");
     private INetHandler packetListener;
@@ -42,13 +42,15 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        cause.printStackTrace();
         ctx.close();
     }
 
+    @SuppressWarnings("all")
     @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, Packet packet) {
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, Packet<?> packet) {
         if (this.channel.isOpen()) {
-            packet.processPacket(this.packetListener);
+            ((Packet<INetHandler>) packet).processPacket(this.packetListener);
         }
     }
 
@@ -62,7 +64,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet> {
         }
     }
 
-    public void sendPacket(Packet packetIn) {
+    public void sendPacket(Packet<?> packetIn) {
         if (this.channel.isOpen()) {
             this.flushOutboundQueue();
             this.dispatchPacket(packetIn, null);
@@ -70,7 +72,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet> {
             this.readWriteLock.writeLock().lock();
 
             try {
-                this.outboundPacketsQueue.add(new InboundHandlerTuplePacketListener(packetIn, (GenericFutureListener[]) null));
+                this.outboundPacketsQueue.add(new InboundHandlerTuplePacketListener(packetIn));
             } finally {
                 this.readWriteLock.writeLock().unlock();
             }
@@ -81,7 +83,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet> {
         return channel;
     }
 
-    private void dispatchPacket(final Packet inPacket, final GenericFutureListener<? extends Future<? super Void>>[] futureListeners) {
+    private void dispatchPacket(final Packet<?> inPacket, final GenericFutureListener<? extends Future<? super Void>>[] futureListeners) {
         final EnumConnectionState enumconnectionstate = EnumConnectionState.getFromPacket(inPacket);
         final EnumConnectionState enumconnectionstate1 = this.channel.attr(attrKeyConnectionState).get();
 
@@ -139,11 +141,11 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet> {
     }
 
     static class InboundHandlerTuplePacketListener {
-        private final Packet packet;
+        private final Packet<?> packet;
         private final GenericFutureListener<? extends Future<? super Void>>[] futureListeners;
 
         @SafeVarargs
-        public InboundHandlerTuplePacketListener(Packet inPacket, GenericFutureListener<? extends Future<? super Void>>... inFutureListeners) {
+        public InboundHandlerTuplePacketListener(Packet<?> inPacket, GenericFutureListener<? extends Future<? super Void>>... inFutureListeners) {
             this.packet = inPacket;
             this.futureListeners = inFutureListeners;
         }

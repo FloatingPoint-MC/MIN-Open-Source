@@ -35,17 +35,9 @@ public class SPacketAccount implements Packet<INetHandlerClient> {
         PASS_LOGIN,
         FAIL_LOGIN,
         FAIL_EXIST,
-        FAIL_HWID,
         FAIL_BANNED,
-        FAIL_EXPIRED,
         PASS_REGISTER,
         FAIL_REGISTER_EXIST,
-        FAIL_REGISTER_INVALID_CODE,
-        PASS_RENEW,
-        FAIL_RENEW_UNKNOWN,
-        FAIL_RENEW_BANNED,
-        FAIL_RENEW_UNEXPIRED,
-        FAIL_RENEW_INVALID_CODE,
         LOG_OUT
     }
 }

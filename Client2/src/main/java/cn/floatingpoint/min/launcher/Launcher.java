@@ -46,6 +46,7 @@ public class Launcher {
             frame.setVisible(true);
             return;
         }
+        System.setProperty("jdk.crypto.KeyAgreement.legacyKDF", "true");
         OptionParser optionparser = new OptionParser();
         optionparser.allowsUnrecognizedOptions();
         optionparser.accepts("demo");

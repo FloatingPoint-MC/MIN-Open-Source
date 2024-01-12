@@ -10,8 +10,7 @@ import cn.floatingpoint.min.system.irc.packet.impl.CPacketKey;
 import cn.floatingpoint.min.system.irc.packet.impl.CPacketLogin;
 import cn.floatingpoint.min.utils.client.ChatUtil;
 import cn.floatingpoint.min.utils.client.HWIDUtil;
-import cn.floatingpoint.min.utils.client.MiscUtil;
-import cn.floatingpoint.min.utils.math.DHUtil;
+import cn.floatingpoint.min.utils.math.RSAUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -22,7 +21,9 @@ import me.konago.nativeobfuscator.Native;
 import net.minecraft.client.Minecraft;
 
 import java.net.InetSocketAddress;
+import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -30,7 +31,6 @@ public class IRCClient {
     private static IRCClient theIRC;
     public NetworkManager netManager;
     public boolean connect;
-    private static long lastMS;
     public boolean connectedUser;
 
     public IRCClient() {
@@ -50,18 +50,20 @@ public class IRCClient {
             bootstrap.handler(new ChannelInitializer<NioSocketChannel>() {
                 @Override
                 protected void initChannel(NioSocketChannel channel) {
-                    channel.pipeline().addLast("decoder", new Decoder())
+                    channel.pipeline()
+                            .addLast("decoder", new Decoder())
                             .addLast("encoder", new Encoder())
                             .addLast(netManager);
                 }
             });
             bootstrap.option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.TCP_NODELAY, true);
             // 连接服务端
-            bootstrap.connect(new InetSocketAddress(MiscUtil.getRemoteIP(), 65535)).sync().channel();
-            Map<String, Object> map = DHUtil.initKey();
-            assert map != null;
-            Decoder.key = DHUtil.getPrivateKey(map);
-            this.netManager.sendPacket(new CPacketKey(DHUtil.getPublicKey(map)));
+            bootstrap.connect(new InetSocketAddress("127.0.0.1", 65535)).sync().channel();
+            //bootstrap.connect(new InetSocketAddress(MiscUtil.getRemoteIP(), 65535)).sync().channel();
+            Map<String, Key> map = RSAUtil.generateKeys();
+            Decoder.hasKey = true;
+            Decoder.key = (PrivateKey) map.get("PRIVATE_KEY");
+            this.netManager.sendPacket(new CPacketKey(map.get("PUBLIC_KEY").getEncoded()));
             System.out.println("[MIN] Successfully connected to the server!");
             return true;
         } catch (Exception e) {
@@ -183,16 +185,8 @@ public class IRCClient {
         }
     }
 
-    public void addToSendQueue(Packet packet) {
+    public void addToSendQueue(Packet<?> packet) {
         this.netManager.sendPacket(packet);
-    }
-
-    public static long getLastMS() {
-        return lastMS;
-    }
-
-    public static void setLastMS(long lastMS) {
-        IRCClient.lastMS = lastMS;
     }
 
 
@@ -219,6 +213,9 @@ public class IRCClient {
     }
 
     public void reconnect() {
+        Decoder.hasKey = Encoder.hasKey = false;
+        Decoder.key = null;
+        Encoder.key = null;
         Minecraft.getMinecraft().addScheduledTask(this::connect);
     }
 }

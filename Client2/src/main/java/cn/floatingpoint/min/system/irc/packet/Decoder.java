@@ -1,19 +1,20 @@
 package cn.floatingpoint.min.system.irc.packet;
 
 import cn.floatingpoint.min.system.irc.connection.NetworkManager;
-import cn.floatingpoint.min.utils.math.DHUtil;
+import cn.floatingpoint.min.utils.math.RSAUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 
 import java.io.IOException;
+import java.security.PrivateKey;
 import java.util.List;
 import java.util.Objects;
 
 public class Decoder extends ByteToMessageDecoder {
-    public static boolean hasKey;
-    public static byte[] key;
+    public static boolean hasKey = false;
+    public static PrivateKey key;
 
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
@@ -24,7 +25,7 @@ public class Decoder extends ByteToMessageDecoder {
             } else {
                 byte[] bytes = new byte[byteBuf.readableBytes()];
                 byteBuf.readBytes(bytes);
-                packetbuffer = new PacketBuffer(Unpooled.wrappedBuffer(Objects.requireNonNull(DHUtil.decrypt(bytes, key))));
+                packetbuffer = new PacketBuffer(Unpooled.wrappedBuffer(Objects.requireNonNull(RSAUtil.decrypt(bytes, key))));
             }
             int i = packetbuffer.readVarIntFromBuffer();
             Packet packet = channelHandlerContext.channel().attr(NetworkManager.attrKeyConnectionState).get().getPacket(EnumPacketDirection.CLIENTBOUND, i);

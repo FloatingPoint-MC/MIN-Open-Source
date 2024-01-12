@@ -5,13 +5,17 @@ import cn.floatingpoint.min.system.irc.Client;
 import cn.floatingpoint.min.system.irc.GuiStatus;
 import cn.floatingpoint.min.system.irc.IRCClient;
 import cn.floatingpoint.min.system.irc.connection.NetworkManager;
-import cn.floatingpoint.min.system.irc.packet.Decoder;
 import cn.floatingpoint.min.system.irc.packet.Encoder;
 import cn.floatingpoint.min.system.irc.packet.impl.*;
 import cn.floatingpoint.min.utils.client.ChatUtil;
-import cn.floatingpoint.min.utils.math.DHUtil;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.util.text.TextComponentString;
+
+import javax.crypto.spec.SecretKeySpec;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 
 public class NetHandlerClient implements INetHandlerClient {
     private final NetworkManager netManager;
@@ -73,15 +77,6 @@ public class NetHandlerClient implements INetHandlerClient {
                     gui.pass();
                 }
                 break;
-            case FAIL_HWID:
-                if (this.mc.currentScreen instanceof GuiStatus gui) {
-                    Client.setStatus("\247cFailed to login(Wrong HWID)!");
-                    Client.setLoggedIn(false);
-                    Client.setUsername(null);
-                    Client.setPassword(null);
-                    gui.fail();
-                }
-                break;
             case FAIL_LOGIN:
                 if (this.mc.currentScreen instanceof GuiStatus gui) {
                     Client.setStatus("\247cFailed to login(Unknown username or password)!");
@@ -109,15 +104,6 @@ public class NetHandlerClient implements INetHandlerClient {
                     gui.fail();
                 }
                 break;
-            case FAIL_EXPIRED:
-                if (this.mc.currentScreen instanceof GuiStatus gui) {
-                    Client.setStatus("\247cSorry, this account is expired!");
-                    Client.setLoggedIn(false);
-                    Client.setUsername(null);
-                    Client.setPassword(null);
-                    gui.fail();
-                }
-                break;
             case PASS_REGISTER:
                 if (this.mc.currentScreen instanceof GuiStatus gui) {
                     Client.setStatus("\247aThanks for using MIN Client!", "\247aYour account has been registered. Hope you'll have a good time!");
@@ -136,74 +122,21 @@ public class NetHandlerClient implements INetHandlerClient {
                     gui.fail();
                 }
                 break;
-            case FAIL_REGISTER_INVALID_CODE:
-                if (this.mc.currentScreen instanceof GuiStatus gui) {
-                    Client.setStatus("\247cFailed to register(Invalid code)!");
-                    Client.setLoggedIn(false);
-                    Client.setUsername(null);
-                    Client.setPassword(null);
-                    gui.fail();
-                }
-                break;
-            case PASS_RENEW:
-                if (this.mc.currentScreen instanceof GuiStatus gui) {
-                    Client.setStatus("\247aAccount renewed!");
-                    Client.setLoggedIn(false);
-                    Client.setUsername(null);
-                    Client.setPassword(null);
-                    gui.pass();
-                }
-                break;
-            case FAIL_RENEW_BANNED:
-                if (this.mc.currentScreen instanceof GuiStatus gui) {
-                    Client.setStatus("\247cFailed to renew(Account has been banned)!");
-                    Client.setLoggedIn(false);
-                    Client.setUsername(null);
-                    Client.setPassword(null);
-                    gui.fail();
-                }
-                break;
-            case FAIL_RENEW_UNKNOWN:
-                if (this.mc.currentScreen instanceof GuiStatus gui) {
-                    Client.setStatus("\247cFailed to renew(Account not found)!");
-                    Client.setLoggedIn(false);
-                    Client.setUsername(null);
-                    Client.setPassword(null);
-                    gui.fail();
-                }
-                break;
-            case FAIL_RENEW_UNEXPIRED:
-                if (this.mc.currentScreen instanceof GuiStatus gui) {
-                    Client.setStatus("\247cFailed to renew(Account is unexpired)!");
-                    Client.setLoggedIn(false);
-                    Client.setUsername(null);
-                    Client.setPassword(null);
-                    gui.fail();
-                }
-                break;
-            case FAIL_RENEW_INVALID_CODE:
-                if (this.mc.currentScreen instanceof GuiStatus gui) {
-                    Client.setStatus("\247cFailed to renew(Invalid code)!");
-                    Client.setLoggedIn(false);
-                    Client.setUsername(null);
-                    Client.setPassword(null);
-                    gui.fail();
-                }
-                break;
         }
     }
 
     @Override
     public void handleKey(SPacketKey packetIn) {
         byte[] remotePublicKey = packetIn.getKey();
+        X509EncodedKeySpec publicSpec = new X509EncodedKeySpec(remotePublicKey);
+        KeyFactory keyFactory;
         try {
-            byte[] privateKey = Decoder.key;
-            Decoder.key = DHUtil.getSecretKey(remotePublicKey, privateKey);
-            Encoder.key = DHUtil.getSecretKey(remotePublicKey, privateKey);
-        } catch (Exception e) {
-            this.netManager.getChannel().close();
+            keyFactory = KeyFactory.getInstance("RSA");
+            Encoder.key =  keyFactory.generatePublic(publicSpec);
+        } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
         }
-        Encoder.hasKey = Decoder.hasKey = true;
+        Encoder.hasKey = true;
         this.netManager.sendPacket(new CPacketHandshake());
     }
 

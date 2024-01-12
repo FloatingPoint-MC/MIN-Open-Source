@@ -82,6 +82,7 @@ public class GuiRegister extends GuiScreen {
         }
         username.keyTyped(typedChar, keyCode);
         password.keyTyped(typedChar, keyCode);
+        confirmPassword.keyTyped(typedChar, keyCode);
     }
 
     @Override
@@ -93,6 +94,7 @@ public class GuiRegister extends GuiScreen {
         }
         username.mouseClicked(mouseX, mouseY, mouseButton);
         password.mouseClicked(mouseX, mouseY, mouseButton);
+        confirmPassword.mouseClicked(mouseX, mouseY, mouseButton);
         Client.setStatus("\247e" + Managers.i18NManager.getTranslation("login.idle"));
         register.mouseClicked(mouseX, mouseY, mouseButton);
     }
