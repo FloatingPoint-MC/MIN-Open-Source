@@ -28,7 +28,7 @@ public class Decoder extends ByteToMessageDecoder {
                 packetbuffer = new PacketBuffer(Unpooled.wrappedBuffer(Objects.requireNonNull(RSAUtil.decrypt(bytes, key))));
             }
             int i = packetbuffer.readVarIntFromBuffer();
-            Packet packet = channelHandlerContext.channel().attr(NetworkManager.attrKeyConnectionState).get().getPacket(EnumPacketDirection.CLIENTBOUND, i);
+            Packet<?> packet = channelHandlerContext.channel().attr(NetworkManager.attrKeyConnectionState).get().getPacket(EnumPacketDirection.CLIENTBOUND, i);
 
             if (packet == null) {
                 throw new IOException("Bad packet id " + i);

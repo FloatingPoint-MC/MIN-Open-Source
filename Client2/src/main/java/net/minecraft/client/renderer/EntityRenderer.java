@@ -2401,7 +2401,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
             }
             GlStateManager.depthMask(true);
             fontRendererIn.drawString(str, -fontRendererIn.getStringWidth(str) / 2 + 4, 0, isSneaking ? 553648127 : -1);
-            RenderUtil.drawImage(new ResourceLocation(id == 0 ? "min/name_icon.png" : id == 1 ? "min/name_icon_admin.png" : "min/name_icon_developer.png"), -fontRendererIn.getStringWidth(str) / 2 - 4, 0, 7, 7);
+            RenderUtil.drawImage(new ResourceLocation(id == 0 ? "min/name_icon.png" : id == 1 ? "min/name_icon_youtuber.png" : id == 2 ? "min/name_icon_admin.png" : "min/name_icon_developer.png"), -fontRendererIn.getStringWidth(str) / 2 - 4, 0, 7, 7);
         } else {
             bufferbuilder.begin(7, DefaultVertexFormats.POSITION_COLOR);
             bufferbuilder.pos(-i - 1, -1 + verticalShift, 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();

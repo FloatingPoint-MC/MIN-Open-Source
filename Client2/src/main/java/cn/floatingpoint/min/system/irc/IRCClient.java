@@ -10,6 +10,7 @@ import cn.floatingpoint.min.system.irc.packet.impl.CPacketKey;
 import cn.floatingpoint.min.system.irc.packet.impl.CPacketLogin;
 import cn.floatingpoint.min.utils.client.ChatUtil;
 import cn.floatingpoint.min.utils.client.HWIDUtil;
+import cn.floatingpoint.min.utils.client.MiscUtil;
 import cn.floatingpoint.min.utils.math.RSAUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelInitializer;
@@ -58,8 +59,8 @@ public class IRCClient {
             });
             bootstrap.option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.TCP_NODELAY, true);
             // 连接服务端
-            bootstrap.connect(new InetSocketAddress("127.0.0.1", 65535)).sync().channel();
-            //bootstrap.connect(new InetSocketAddress(MiscUtil.getRemoteIP(), 65535)).sync().channel();
+            //bootstrap.connect(new InetSocketAddress("127.0.0.1", 65535)).sync().channel();
+            bootstrap.connect(new InetSocketAddress(MiscUtil.getRemoteIP(), 65535)).sync().channel();
             Map<String, Key> map = RSAUtil.generateKeys();
             Decoder.hasKey = true;
             Decoder.key = (PrivateKey) map.get("PRIVATE_KEY");

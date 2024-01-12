@@ -10,7 +10,7 @@ import java.util.Map;
 import javax.crypto.*;
 
 public class RSAUtil {
-    public static byte[] encrypt(byte[] data, PublicKey key) throws Exception {
+    public static byte[] encrypt(byte[] data, PublicKey key) {
         try {
             Cipher cipher = Cipher.getInstance(key.getAlgorithm());
             cipher.init(Cipher.ENCRYPT_MODE, key);

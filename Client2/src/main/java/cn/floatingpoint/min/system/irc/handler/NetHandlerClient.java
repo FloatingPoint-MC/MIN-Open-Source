@@ -11,7 +11,6 @@ import cn.floatingpoint.min.utils.client.ChatUtil;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.util.text.TextComponentString;
 
-import javax.crypto.spec.SecretKeySpec;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
