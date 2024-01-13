@@ -816,7 +816,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
         }
         // Kill Effect
         if (this.client.player != null && Managers.moduleManager.renderModules.get("KillEffect").isEnabled()) {
-            KillEffect.makeEffect(Pattern.compile(this.client.player.getName() + "\\[❤.*] \\(.?之队\\)杀死了 (.*?)\\(").matcher(text));
+            KillEffect.makeEffect(Pattern.compile("(.*?)" + this.client.player.getName() + "\\[❤.*] \\(.?之队\\)杀死了 (.*?)\\(").matcher(text));
         }
         this.client.ingameGUI.addChatMessage(packetIn.getType(), packetIn.getChatComponent());
     }

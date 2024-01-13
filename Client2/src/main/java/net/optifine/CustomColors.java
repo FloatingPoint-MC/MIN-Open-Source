@@ -34,7 +34,6 @@ import net.minecraft.item.ItemMonsterPlacer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.Potion;
-import net.optifine.Config;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -229,7 +228,7 @@ public class CustomColors {
             Pair<LightMapPack[], Integer> pair = parseLightMapPacks();
             lightMapPacks = pair.getLeft();
             lightmapMinDimensionId = pair.getRight().intValue();
-            readColorProperties("mcpatcher/color.properties");
+            readColorProperties();
             blockColormaps = readBlockColormaps(new String[]{s + "custom/", s + "blocks/"}, colorsBlockColormaps, 256, 256);
             updateUseDefaultGrassFoliageColors();
         }
@@ -285,24 +284,23 @@ public class CustomColors {
             if (j == Integer.MIN_VALUE) {
                 warn("Invalid dimension ID: " + s3 + ", path: " + s2);
             } else {
-                map.put(Integer.valueOf(j), s2);
+                map.put(j, s2);
             }
         }
 
         Set<Integer> set = map.keySet();
-        Integer[] ainteger = set.toArray(new Integer[set.size()]);
+        Integer[] ainteger = set.toArray(new Integer[0]);
         Arrays.sort(ainteger);
 
-        if (ainteger.length <= 0) {
-            return new ImmutablePair<LightMapPack[], Integer>(null, Integer.valueOf(0));
+        if (ainteger.length == 0) {
+            return new ImmutablePair<>(null, 0);
         } else {
-            int j1 = ainteger[0].intValue();
-            int k1 = ainteger[ainteger.length - 1].intValue();
+            int j1 = ainteger[0];
+            int k1 = ainteger[ainteger.length - 1];
             int k = k1 - j1 + 1;
             CustomColormap[] acustomcolormap = new CustomColormap[k];
 
-            for (int l = 0; l < ainteger.length; ++l) {
-                Integer integer = ainteger[l];
+            for (Integer integer : ainteger) {
                 String s4 = map.get(integer);
                 CustomColormap customcolormap = getCustomColors(s4, -1, -1);
 
@@ -310,7 +308,7 @@ public class CustomColors {
                     if (customcolormap.getWidth() < 16) {
                         warn("Invalid lightmap width: " + customcolormap.getWidth() + ", path: " + s4);
                     } else {
-                        int i1 = integer.intValue() - j1;
+                        int i1 = integer - j1;
                         acustomcolormap[i1] = customcolormap;
                     }
                 }
@@ -354,16 +352,16 @@ public class CustomColors {
         }
     }
 
-    private static void readColorProperties(String fileName) {
+    private static void readColorProperties() {
         try {
-            ResourceLocation resourcelocation = new ResourceLocation(fileName);
+            ResourceLocation resourcelocation = new ResourceLocation("mcpatcher/color.properties");
             InputStream inputstream = Config.getResourceStream(resourcelocation);
 
             if (inputstream == null) {
                 return;
             }
 
-            dbg("Loading " + fileName);
+            dbg("Loading mcpatcher/color.properties");
             Properties properties = new PropertiesOrdered();
             properties.load(inputstream);
             inputstream.close();
@@ -376,13 +374,13 @@ public class CustomColors {
             fogColorNether = readColorVec3(properties, "fog.nether");
             fogColorEnd = readColorVec3(properties, "fog.end");
             skyColorEnd = readColorVec3(properties, "sky.end");
-            colorsBlockColormaps = readCustomColormaps(properties, fileName);
-            spawnEggPrimaryColors = readSpawnEggColors(properties, fileName, "egg.shell.", "Spawn egg shell");
-            spawnEggSecondaryColors = readSpawnEggColors(properties, fileName, "egg.spots.", "Spawn egg spot");
-            wolfCollarColors = readDyeColors(properties, fileName, "collar.", "Wolf collar");
-            sheepColors = readDyeColors(properties, fileName, "sheep.", "Sheep");
-            textColors = readTextColors(properties, fileName, "text.code.", "Text");
-            int[] aint = readMapColors(properties, fileName, "map.", "Map");
+            colorsBlockColormaps = readCustomColormaps(properties, "mcpatcher/color.properties");
+            spawnEggPrimaryColors = readSpawnEggColors(properties, "mcpatcher/color.properties", "egg.shell.", "Spawn egg shell");
+            spawnEggSecondaryColors = readSpawnEggColors(properties, "mcpatcher/color.properties", "egg.spots.", "Spawn egg spot");
+            wolfCollarColors = readDyeColors(properties, "mcpatcher/color.properties", "collar.", "Wolf collar");
+            sheepColors = readDyeColors(properties, "mcpatcher/color.properties", "sheep.", "Sheep");
+            textColors = readTextColors(properties, "mcpatcher/color.properties", "text.code.", "Text");
+            int[] aint = readMapColors(properties, "mcpatcher/color.properties", "map.", "Map");
 
             if (aint != null) {
                 if (mapColorsOriginal == null) {
@@ -392,7 +390,7 @@ public class CustomColors {
                 setMapColors(aint);
             }
 
-            potionColors = readPotionColors(properties, fileName, "potion.", "Potion");
+            potionColors = readPotionColors(properties, "mcpatcher/color.properties", "potion.", "Potion");
             xpOrbTime = Config.parseInt(properties.getProperty("xporb.time"), -1);
         } catch (FileNotFoundException var5) {
         } catch (IOException ioexception) {

@@ -24,4 +24,6 @@ public interface INetHandlerServer extends INetHandler {
     void handlePlayer(CPacketPlayer packetIn);
 
     void handleJoinServer(CPacketJoinServer packetIn);
+
+    void handleMuted(SPacketMuted packetIn);
 }

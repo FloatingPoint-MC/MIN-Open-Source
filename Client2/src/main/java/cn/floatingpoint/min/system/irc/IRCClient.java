@@ -11,7 +11,9 @@ import cn.floatingpoint.min.system.irc.packet.impl.CPacketLogin;
 import cn.floatingpoint.min.utils.client.ChatUtil;
 import cn.floatingpoint.min.utils.client.HWIDUtil;
 import cn.floatingpoint.min.utils.client.MiscUtil;
+import cn.floatingpoint.min.utils.client.Pair;
 import cn.floatingpoint.min.utils.math.RSAUtil;
+import cn.floatingpoint.min.utils.math.TimeHelper;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -62,10 +64,15 @@ public class IRCClient {
             //bootstrap.connect(new InetSocketAddress("127.0.0.1", 65535)).sync().channel();
             bootstrap.connect(new InetSocketAddress(MiscUtil.getRemoteIP(), 65535)).sync().channel();
             Map<String, Key> map = RSAUtil.generateKeys();
+            Encoder.hasKey = false;
+            Encoder.key = null;
             Decoder.hasKey = true;
             Decoder.key = (PrivateKey) map.get("PRIVATE_KEY");
             this.netManager.sendPacket(new CPacketKey(map.get("PUBLIC_KEY").getEncoded()));
             System.out.println("[MIN] Successfully connected to the server!");
+            if (connectedUser) {
+                enableIRC();
+            }
             return true;
         } catch (Exception e) {
             if (Minecraft.DEBUG_MODE()) {
@@ -95,101 +102,95 @@ public class IRCClient {
 
     @Native
     public static void processMessage(String msg) {
-        String[] args = msg.trim().substring(1).split(" ");
-        args = Arrays.copyOfRange(args, 1, args.length);
-        if (args.length < 1) {
-            ChatUtil.printToChatWithPrefix("\247cCorrect usage: /irc <Message>");
-        } else {
-            if (args[0].equalsIgnoreCase("kick")) {
-                if (args.length != 2) {
-                    ChatUtil.printToChatWithPrefix("\247cCorrect usage: /irc kick <Player>");
-                } else {
-                    if (args[1].length() <= 16) {
-                        IRCClient.getInstance().addToSendQueue(new CPacketAdmin(CPacketAdmin.Action.KICK, args[1]));
+        String[] args = msg.trim().split(" ");
+        if (msg.toLowerCase().startsWith("/irc")) {
+            args = Arrays.copyOfRange(args, 1, args.length);
+            if (args.length < 1) {
+                ChatUtil.printToChatWithPrefix("\247cCorrect usage: /irc <Message>");
+            } else {
+                if (args[0].equalsIgnoreCase("kick")) {
+                    if (args.length < 3) {
+                        ChatUtil.printToChatWithPrefix("\247cCorrect usage: /irc kick <Player> [Reason]");
                     } else {
-                        ChatUtil.printToChatWithPrefix("\247cIllegal username!");
+                        if (args[1].length() <= 16) {
+                            String reason = "";
+                            if (args.length > 3) {
+                                reason = ChatUtil.buildMessage(Arrays.copyOfRange(args, 3, args.length));
+                            }
+                            IRCClient.getInstance().addToSendQueue(new CPacketAdmin(CPacketAdmin.Action.KICK, args[1], 0, reason));
+                        } else {
+                            ChatUtil.printToChatWithPrefix("\247cIllegal username!");
+                        }
                     }
-                }
-                return;
-            } else if (args[0].equalsIgnoreCase("ban")) {
-                if (args.length != 2) {
-                    ChatUtil.printToChatWithPrefix("\247cCorrect usage: /irc ban <Player>");
-                } else {
-                    if (args[1].length() <= 16) {
-                        IRCClient.getInstance().addToSendQueue(new CPacketAdmin(CPacketAdmin.Action.BAN, args[1]));
+                    return;
+                } else if (args[0].equalsIgnoreCase("ban")) {
+                    if (args.length < 3) {
+                        ChatUtil.printToChatWithPrefix("\247cCorrect usage: /irc ban <Player> [Duration] [Reason]");
                     } else {
-                        ChatUtil.printToChatWithPrefix("\247cIllegal username!");
+                        if (args[1].length() <= 16) {
+                            if (args.length > 3) {
+                                String combined = ChatUtil.buildMessage(Arrays.copyOfRange(args, 3, args.length));
+                                Pair<String, Long> pair = TimeHelper.getDurationFromString(combined);
+                                IRCClient.getInstance().addToSendQueue(new CPacketAdmin(CPacketAdmin.Action.BAN, args[1], pair.getValue(), pair.getKey()));
+                            } else {
+                                IRCClient.getInstance().addToSendQueue(new CPacketAdmin(CPacketAdmin.Action.BAN, args[1], 0, ""));
+                            }
+                        } else {
+                            ChatUtil.printToChatWithPrefix("\247cIllegal username!");
+                        }
                     }
-                }
-                return;
-            } else if (args[0].equalsIgnoreCase("unban")) {
-                if (args.length != 2) {
-                    ChatUtil.printToChatWithPrefix("\247cCorrect usage: /irc unban <Player>");
-                } else {
-                    if (args[1].length() <= 16) {
-                        IRCClient.getInstance().addToSendQueue(new CPacketAdmin(CPacketAdmin.Action.UNBAN, args[1]));
+                    return;
+                } else if (args[0].equalsIgnoreCase("unban")) {
+                    if (args.length < 3) {
+                        ChatUtil.printToChatWithPrefix("\247cCorrect usage: /irc unban <Player>");
                     } else {
-                        ChatUtil.printToChatWithPrefix("\247cIllegal username!");
+                        if (args[1].length() <= 16) {
+                            IRCClient.getInstance().addToSendQueue(new CPacketAdmin(CPacketAdmin.Action.UNBAN, args[1], 0, ""));
+                        } else {
+                            ChatUtil.printToChatWithPrefix("\247cIllegal username!");
+                        }
                     }
-                }
-                return;
-            } else if (args[0].equalsIgnoreCase("mute")) {
-                if (args.length != 2) {
-                    ChatUtil.printToChatWithPrefix("\247cCorrect usage: /irc mute <Player> [Reason]");
-                } else {
-                    if (args[1].length() <= 16) {
-                        IRCClient.getInstance().addToSendQueue(new CPacketAdmin(CPacketAdmin.Action.MUTE, args[1]));
+                    return;
+                } else if (args[0].equalsIgnoreCase("mute")) {
+                    if (args.length < 3) {
+                        ChatUtil.printToChatWithPrefix("\247cCorrect usage: /irc mute <Player> [Duration] [Reason]");
                     } else {
-                        ChatUtil.printToChatWithPrefix("\247cIllegal username!");
+                        if (args[1].length() <= 16) {
+                            if (args.length > 3) {
+                                String combined = ChatUtil.buildMessage(Arrays.copyOfRange(args, 3, args.length));
+                                Pair<String, Long> pair = TimeHelper.getDurationFromString(combined);
+                                IRCClient.getInstance().addToSendQueue(new CPacketAdmin(CPacketAdmin.Action.MUTE, args[1], pair.getValue(), pair.getKey()));
+                            } else {
+                                IRCClient.getInstance().addToSendQueue(new CPacketAdmin(CPacketAdmin.Action.MUTE, args[1], 0, ""));
+                            }
+                        } else {
+                            ChatUtil.printToChatWithPrefix("\247cIllegal username!");
+                        }
                     }
-                }
-                return;
-            } else if (args[0].equalsIgnoreCase("unmute")) {
-                if (args.length != 2) {
-                    ChatUtil.printToChatWithPrefix("\247cCorrect usage: /irc unmute <Player> [Reason]");
-                } else {
-                    if (args[1].length() <= 16) {
-                        IRCClient.getInstance().addToSendQueue(new CPacketAdmin(CPacketAdmin.Action.UNMUTE, args[1]));
+                    return;
+                } else if (args[0].equalsIgnoreCase("unmute")) {
+                    if (args.length < 3) {
+                        ChatUtil.printToChatWithPrefix("\247cCorrect usage: /irc unmute <Player>");
                     } else {
-                        ChatUtil.printToChatWithPrefix("\247cIllegal username!");
+                        if (args[1].length() <= 16) {
+                            IRCClient.getInstance().addToSendQueue(new CPacketAdmin(CPacketAdmin.Action.UNMUTE, args[1], 0, ""));
+                        } else {
+                            ChatUtil.printToChatWithPrefix("\247cIllegal username!");
+                        }
                     }
+                    return;
+                } else if (args[0].equalsIgnoreCase("list")) {
+                    IRCClient.getInstance().addToSendQueue(new CPacketAdmin(CPacketAdmin.Action.LIST, "", 0, ""));
+                    return;
                 }
-                return;
-            } else if (args[0].equalsIgnoreCase("list")) {
-                IRCClient.getInstance().addToSendQueue(new CPacketAdmin(CPacketAdmin.Action.LIST, ""));
-                return;
             }
-            StringBuilder t = new StringBuilder();
-            for (String s : args) {
-                t.append(s).append(" ");
-            }
-            boolean isNextColor = false;
-            StringBuilder stringBuilder = new StringBuilder();
-            for (Character c : t.toString().toCharArray()) {
-                if (c.equals('&')) {
-                    if (!isNextColor) {
-                        isNextColor = true;
-                    } else {
-                        stringBuilder.append("&");
-                        isNextColor = false;
-                    }
-                    continue;
-                }
-                if (isNextColor) {
-                    stringBuilder.append("\247");
-                }
-                isNextColor = false;
-                stringBuilder.append(c);
-            }
-            String finalMessage = stringBuilder.toString();
-            IRCClient.getInstance().addToSendQueue(new CPacketChat(finalMessage));
         }
+        IRCClient.getInstance().addToSendQueue(new CPacketChat(ChatUtil.buildMessage(args)));
     }
 
     public void addToSendQueue(Packet<?> packet) {
         this.netManager.sendPacket(packet);
     }
-
 
     public void enableIRC() {
         try {

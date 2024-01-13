@@ -6,10 +6,12 @@ import cn.floatingpoint.min.system.irc.packet.PacketBuffer;
 
 public class SPacketDisconnect implements Packet<INetHandlerClient> {
     private EnumDisconnectType type;
+    private String reason;
 
     @Override
     public void readPacketData(PacketBuffer buf) {
         this.type = buf.readEnumValue(EnumDisconnectType.class);
+        this.reason = buf.readStringFromBuffer(127);
     }
 
     @Override
@@ -23,6 +25,10 @@ public class SPacketDisconnect implements Packet<INetHandlerClient> {
 
     public EnumDisconnectType getType() {
         return type;
+    }
+
+    public String getReason() {
+        return reason;
     }
 
     public enum EnumDisconnectType {

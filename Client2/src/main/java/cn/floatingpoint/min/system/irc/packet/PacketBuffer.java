@@ -2,8 +2,6 @@ package cn.floatingpoint.min.system.irc.packet;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.ByteBufInputStream;
-import io.netty.buffer.ByteBufOutputStream;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.EncoderException;
 import io.netty.util.ByteProcessor;
@@ -18,38 +16,13 @@ import java.nio.channels.GatheringByteChannel;
 import java.nio.channels.ScatteringByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
 import java.util.UUID;
-import javax.annotation.Nullable;
-
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTSizeTracker;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
 
 public class PacketBuffer extends ByteBuf {
     private final ByteBuf buf;
 
     public PacketBuffer(ByteBuf wrapped) {
         this.buf = wrapped;
-    }
-
-    /**
-     * Calculates the number of bytes required to fit the supplied int (0-5) if it were to be read/written using
-     * readVarIntFromBuffer or writeVarIntToBuffer
-     */
-    public static int getVarIntSize(int input) {
-        for (int i = 1; i < 5; ++i) {
-            if ((input & -1 << i * 7) == 0) {
-                return i;
-            }
-        }
-
-        return 5;
     }
 
     public PacketBuffer writeByteArray(byte[] array) {
@@ -72,94 +45,6 @@ public class PacketBuffer extends ByteBuf {
             this.readBytes(abyte);
             return abyte;
         }
-    }
-
-    /**
-     * Writes an array of VarInts to the buffer, prefixed by the length of the array (as a VarInt).
-     */
-    public PacketBuffer writeVarIntArray(int[] array) {
-        this.writeVarIntToBuffer(array.length);
-
-        for (int i : array) {
-            this.writeVarIntToBuffer(i);
-        }
-
-        return this;
-    }
-
-    public int[] readVarIntArray() {
-        return this.readVarIntArray(this.readableBytes());
-    }
-
-    public int[] readVarIntArray(int maxLength) {
-        int i = this.readVarIntFromBuffer();
-
-        if (i > maxLength) {
-            throw new DecoderException("VarIntArray with size " + i + " is bigger than allowed " + maxLength);
-        } else {
-            int[] aint = new int[i];
-
-            for (int j = 0; j < aint.length; ++j) {
-                aint[j] = this.readVarIntFromBuffer();
-            }
-
-            return aint;
-        }
-    }
-
-    /**
-     * Writes an array of longs to the buffer, prefixed by the length of the array (as a VarInt).
-     */
-    public PacketBuffer writeLongArray(long[] array) {
-        this.writeVarIntToBuffer(array.length);
-
-        for (long i : array) {
-            this.writeLong(i);
-        }
-
-        return this;
-    }
-
-    /**
-     * Reads a length-prefixed array of longs from the buffer.
-     */
-    public long[] readLongArray(@Nullable long[] array) {
-        return this.readLongArray(array, this.readableBytes() / 8);
-    }
-
-    public long[] readLongArray(@Nullable long[] array, int maxLength) {
-        int i = this.readVarIntFromBuffer();
-
-        if (array == null || array.length != i) {
-            if (i > maxLength) {
-                throw new DecoderException("LongArray with size " + i + " is bigger than allowed " + maxLength);
-            }
-
-            array = new long[i];
-        }
-
-        for (int j = 0; j < array.length; ++j) {
-            array[j] = this.readLong();
-        }
-
-        return array;
-    }
-
-    public BlockPos readBlockPos() {
-        return BlockPos.fromLong(this.readLong());
-    }
-
-    public PacketBuffer writeBlockPos(BlockPos pos) {
-        this.writeLong(pos.toLong());
-        return this;
-    }
-
-    public ITextComponent readTextComponent() throws IOException {
-        return ITextComponent.Serializer.jsonToComponent(this.readStringFromBuffer(32767));
-    }
-
-    public PacketBuffer writeTextComponent(ITextComponent component) {
-        return this.writeString(ITextComponent.Serializer.componentToJson(component));
     }
 
     public <T extends Enum<T>> T readEnumValue(Class<T> enumClass) {
@@ -194,26 +79,6 @@ public class PacketBuffer extends ByteBuf {
         return i;
     }
 
-    public long readVarLong() {
-        long i = 0L;
-        int j = 0;
-
-        while (true) {
-            byte b0 = this.readByte();
-            i |= (long) (b0 & 127) << j++ * 7;
-
-            if (j > 10) {
-                throw new RuntimeException("VarLong too big");
-            }
-
-            if ((b0 & 128) != 128) {
-                break;
-            }
-        }
-
-        return i;
-    }
-
     public PacketBuffer writeUniqueId(UUID uuid) {
         this.writeLong(uuid.getMostSignificantBits());
         this.writeLong(uuid.getLeastSignificantBits());
@@ -238,94 +103,6 @@ public class PacketBuffer extends ByteBuf {
 
         this.writeByte(input);
         return this;
-    }
-
-    public PacketBuffer writeVarLong(long value) {
-        while ((value & -128L) != 0L) {
-            this.writeByte((int) (value & 127L) | 128);
-            value >>>= 7;
-        }
-
-        this.writeByte((int) value);
-        return this;
-    }
-
-    /**
-     * Writes a compressed NBTTagCompound to this buffer
-     */
-    public PacketBuffer writeCompoundTag(@Nullable NBTTagCompound nbt) {
-        if (nbt == null) {
-            this.writeByte(0);
-        } else {
-            try {
-                CompressedStreamTools.write(nbt, new ByteBufOutputStream(this));
-            } catch (IOException ioexception) {
-                throw new EncoderException(ioexception);
-            }
-        }
-
-        return this;
-    }
-
-    @Nullable
-
-    /**
-     * Reads a compressed NBTTagCompound from this buffer
-     */
-    public NBTTagCompound readCompoundTag() throws IOException {
-        int i = this.readerIndex();
-        byte b0 = this.readByte();
-
-        if (b0 == 0) {
-            return null;
-        } else {
-            this.readerIndex(i);
-
-            try {
-                return CompressedStreamTools.read(new ByteBufInputStream(this), new NBTSizeTracker(2097152L));
-            } catch (IOException ioexception) {
-                throw new EncoderException(ioexception);
-            }
-        }
-    }
-
-    /**
-     * Writes the ItemStack's ID (short), then size (byte), then damage. (short)
-     */
-    public PacketBuffer writeItemStack(ItemStack stack) {
-        if (stack.isEmpty()) {
-            this.writeShort(-1);
-        } else {
-            this.writeShort(Item.getIdFromItem(stack.getItem()));
-            this.writeByte(stack.getCount());
-            this.writeShort(stack.getMetadata());
-            NBTTagCompound nbttagcompound = null;
-
-            if (stack.getItem().isDamageable() || stack.getItem().getShareTag()) {
-                nbttagcompound = stack.getTagCompound();
-            }
-
-            this.writeCompoundTag(nbttagcompound);
-        }
-
-        return this;
-    }
-
-    /**
-     * Reads an ItemStack from this buffer
-     */
-    public ItemStack readItemStack() throws IOException {
-        int i = this.readShort();
-
-        if (i < 0) {
-            return ItemStack.EMPTY;
-        } else {
-            int j = this.readByte();
-            int k = this.readShort();
-            ItemStack itemstack = new ItemStack(Item.getItemById(i), j, k);
-            itemstack.setTagCompound(this.readCompoundTag());
-            return itemstack;
-        }
     }
 
     /**
@@ -363,24 +140,6 @@ public class PacketBuffer extends ByteBuf {
         }
     }
 
-    public ResourceLocation readResourceLocation() {
-        return new ResourceLocation(this.readStringFromBuffer(32767));
-    }
-
-    public PacketBuffer writeResourceLocation(ResourceLocation resourceLocationIn) {
-        this.writeString(resourceLocationIn.toString());
-        return this;
-    }
-
-    public Date readTime() {
-        return new Date(this.readLong());
-    }
-
-    public PacketBuffer writeTime(Date time) {
-        this.writeLong(time.getTime());
-        return this;
-    }
-
     public int capacity() {
         return this.buf.capacity();
     }
@@ -397,10 +156,12 @@ public class PacketBuffer extends ByteBuf {
         return this.buf.alloc();
     }
 
+    @Deprecated
     public ByteOrder order() {
         return this.buf.order();
     }
 
+    @Deprecated
     public ByteBuf order(ByteOrder p_order_1_) {
         return this.buf.order(p_order_1_);
     }

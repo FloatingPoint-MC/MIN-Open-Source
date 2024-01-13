@@ -101,22 +101,22 @@ public class GuiRegister extends GuiScreen {
 
     private void register() {
         if (username.getText().isEmpty()) {
-            Client.setStatus("\247cUsername cannot be empty!");
+            Client.setStatus("\247c" + Managers.i18NManager.getTranslation("login.empty.username"));
         } else if (password.getText().isEmpty()) {
-            Client.setStatus("\247cPassword cannot be empty!");
+            Client.setStatus("\247c" + Managers.i18NManager.getTranslation("login.empty.password"));
         } else if (confirmPassword.getText().isEmpty()) {
-            Client.setStatus("\247cPlease confirm your password!");
-        } else if (username.getText().contains("@") || username.getText().contains(":") || username.getText().length() <= 3 || username.getText().length() > 16) {
-            Client.setStatus("\247cIllegal username!");
+            Client.setStatus("\247c" + Managers.i18NManager.getTranslation("login.empty.confirm"));
+        } else if (username.getText().contains("@") || username.getText().contains(":") || username.getText().length() <= 3 || username.getText().length() > 16 || !username.getText().equals(username.getText().trim())) {
+            Client.setStatus("\247c" + Managers.i18NManager.getTranslation("login.illegal.username"));
         } else if (password.getText().length() <= 6 || password.getText().length() > 255) {
-            Client.setStatus("\247cIllegal password!");
+            Client.setStatus("\247c" + Managers.i18NManager.getTranslation("login.illegal.password"));
         } else if (!confirmPassword.getText().equals(password.getText())) {
-            Client.setStatus("\247cTwo passwords is different!");
+            Client.setStatus("\247c" + Managers.i18NManager.getTranslation("login.confirm.fail"));
         } else {
             try {
-                Client.setStatus("\247fRegistering...");
+                Client.setStatus("\247f" + Managers.i18NManager.getTranslation("login.registering"));
                 IRCClient.getInstance().addToSendQueue(new CPacketRegister(username.getText(), password.getText(), HWIDUtil.getHWID()));
-                mc.displayGuiScreen(new GuiStatus(GuiRegister.this, parent, "Back to login", "Back"));
+                mc.displayGuiScreen(new GuiStatus(GuiRegister.this, parent, Managers.i18NManager.getTranslation("login.register.success"), Managers.i18NManager.getTranslation("login.back")));
             } catch (NoSuchAlgorithmException e) {
                 throw new RuntimeException(e);
             }

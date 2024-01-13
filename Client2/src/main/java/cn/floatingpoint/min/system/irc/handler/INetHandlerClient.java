@@ -14,4 +14,6 @@ public interface INetHandlerClient extends INetHandler {
     void handleTabComplete(SPacketTabComplete packetIn);
 
     void handlePlayer(SPacketPlayer packetIn);
+
+    void handleMuted(SPacketMuted packetIn);
 }

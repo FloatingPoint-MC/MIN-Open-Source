@@ -18,6 +18,32 @@ public class ChatUtil {
         Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(message);
     }
 
+    public static String buildMessage(String... args) {
+        StringBuilder t = new StringBuilder();
+        for (String s : args) {
+            t.append(s).append(" ");
+        }
+        boolean isNextColor = false;
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Character c : t.toString().toCharArray()) {
+            if (c.equals('&')) {
+                if (!isNextColor) {
+                    isNextColor = true;
+                } else {
+                    stringBuilder.append("&");
+                    isNextColor = false;
+                }
+                continue;
+            }
+            if (isNextColor) {
+                stringBuilder.append("\247");
+            }
+            isNextColor = false;
+            stringBuilder.append(c);
+        }
+        return stringBuilder.toString();
+    }
+
     public static String removeColor(String original) {
         original = original
                 .replace("\247a", "")

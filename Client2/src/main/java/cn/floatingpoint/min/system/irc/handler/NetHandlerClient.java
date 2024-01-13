@@ -10,11 +10,14 @@ import cn.floatingpoint.min.system.irc.packet.impl.*;
 import cn.floatingpoint.min.utils.client.ChatUtil;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.event.ClickEvent;
+import net.minecraft.util.text.event.HoverEvent;
 
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.concurrent.TimeUnit;
 
 public class NetHandlerClient implements INetHandlerClient {
     private final NetworkManager netManager;
@@ -25,7 +28,27 @@ public class NetHandlerClient implements INetHandlerClient {
 
     @Override
     public void handleChat(SPacketChat packetIn) {
-        ChatUtil.printToChat(new TextComponentString(packetIn.getMessage()));
+        if (!packetIn.getUsername().isEmpty()) {
+            String originMessage = packetIn.getMessage();
+            String prefix =
+                    switch (packetIn.getRank()) {
+                        case 0 -> "\2473" + Managers.i18NManager.getTranslation("irc.player");
+                        case 1 -> "\247c" + Managers.i18NManager.getTranslation("irc.youtuber");
+                        case 2 -> "\2474" + Managers.i18NManager.getTranslation("irc.admin");
+                        case 3 -> "\2476" + Managers.i18NManager.getTranslation("irc.developer");
+                        default -> "";
+                    } + packetIn.getUsername() + "\2477: ";
+            TextComponentString text = new TextComponentString("\247b[MIN-IRC]" + prefix + originMessage);
+            if (packetIn.getRank() != 4) {
+                text.getStyle()
+                        .setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, ChatUtil.removeColor("@" + packetIn.getUsername() + " ")))
+                        .setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentString("\247e@" + packetIn.getUsername())));
+            }
+            ChatUtil.printToChat(text);
+        } else {
+            TextComponentString text = new TextComponentString("\247b[MIN-IRC]" + packetIn.getMessage());
+            ChatUtil.printToChat(text);
+        }
     }
 
     @Override
@@ -33,9 +56,12 @@ public class NetHandlerClient implements INetHandlerClient {
         switch (packetIn.getType()) {
             case FORCE_BAN:
                 ChatUtil.printToChatWithPrefix("\247cYour are gonna be kicked by an admin!");
+                if (!packetIn.getReason().isEmpty()) {
+
+                }
                 mc.addScheduledTask(() -> {
                     try {
-                        Thread.sleep(1500L);
+                        Thread.sleep(3000L);
                     } catch (InterruptedException ignored) {
 
                     }
@@ -46,7 +72,7 @@ public class NetHandlerClient implements INetHandlerClient {
                 ChatUtil.printToChatWithPrefix("\247cYou are gonna be kicked by an admin!");
                 mc.addScheduledTask(() -> {
                     try {
-                        Thread.sleep(1500L);
+                        Thread.sleep(3000L);
                     } catch (InterruptedException ignored) {
 
                     }
@@ -69,7 +95,7 @@ public class NetHandlerClient implements INetHandlerClient {
                 break;
             case PASS_LOGIN:
                 if (this.mc.currentScreen instanceof GuiStatus gui) {
-                    Client.setStatus("\247aLogged in(\247e" + packetIn.getUsername() + "\247a)!");
+                    Client.setStatus("\247a" + Managers.i18NManager.getTranslation("login.logged").replace("{0}", "\247e" + packetIn.getUsername() + "\247a"));
                     Client.setUsername(packetIn.getUsername());
                     IRCClient.getInstance().connectedUser = Client.getUsername() != null;
                     Client.setLoggedIn(true);
@@ -78,7 +104,7 @@ public class NetHandlerClient implements INetHandlerClient {
                 break;
             case FAIL_LOGIN:
                 if (this.mc.currentScreen instanceof GuiStatus gui) {
-                    Client.setStatus("\247cFailed to login(Unknown username or password)!");
+                    Client.setStatus("\247c" + Managers.i18NManager.getTranslation("login.fail.password"));
                     Client.setLoggedIn(false);
                     Client.setUsername(null);
                     Client.setPassword(null);
@@ -87,7 +113,7 @@ public class NetHandlerClient implements INetHandlerClient {
                 break;
             case FAIL_EXIST:
                 if (this.mc.currentScreen instanceof GuiStatus gui) {
-                    Client.setStatus("\247cFailed to login(You've already logged in IRC server)!");
+                    Client.setStatus("\247c" + Managers.i18NManager.getTranslation("login.fail.logger"));
                     Client.setLoggedIn(false);
                     Client.setUsername(null);
                     Client.setPassword(null);
@@ -96,7 +122,7 @@ public class NetHandlerClient implements INetHandlerClient {
                 break;
             case FAIL_BANNED:
                 if (this.mc.currentScreen instanceof GuiStatus gui) {
-                    Client.setStatus("\247cFailed to login(Account has been banned)!");
+                    Client.setStatus("\247c" + Managers.i18NManager.getTranslation("login.fail.password"));
                     Client.setLoggedIn(false);
                     Client.setUsername(null);
                     Client.setPassword(null);
@@ -131,7 +157,7 @@ public class NetHandlerClient implements INetHandlerClient {
         KeyFactory keyFactory;
         try {
             keyFactory = KeyFactory.getInstance("RSA");
-            Encoder.key =  keyFactory.generatePublic(publicSpec);
+            Encoder.key = keyFactory.generatePublic(publicSpec);
         } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
@@ -149,5 +175,39 @@ public class NetHandlerClient implements INetHandlerClient {
     @Override
     public void handlePlayer(SPacketPlayer packetIn) {
         Managers.clientManager.clientMateUuids.put(packetIn.getUniqueId(), packetIn.getRank());
+    }
+
+    @Override
+    public void handleMuted(SPacketMuted packetIn) {
+        String reason = packetIn.getReason();
+        long duration = packetIn.getDuration();
+        String last = "";
+        if (duration != 0) {
+            long days = TimeUnit.MILLISECONDS.toDays(duration);
+            long hours = TimeUnit.MILLISECONDS.toHours(duration) % 24;
+            long minutes = TimeUnit.MILLISECONDS.toMinutes(duration) % 60;
+            long seconds = TimeUnit.MILLISECONDS.toSeconds(duration) % 60;
+            if (days != 0) {
+                last += days + Managers.i18NManager.getTranslation(days == 1 ? "time.day" : "time.days") + " ";
+            }
+            if (hours != 0) {
+                last += hours + Managers.i18NManager.getTranslation(hours == 1 ? "time.hour" : "time.hours") + " ";
+            }
+            if (minutes != 0) {
+                last += minutes + Managers.i18NManager.getTranslation(minutes == 1 ? "time.minute" : "time.minutes") + " ";
+            }
+            if (seconds != 0) {
+                last += seconds + Managers.i18NManager.getTranslation(seconds == 1 ? "time.second" : "time.seconds") + " ";
+            }
+            last = Managers.i18NManager.getTranslation("irc.expire.at").replace("{0}", "\247f" + last.trim() + "\247c");
+        }
+        ChatUtil.printToChat(new TextComponentString("\247m--------------------------------------------"));
+        ChatUtil.printToChat(new TextComponentString(""));
+        TextComponentString textComponents = new TextComponentString("   \247b[MIN-IRC] \247c" + Managers.i18NManager.getTranslation("irc.muted") + "\247c" + last);
+        ChatUtil.printToChat(textComponents);
+        textComponents = new TextComponentString("\2477   " + Managers.i18NManager.getTranslation("irc.reason") + "\247f" + reason);
+        ChatUtil.printToChat(textComponents);
+        ChatUtil.printToChat(new TextComponentString(""));
+        ChatUtil.printToChat(new TextComponentString("\247m--------------------------------------------"));
     }
 }

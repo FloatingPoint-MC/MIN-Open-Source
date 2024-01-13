@@ -34,7 +34,7 @@ public class KillEffect extends RenderModule {
 
     public static void makeEffect(Matcher matcher) {
         if (matcher.find()) {
-            String name = matcher.group(1).trim();
+            String name = matcher.group(2).trim();
             EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByName(name);
             if (player != null) {
                 if (KillEffect.mode.isCurrentMode("Flame")) {

@@ -9,21 +9,17 @@ import java.io.IOException;
 public class CPacketAdmin implements Packet<INetHandlerServer> {
     private Action action;
     private String username;
+    private long duration;
+    private String reason;
 
     public CPacketAdmin() {
     }
 
-    public CPacketAdmin(Action action, String username) {
+    public CPacketAdmin(Action action, String username, long duration, String reason) {
         this.action = action;
         this.username = username;
-    }
-
-    public Action getAction() {
-        return action;
-    }
-
-    public String getUsername() {
-        return username;
+        this.duration = duration;
+        this.reason = reason;
     }
 
     @Override
@@ -34,6 +30,8 @@ public class CPacketAdmin implements Packet<INetHandlerServer> {
     public void writePacketData(PacketBuffer buf) throws IOException {
         buf.writeEnumValue(this.action);
         buf.writeString(this.username);
+        buf.writeLong(this.duration);
+        buf.writeString(this.reason);
     }
 
     @Override

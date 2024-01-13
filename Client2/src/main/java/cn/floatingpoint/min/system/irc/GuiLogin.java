@@ -134,18 +134,18 @@ public class GuiLogin extends GuiScreen {
 
     private void login() {
         if (this.username.getText().isEmpty()) {
-            Client.setStatus("\247cUsername cannot be empty!");
+            Client.setStatus("\247c" + Managers.i18NManager.getTranslation("login.empty.username"));
         } else if (this.password.getText().isEmpty()) {
-            Client.setStatus("\247cPassword cannot be empty!");
+            Client.setStatus("\247c" + Managers.i18NManager.getTranslation("login.empty.password"));
         } else {
             if (Client.getUsername() == null || !Client.isLoggedIn()) {
-                Client.setStatus("\247fLogging in...");
+                Client.setStatus("\247f" + Managers.i18NManager.getTranslation("login.logging"));
                 Client.setUsername(username.getText());
                 Client.setPassword(password.getText());
                 RegistryEditUtil.writeValue("FloatingPoint", "FloatClient", "username", this.username.getText());
                 RegistryEditUtil.writeValue("FloatingPoint", "FloatClient", "password", this.rememberPassword ? this.password.getText() : "None");
                 RegistryEditUtil.writeValue("FloatingPoint", "FloatClient", "remember", this.rememberPassword ? "1" : "0");
-                mc.displayGuiScreen(new GuiStatus(this, nextScreen, "Back", "Back"));
+                mc.displayGuiScreen(new GuiStatus(this, nextScreen, Managers.i18NManager.getTranslation("login.back"), Managers.i18NManager.getTranslation("login.back")));
                 IRCClient.getInstance().enableIRC();
             } else {
                 mc.displayGuiScreen(nextScreen);

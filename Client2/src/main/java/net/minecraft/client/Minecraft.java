@@ -1599,15 +1599,15 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
                 MIN.runAsync(() -> {
                     if (this.player != null) {
                         IRCClient.getInstance().addToSendQueue(new CPacketJoinServer(player.getUniqueID()));
-                        try {
-                            JSONObject json = WebUtil.getJSONFromPost("https://minserver.vlouboos.repl.co/online/activate?username=" + this.player.getName() + "&uuid=" + this.player.getUniqueID());
-                            String version = json.getString("version");
-                            if (!version.equals(MIN.VERSION)) {
-                                ChatUtil.printToChatWithPrefix(Managers.i18NManager.getTranslation("update.tip").replace("{0}", version));
-                            }
-                        } catch (URISyntaxException | IOException e) {
-                            throw new RuntimeException(e);
-                        }
+                        //try {
+                        //    JSONObject json = WebUtil.getJSONFromPost("https://minserver.vlouboos.repl.co/online/activate?username=" + this.player.getName() + "&uuid=" + this.player.getUniqueID());
+                        //    String version = json.getString("version");
+                        //    if (!version.equals(MIN.VERSION)) {
+                        //        ChatUtil.printToChatWithPrefix(Managers.i18NManager.getTranslation("update.tip").replace("{0}", version));
+                        //    }
+                        //} catch (URISyntaxException | IOException e) {
+                        //    throw new RuntimeException(e);
+                        //}
                     }
                 });
             }
