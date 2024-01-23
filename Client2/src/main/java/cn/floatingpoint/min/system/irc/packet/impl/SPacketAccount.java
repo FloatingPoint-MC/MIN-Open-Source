@@ -8,12 +8,14 @@ public class SPacketAccount implements Packet<INetHandlerClient> {
     private String username;
     private Status status;
     private String reason;
+    private long duration;
 
     @Override
     public void readPacketData(PacketBuffer buf) {
         this.username = buf.readStringFromBuffer(16);
         this.status = buf.readEnumValue(Status.class);
         this.reason = buf.readStringFromBuffer(32767);
+        this.duration = buf.readLong();
     }
 
     @Override
@@ -31,6 +33,14 @@ public class SPacketAccount implements Packet<INetHandlerClient> {
 
     public Status getStatus() {
         return status;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public long getDuration() {
+        return duration;
     }
 
     public enum Status {

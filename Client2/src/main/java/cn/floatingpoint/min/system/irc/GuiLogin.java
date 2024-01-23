@@ -33,10 +33,10 @@ public class GuiLogin extends GuiScreen {
     public void initGui() {
         username = new InputField(width / 2 - 90, 70, 180, 20);
         password = new InputField(width / 2 - 90, 100, 180, 20, '*');
-        this.rememberPassword = RegistryEditUtil.getValue("FloatingPoint", "MINClient", "remember").equalsIgnoreCase("1");
-        this.username.setText(RegistryEditUtil.getValue("FloatingPoint", "MINClient", "username"));
+        this.rememberPassword = RegistryEditUtil.getValue("FloatingPoint/MINClient", "remember").equalsIgnoreCase("1");
+        this.username.setText(RegistryEditUtil.getValue("FloatingPoint/MINClient", "username"));
         if (this.rememberPassword) {
-            this.password.setText(RegistryEditUtil.getValue("FloatingPoint", "MINClient", "password"));
+            this.password.setText(RegistryEditUtil.getValue("FloatingPoint/MINClient", "password"));
         }
         username.setMaxStringLength(16);
         password.setMaxStringLength(256);
@@ -142,9 +142,9 @@ public class GuiLogin extends GuiScreen {
                 Client.setStatus("\247f" + Managers.i18NManager.getTranslation("login.logging"));
                 Client.setUsername(username.getText());
                 Client.setPassword(password.getText());
-                RegistryEditUtil.writeValue("FloatingPoint", "FloatClient", "username", this.username.getText());
-                RegistryEditUtil.writeValue("FloatingPoint", "FloatClient", "password", this.rememberPassword ? this.password.getText() : "None");
-                RegistryEditUtil.writeValue("FloatingPoint", "FloatClient", "remember", this.rememberPassword ? "1" : "0");
+                RegistryEditUtil.writeValue("FloatingPoint/MINClient", "username", this.username.getText());
+                RegistryEditUtil.writeValue("FloatingPoint/MINClient", "password", this.rememberPassword ? this.password.getText() : "None");
+                RegistryEditUtil.writeValue("FloatingPoint/MINClient", "remember", this.rememberPassword ? "1" : "0");
                 mc.displayGuiScreen(new GuiStatus(this, nextScreen, Managers.i18NManager.getTranslation("login.back"), Managers.i18NManager.getTranslation("login.back")));
                 IRCClient.getInstance().enableIRC();
             } else {

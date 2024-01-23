@@ -380,6 +380,7 @@
   "login.register.success": "Back to login",
   "login.back": "Back",
   "login.logged": "Logged in as {0}!",
+  "login.fail.login": "Failed in connection!",
   "login.fail.password": "Unknown username or password!",
   "login.fail.logged": "You've already logged in IRC server, please try again lager!",
   "time.day": "day",
@@ -390,7 +391,11 @@
   "time.minutes": "minutes",
   "time.second": "second",
   "time.seconds": "seconds",
+  "irc.banned": "You have been banned from IRC server!",
   "irc.muted": "You have been muted from IRC!",
   "irc.expire.at": "It will be removed after {0}！",
-  "irc.reason": "Reason: "
+  "irc.more": "Find out more",
+  "irc.id": "Ban ID",
+  "irc.tip": "Sharing your Ban ID may affect the processing of your appeal!",
+  "irc.reason": "Reason"
 }

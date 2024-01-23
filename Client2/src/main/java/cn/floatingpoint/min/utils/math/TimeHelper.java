@@ -16,7 +16,7 @@ public class TimeHelper {
         this.lastMS = System.currentTimeMillis();
     }
 
-    public static Pair<String, Long> getDurationFromString(String s) {
+    public static Pair<String, Long> getDurationAndReasonFromString(String s) {
         Pattern pattern = Pattern.compile("\\b(?:\\d+y|\\d+mo|\\d+w|\\d+d|\\d+h|\\d+m(?:in)?|\\d+s)\\b\\s*");
         Matcher matcher = pattern.matcher(s.toLowerCase());
         String reason = "";
@@ -55,9 +55,9 @@ public class TimeHelper {
             if (end == -1) {
                 reason = s;
             } else {
-                reason = s.substring(end).trim();
+                reason = s.substring(end);
             }
         }
-        return new Pair<>(reason, duration); // Permanent
+        return new Pair<>(reason.trim(), duration); // Permanent
     }
 }
