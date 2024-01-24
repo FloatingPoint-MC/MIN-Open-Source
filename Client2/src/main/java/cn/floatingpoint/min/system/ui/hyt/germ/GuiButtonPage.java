@@ -20,9 +20,10 @@ import java.util.LinkedHashSet;
  * @author: vlouboos
  * @date: 2023-07-21 15:21:19
  */
-public class GuiButtonPage extends GuiScreen {
+public class GuiButtonPage extends GuiGermScreen {
     private final String uuid;
     private final LinkedHashSet<GermModButton> buttons = new LinkedHashSet<>();
+    private String title;
 
     public GuiButtonPage(String uuid, ArrayList<GermModButton> germModButtons) {
         this.uuid = uuid;
@@ -30,6 +31,7 @@ public class GuiButtonPage extends GuiScreen {
             Minecraft.getMinecraft().displayGuiScreen(null);
             return;
         }
+        title = "花雨庭菜单";
         buttons.addAll(germModButtons);
     }
 
@@ -37,7 +39,7 @@ public class GuiButtonPage extends GuiScreen {
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         GlStateManager.pushMatrix();
         RenderUtil.drawImage(new ResourceLocation("min/hyt/background.png"), width / 2 - 100, height / 2 - 81, 200, 162);
-        Managers.fontManager.sourceHansSansCN_Regular_20.drawCenteredString("花雨庭菜单", width / 2, height / 2 - 72, new Color(216, 216, 216).getRGB());
+        Managers.fontManager.sourceHansSansCN_Regular_20.drawCenteredString(this.title, width / 2, height / 2 - 72, new Color(216, 216, 216).getRGB());
         GlStateManager.enableBlend();
         GlStateManager.enableAlpha();
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -68,5 +70,15 @@ public class GuiButtonPage extends GuiScreen {
                     .writeString(uuid)
             ));
         }
+    }
+
+    public GuiButtonPage title(String title) {
+        this.title = title;
+        return this;
+    }
+
+    @Override
+    public String getUUID() {
+        return uuid;
     }
 }

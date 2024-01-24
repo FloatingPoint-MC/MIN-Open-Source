@@ -15,6 +15,8 @@ import cn.floatingpoint.min.system.module.impl.render.impl.Animation;
 import cn.floatingpoint.min.system.module.impl.render.impl.KeyStrokes;
 import cn.floatingpoint.min.system.module.impl.render.impl.Spinning;
 import cn.floatingpoint.min.system.shortcut.Shortcut;
+import cn.floatingpoint.min.system.ui.hyt.germ.GuiGermScreen;
+import cn.floatingpoint.min.system.ui.hyt.party.GuiInput;
 import cn.floatingpoint.min.system.ui.loading.GuiDamnJapaneseAction;
 import cn.floatingpoint.min.system.ui.loading.GuiLoading;
 import cn.floatingpoint.min.system.ui.mainmenu.DebugMainMenu;
@@ -55,6 +57,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 
+import io.netty.buffer.Unpooled;
 import me.konago.nativeobfuscator.Native;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -149,8 +152,10 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.network.EnumConnectionState;
 import net.minecraft.network.NetworkManager;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.handshake.client.C00Handshake;
 import net.minecraft.network.login.client.CPacketLoginStart;
+import net.minecraft.network.play.client.CPacketCustomPayload;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.profiler.ISnooperInfo;
 import net.minecraft.profiler.Profiler;
@@ -1820,7 +1825,11 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
                     }
                     if (Managers.clientManager.vexGui) {
                         if (i == 37) {
-                            this.player.sendChatMessage("/kh");
+                            this.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease", new PacketBuffer(Unpooled.buffer()
+                                    .writeInt(3)
+                                    .writeInt(37)
+                                    .writeBoolean(true)
+                            )));
                         }
                     }
                     if (i == 1) {

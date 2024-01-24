@@ -58,6 +58,7 @@ public class GermModButton {
 
     public void mouseClicked(String parentUuid) {
         if (hovered) {
+            beforeClick();
             mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease", new PacketBuffer(new PacketBuffer(Unpooled.buffer().writeInt(13))
                     .writeString(parentUuid)
                     .writeString(path)
@@ -71,6 +72,10 @@ public class GermModButton {
                 ));
             }
         }
+    }
+
+    protected void beforeClick() {
+
     }
 
     protected void whenClick() {

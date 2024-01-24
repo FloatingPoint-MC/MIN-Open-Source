@@ -20,7 +20,6 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 
@@ -332,17 +331,23 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
         this.netManager.sendPacket(new CPacketCustomPayload("REGISTER", (new PacketBuffer(Unpooled.buffer().writeBytes(new byte[]{
                 70, 77, 76, 124, 72, 83, 0, 70, 77, 76,
                 0, 70, 77, 76, 124, 77, 80, 0, 70, 77,
-                76, 0, 70, 79, 82, 71, 69, 0, 103, 101,
-                114, 109, 112, 108, 117, 103, 105, 110, 45, 110,
-                101, 116, 101, 97, 115, 101, 0, 104, 121, 116,
+                76, 0, 67, 104, 97, 116, 86, 101, 120, 86,
+                105, 101, 119, 0, 66, 97, 115, 101, 54, 52,
+                86, 101, 120, 86, 105, 101, 119, 0, 72, 117,
+                100, 66, 97, 115, 101, 54, 52, 86, 101, 120,
+                86, 105, 101, 119, 0, 70, 79, 82, 71, 69,
+                0, 103, 101, 114, 109, 112, 108, 117, 103, 105,
+                110, 45, 110, 101, 116, 101, 97, 115, 101, 0,
+                86, 101, 120, 86, 105, 101, 119, 0, 104, 121, 116,
                 48, 0, 97, 114, 109, 111, 117, 114, 101, 114,
-                115})))));
+                115
+        })))));
         this.client.gameSettings.sendSettingsToServer();
         this.netManager.sendPacket(new CPacketCustomPayload("MC|Brand", (new PacketBuffer(Unpooled.buffer())).writeString(ClientBrandRetriever.getClientModName())));
     }
 
     /**
-     * Spawns an instance of the objecttype indicated by the packet and sets its position and momentum
+     * Spawns an instance of the object type indicated by the packet and sets its position and momentum
      */
     public void handleSpawnObject(SPacketSpawnObject packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);

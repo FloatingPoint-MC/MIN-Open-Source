@@ -7,6 +7,7 @@ import io.netty.buffer.ByteBuf;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.zip.GZIPInputStream;
 
@@ -77,28 +78,10 @@ public class ButtonDecoder {
             while ((read = gZIPInputStream.read(array)) >= 0) {
                 byteArrayOutputStream.write(array, 0, read);
             }
-            return byteArrayOutputStream.toString("UTF-8");
+            return byteArrayOutputStream.toString(StandardCharsets.UTF_8);
         } catch (IOException ignored) {
         }
         return "";
-    }
-
-    public boolean containsButtons(String... buttons) {
-        for (String button : buttons) {
-            if (!this.containsButton(button)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public boolean containsButton(String btn) {
-        for (String element : elements) {
-            if (element.endsWith("[but]" + btn)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public VexViewButton getButton(String name) {
@@ -109,16 +92,6 @@ public class ButtonDecoder {
             }
         }
         return null;
-    }
-
-    public int getButtonIndex(String name) {
-        for (int i = 0; i < this.elements.length; ++i) {
-            String e = this.elements[i];
-            if (e.endsWith("[but]" + name)) {
-                return i;
-            }
-        }
-        return 0;
     }
 
     public int containsString(String s) {

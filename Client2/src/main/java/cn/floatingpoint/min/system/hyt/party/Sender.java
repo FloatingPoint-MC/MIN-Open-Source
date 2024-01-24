@@ -60,14 +60,4 @@ public class Sender {
                 .put("packet_type", "button"));
         closeGui();
     }
-
-    public static void joinParty(String text, String fieldId, String id) {
-        openGui();
-        sendJson(new JSONObject()
-                .put("packet_sub_type", fieldId)
-                .put("packet_data", text)
-                .put("packet_type", "fieldtext"));
-        clickButton(id);
-        closeGui();
-    }
 }

@@ -3,6 +3,8 @@ package cn.floatingpoint.min.system.hyt.packet.impl;
 import cn.floatingpoint.min.system.hyt.packet.CustomPacket;
 import cn.floatingpoint.min.system.ui.hyt.germ.GermModButton;
 import cn.floatingpoint.min.system.ui.hyt.germ.GuiButtonPage;
+import cn.floatingpoint.min.system.ui.hyt.germ.GuiGermScreen;
+import cn.floatingpoint.min.system.ui.hyt.party.GuiInput;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import me.konago.nativeobfuscator.Native;
@@ -28,6 +30,7 @@ public class GermModPacket implements CustomPacket {
     private String lastScreen;
     private byte[] totalBytes = null;
     private int counter;
+    private String prevGuiUuid;
 
     @Override
     public String getChannel() {
@@ -57,10 +60,10 @@ public class GermModPacket implements CustomPacket {
                 lastScreen = guiUuid;
                 objectMap = (Map<String, Object>) objectMap.get(guiUuid);
                 if (objectMap == null) return;
-                for (String key : objectMap.keySet()) {
-                    if (key.equalsIgnoreCase("options") || key.endsWith("_bg")) continue;
-                    Map<String, Object> context = (Map<String, Object>) objectMap.get(key);
-                    if (guiUuid.equalsIgnoreCase("mainmenu")) {
+                if (guiUuid.equalsIgnoreCase("mainmenu")) {
+                    for (String key : objectMap.keySet()) {
+                        if (key.equalsIgnoreCase("options") || key.endsWith("_bg")) continue;
+                        Map<String, Object> context = (Map<String, Object>) objectMap.get(key);
                         if (context.containsKey("relativeParts")) {
                             context = (Map<String, Object>) context.get("relativeParts");
                             if (context.containsKey("主分类")) {
@@ -74,10 +77,151 @@ public class GermModPacket implements CustomPacket {
                                 }
                             }
                         }
-                    } else {
-                        openOldGui(context, key, guiUuid);
-                        return;
                     }
+                    prevGuiUuid = guiUuid;
+                } else if (guiUuid.startsWith("team_") && mc.player.ticksExisted > 6) {
+                    if (guiUuid.equals("team_create")) {
+                        ArrayList<GermModButton> buttons = new ArrayList<>();
+                        buttons.add(
+                                new GermModButton("create", "创建队伍") {
+                                    @Override
+                                    protected void whenClick() {
+                                        Minecraft.getMinecraft().player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
+                                                new PacketBuffer(Unpooled.buffer()
+                                                        .writeInt(26))
+                                                        .writeString("GUI$team_create@create")
+                                                        .writeString("{\"null\":null}")));
+                                    }
+                                }
+                        );
+                        buttons.add(new GermModButton("join", "加入队伍") {
+                            @Override
+                            protected void whenClick() {
+                                Minecraft.getMinecraft().player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
+                                        new PacketBuffer(Unpooled.buffer()
+                                                .writeInt(26))
+                                                .writeString("GUI$team_create@join")
+                                                .writeString("{\"null\":null}")));
+                            }
+                        });
+                        mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
+                                new PacketBuffer(Unpooled.buffer()
+                                        .writeInt(4)
+                                        .writeInt(0)
+                                        .writeInt(0))
+                                        .writeString(guiUuid)
+                                        .writeString(guiUuid)
+                                        .writeString(guiUuid)
+                        ));
+                        mc.displayGuiScreen(new GuiButtonPage(guiUuid, buttons).title("花雨庭组队系统"));
+                    } else if (guiUuid.equals("team_list")) {
+                        mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
+                                new PacketBuffer(Unpooled.buffer()
+                                        .writeInt(4)
+                                        .writeInt(0)
+                                        .writeInt(0))
+                                        .writeString(guiUuid)
+                                        .writeString(guiUuid)
+                                        .writeString(guiUuid)
+                        ));
+                        mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease", new PacketBuffer(new PacketBuffer(Unpooled.buffer().writeInt(13))
+                                .writeString(guiUuid)
+                                .writeString("input")
+                                .writeInt(2))));
+                        mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease", new PacketBuffer(new PacketBuffer(Unpooled.buffer().writeInt(13))
+                                .writeString(guiUuid)
+                                .writeString("input")
+                                .writeInt(0))));
+                        Minecraft.getMinecraft().player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
+                                new PacketBuffer(Unpooled.buffer()
+                                        .writeInt(26))
+                                        .writeString("GUI$team_list@input")
+                                        .writeString("{\"null\":null}")));
+                    } else if (guiUuid.equals("team_input")) {
+                        mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
+                                new PacketBuffer(Unpooled.buffer()
+                                        .writeInt(4)
+                                        .writeInt(0)
+                                        .writeInt(0))
+                                        .writeString(mc.currentScreen == null ? prevGuiUuid : ((GuiGermScreen) mc.currentScreen).getUUID())
+                                        .writeString(prevGuiUuid)
+                                        .writeString(guiUuid)
+                        ));
+                        mc.displayGuiScreen(new GuiInput((GuiGermScreen) mc.currentScreen, guiUuid, prevGuiUuid));
+                    } else if (guiUuid.equals("team_main")) {
+                        Map<String, Object> context = (Map<String, Object>) objectMap.get("buttons");
+                        context = (Map<String, Object>) context.get("relativeParts");
+                        ArrayList<GermModButton> buttons = new ArrayList<>();
+                        for (String key : context.keySet()) {
+                            Map<String, Object> buttonMap = (Map<String, Object>) context.get(key);
+                            String postRequest = buttonMap.get("clickScript").toString().trim();
+                            postRequest = postRequest.substring(16, postRequest.length() - 3);
+                            String postAction = postRequest.split(",\\{")[0];
+                            postAction = postAction.substring(0, postAction.length() - 1);
+                            String finalPostAction = postAction;
+                            buttons.add(new GermModButton("buttons$" + key, ((ArrayList<String>) buttonMap.get("texts")).get(0)) {
+                                @Override
+                                protected void whenClick() {
+                                    Minecraft.getMinecraft().player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
+                                            new PacketBuffer(Unpooled.buffer()
+                                                    .writeInt(26))
+                                                    .writeString("GUI$team_main@" + finalPostAction)
+                                                    .writeString("{\"null\":null}")));
+                                }
+
+                                @Override
+                                protected boolean doesCloseOnClickButton() {
+                                    return false;
+                                }
+                            });
+                        }
+                        mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
+                                new PacketBuffer(Unpooled.buffer()
+                                        .writeInt(4)
+                                        .writeInt(0)
+                                        .writeInt(0))
+                                        .writeString(guiUuid)
+                                        .writeString(guiUuid)
+                                        .writeString(guiUuid)
+                        ));
+                        mc.displayGuiScreen(new GuiButtonPage(guiUuid, buttons).title(((ArrayList<String>) ((Map<String, Object>) objectMap.get("title")).get("texts")).get(0)));
+                    } else if (guiUuid.equals("team_request_list")) {
+                        //TODO: Apply Player
+                    } else if (guiUuid.equals("team_invite_list")) {
+                        mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
+                                new PacketBuffer(Unpooled.buffer()
+                                        .writeInt(4)
+                                        .writeInt(0)
+                                        .writeInt(0))
+                                        .writeString(guiUuid)
+                                        .writeString(guiUuid)
+                                        .writeString(guiUuid)
+                        ));
+                        mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease", new PacketBuffer(new PacketBuffer(Unpooled.buffer().writeInt(13))
+                                .writeString(guiUuid)
+                                .writeString("input")
+                                .writeInt(2))));
+                        mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease", new PacketBuffer(new PacketBuffer(Unpooled.buffer().writeInt(13))
+                                .writeString(guiUuid)
+                                .writeString("input")
+                                .writeInt(0))));
+                        Minecraft.getMinecraft().player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
+                                new PacketBuffer(Unpooled.buffer()
+                                        .writeInt(26))
+                                        .writeString("GUI$team_invite_list@input")
+                                        .writeString("{\"null\":null}")));
+                    } else if (guiUuid.equals("team_kick_list")) {
+                        //TODO: Kick Player
+                    }
+                    prevGuiUuid = guiUuid;
+                } else {
+                    for (String key : objectMap.keySet()) {
+                        if (key.equalsIgnoreCase("options") || key.endsWith("_bg")) continue;
+                        Map<String, Object> context = (Map<String, Object>) objectMap.get(key);
+                        openOldGui(context, key, guiUuid);
+                    }
+                    prevGuiUuid = guiUuid;
+                    return;
                 }
             }
             //} else if (packetId == 737) {

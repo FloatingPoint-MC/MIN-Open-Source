@@ -59,6 +59,7 @@ public class Display {
         long monitor = glfwGetPrimaryMonitor();
         GLFWVidMode vidmode = glfwGetVideoMode(monitor);
 
+        assert vidmode != null;
         int monitorWidth = vidmode.width();
         int monitorHeight = vidmode.height();
         int monitorBitPerPixel = vidmode.redBits() + vidmode.greenBits() + vidmode.blueBits();
@@ -75,6 +76,7 @@ public class Display {
         long monitor = glfwGetPrimaryMonitor();
         GLFWVidMode vidmode = glfwGetVideoMode(monitor);
 
+        assert vidmode != null;
         int monitorWidth = vidmode.width();
         int monitorHeight = vidmode.height();
         int monitorBitPerPixel = vidmode.redBits() + vidmode.greenBits() + vidmode.blueBits();
@@ -268,6 +270,7 @@ public class Display {
         int height = mode.getHeight();
         long monitorId = glfwGetPrimaryMonitor();
         final GLFWVidMode vidMode = glfwGetVideoMode(monitorId);
+        assert vidMode != null;
         glfwSetWindowMonitor(getWindow(), NULL, (vidMode.width() - width) / 2, (vidMode.height() - height) / 2, width, height, 0);
 
         IntBuffer fbw = BufferUtils.createIntBuffer(1);
@@ -375,6 +378,7 @@ public class Display {
 
         DisplayMode[] displayModes = new DisplayMode[count.get(0)];
 
+        assert modes != null;
         for (int i = 0; i < count.get(0); i++) {
             modes.position(i * GLFWVidMode.SIZEOF);
 
