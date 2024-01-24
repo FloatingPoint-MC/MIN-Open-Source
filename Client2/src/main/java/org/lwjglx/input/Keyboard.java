@@ -247,6 +247,12 @@ public class Keyboard {
         return next;
     }
 
+    public static void clearAllKetPresses() {
+        while (eventQueue.size() > 1) {
+            eventQueue.remove();
+        }
+    }
+
     public static int getEventKey() {
         assert eventQueue.peek() != null;
         return eventQueue.peek().key;
