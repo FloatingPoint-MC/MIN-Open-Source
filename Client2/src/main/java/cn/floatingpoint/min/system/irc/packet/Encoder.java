@@ -1,6 +1,7 @@
 package cn.floatingpoint.min.system.irc.packet;
 
 import cn.floatingpoint.min.system.irc.connection.NetworkManager;
+import cn.floatingpoint.min.utils.math.DESUtil;
 import cn.floatingpoint.min.utils.math.RSAUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -8,6 +9,7 @@ import io.netty.handler.codec.MessageToByteEncoder;
 
 import java.io.IOException;
 import java.security.PublicKey;
+import java.util.Base64;
 
 public class Encoder extends MessageToByteEncoder<Packet<?>> {
     public static boolean hasKey;
@@ -29,7 +31,12 @@ public class Encoder extends MessageToByteEncoder<Packet<?>> {
                     byte[] bytes = new byte[packetbuffer.readableBytes()];
                     packetbuffer.readBytes(bytes);
                     packetbuffer.clear();
-                    packetbuffer.writeBytes(RSAUtil.encrypt(bytes, key));
+                    packetbuffer.writeBytes(Base64.getEncoder().encode(RSAUtil.encrypt(bytes, key)));
+                } else {
+                    byte[] bytes = new byte[packetbuffer.readableBytes()];
+                    packetbuffer.readBytes(bytes);
+                    packetbuffer.clear();
+                    packetbuffer.writeBytes(Base64.getEncoder().encode(DESUtil.encrypt(bytes)));
                 }
             } catch (Throwable throwable) {
                 throwable.printStackTrace();

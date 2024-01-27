@@ -69,9 +69,6 @@ public class IRCClient {
             Decoder.key = (PrivateKey) map.get("PRIVATE_KEY");
             this.netManager.sendPacket(new CPacketKey(map.get("PUBLIC_KEY").getEncoded()));
             System.out.println("[MIN] Successfully connected to the server!");
-            if (connectedUser) {
-                enableIRC();
-            }
             if (Minecraft.getMinecraft().currentScreen instanceof GuiStatus guiStatus) {
                 guiStatus.fail();
             }
@@ -160,7 +157,7 @@ public class IRCClient {
                     } else {
                         if (args[1].length() <= 16) {
                             if (args.length > 2) {
-                                String combined = ChatUtil.buildMessage(Arrays.copyOfRange(args, 3, args.length));
+                                String combined = ChatUtil.buildMessage(Arrays.copyOfRange(args, 2, args.length));
                                 Pair<String, Long> pair = TimeHelper.getDurationAndReasonFromString(combined);
                                 IRCClient.getInstance().addToSendQueue(new CPacketAdmin(CPacketAdmin.Action.MUTE, args[1], pair.getValue(), pair.getKey().isEmpty() ? "Muted by an operator." : pair.getKey()));
                             } else {
@@ -197,7 +194,10 @@ public class IRCClient {
 
     public void enableIRC() {
         try {
-            this.addToSendQueue(new CPacketLogin(Client.getUsername(), Client.getPassword(), HWIDUtil.getHWID()));
+            if (Encoder.hasKey) {
+                this.addToSendQueue(new CPacketLogin(Client.getUsername(), Client.getPassword(), HWIDUtil.getHWID()));
+            }
+            connectedUser = true;
         } catch (NoSuchAlgorithmException e) {
             this.connect = false;
             IRCClient.getInstance().connectedUser = Client.getUsername() != null;
@@ -208,8 +208,7 @@ public class IRCClient {
                         if (Minecraft.getMinecraft().currentScreen == null || !(Minecraft.getMinecraft().currentScreen instanceof GuiFailedConnect)) {
                             Minecraft.getMinecraft().displayGuiScreen(new GuiFailedConnect("Unable to connect to the server!"));
                         }
-                    } catch (Exception exception) {
-                        break;
+                    } catch (Exception ignored) {
                     }
                 }
             }).start();
@@ -221,6 +220,20 @@ public class IRCClient {
         Decoder.hasKey = Encoder.hasKey = false;
         Decoder.key = null;
         Encoder.key = null;
-        Minecraft.getMinecraft().addScheduledTask(this::connect);
+        new Thread(() -> {
+            try {
+                Thread.sleep(5000L);
+                Minecraft.getMinecraft().addScheduledTask(this::connect);
+            } catch (InterruptedException e) {
+                while (true) {
+                    try {
+                        if (Minecraft.getMinecraft().currentScreen == null || !(Minecraft.getMinecraft().currentScreen instanceof GuiFailedConnect)) {
+                            Minecraft.getMinecraft().displayGuiScreen(new GuiFailedConnect("Unable to connect to the server!"));
+                        }
+                    } catch (Exception ignored) {
+                    }
+                }
+            }
+        }).start();
     }
 }

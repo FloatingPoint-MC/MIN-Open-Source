@@ -1,6 +1,7 @@
 package cn.floatingpoint.min.system.irc.packet;
 
 import cn.floatingpoint.min.system.irc.connection.NetworkManager;
+import cn.floatingpoint.min.utils.math.DESUtil;
 import cn.floatingpoint.min.utils.math.RSAUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -9,6 +10,7 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 
 import java.io.IOException;
 import java.security.PrivateKey;
+import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 
@@ -21,11 +23,13 @@ public class Decoder extends ByteToMessageDecoder {
         if (byteBuf.readableBytes() != 0) {
             PacketBuffer packetbuffer;
             if (!hasKey) {
-                packetbuffer = new PacketBuffer(byteBuf);
+                byte[] bytes = new byte[byteBuf.readableBytes()];
+                byteBuf.readBytes(bytes);
+                packetbuffer = new PacketBuffer(Unpooled.wrappedBuffer(DESUtil.decrypt(Base64.getDecoder().decode(bytes))));
             } else {
                 byte[] bytes = new byte[byteBuf.readableBytes()];
                 byteBuf.readBytes(bytes);
-                packetbuffer = new PacketBuffer(Unpooled.wrappedBuffer(Objects.requireNonNull(RSAUtil.decrypt(bytes, key))));
+                packetbuffer = new PacketBuffer(Unpooled.wrappedBuffer(Objects.requireNonNull(RSAUtil.decrypt(Base64.getDecoder().decode(bytes), key))));
             }
             int i = packetbuffer.readVarIntFromBuffer();
             Packet<?> packet = channelHandlerContext.channel().attr(NetworkManager.attrKeyConnectionState).get().getPacket(EnumPacketDirection.CLIENTBOUND, i);

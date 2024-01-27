@@ -36,8 +36,12 @@ public class NetHandlerClient implements INetHandlerClient {
                         case 1 -> "\247c[" + Managers.i18NManager.getTranslation("irc.youtuber") + "]\247f";
                         case 2 -> "\2474[" + Managers.i18NManager.getTranslation("irc.admin") + "]";
                         case 3 -> "\2476[" + Managers.i18NManager.getTranslation("irc.developer") + "]";
+                        case 4 -> "\2474" + Managers.i18NManager.getTranslation("irc.server");
                         default -> "";
-                    } + packetIn.getUsername() + "\2477: ";
+                    } + (packetIn.getRank() < 4 ? packetIn.getUsername() : "") + switch (packetIn.getRank()) {
+                        case 1, 2, 3, 4 -> "\2477: \247f";
+                        default -> "\2477: ";
+                    };
             TextComponentString text = new TextComponentString("\247b[MIN-IRC]" + prefix + originMessage);
             if (packetIn.getRank() != 4) {
                 text.getStyle()
@@ -196,11 +200,14 @@ public class NetHandlerClient implements INetHandlerClient {
         try {
             keyFactory = KeyFactory.getInstance("RSA");
             Encoder.key = keyFactory.generatePublic(publicSpec);
+            Encoder.hasKey = true;
         } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
-        Encoder.hasKey = true;
         this.netManager.sendPacket(new CPacketHandshake());
+        if (IRCClient.getInstance().connectedUser) {
+            IRCClient.getInstance().enableIRC();
+        }
     }
 
     @Override

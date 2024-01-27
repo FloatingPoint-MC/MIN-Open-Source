@@ -5,6 +5,8 @@ import cn.floatingpoint.min.system.hyt.packet.CustomPacket;
 import cn.floatingpoint.min.system.hyt.packet.impl.Hyt0Packet;
 import cn.floatingpoint.min.system.module.impl.misc.impl.AutoText;
 import cn.floatingpoint.min.system.module.impl.render.impl.KillEffect;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -328,20 +330,18 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
         this.currentServerMaxPlayers = packetIn.getMaxPlayers();
         this.client.player.setReducedDebug(packetIn.isReducedDebugInfo());
         this.client.playerController.setGameType(packetIn.getGameType());
-        this.netManager.sendPacket(new CPacketCustomPayload("REGISTER", (new PacketBuffer(Unpooled.buffer().writeBytes(new byte[]{
-                70, 77, 76, 124, 72, 83, 0, 70, 77, 76,
-                0, 70, 77, 76, 124, 77, 80, 0, 70, 77,
-                76, 0, 67, 104, 97, 116, 86, 101, 120, 86,
-                105, 101, 119, 0, 66, 97, 115, 101, 54, 52,
-                86, 101, 120, 86, 105, 101, 119, 0, 72, 117,
-                100, 66, 97, 115, 101, 54, 52, 86, 101, 120,
-                86, 105, 101, 119, 0, 70, 79, 82, 71, 69,
-                0, 103, 101, 114, 109, 112, 108, 117, 103, 105,
-                110, 45, 110, 101, 116, 101, 97, 115, 101, 0,
-                86, 101, 120, 86, 105, 101, 119, 0, 104, 121, 116,
-                48, 0, 97, 114, 109, 111, 117, 114, 101, 114,
-                115
-        })))));
+        Set<String> channels = new LinkedHashSet<>();
+        channels.add("ChatVexView");
+        channels.add("Base64VexView");
+        channels.add("FORGE");
+        channels.add("germplugin-netease");
+        channels.add("VexView");
+        channels.add("hyt0");
+        channels.add("armourers");
+        channels.add("promotion");
+        this.netManager.sendPacket(new CPacketCustomPayload("REGISTER", (new PacketBuffer(Unpooled.buffer().writeBytes(
+                Joiner.on('\0').join(Iterables.concat(Arrays.asList("FML|HS", "FML", "FML|MP"), channels)).getBytes(StandardCharsets.UTF_8)
+        )))));
         this.client.gameSettings.sendSettingsToServer();
         this.netManager.sendPacket(new CPacketCustomPayload("MC|Brand", (new PacketBuffer(Unpooled.buffer())).writeString(ClientBrandRetriever.getClientModName())));
     }

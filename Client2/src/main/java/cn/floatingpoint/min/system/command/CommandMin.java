@@ -2,9 +2,7 @@ package cn.floatingpoint.min.system.command;
 
 import cn.floatingpoint.min.system.ui.hyt.party.VexViewButton;
 import cn.floatingpoint.min.system.ui.hyt.party.GuiHandleInvitation;
-import cn.floatingpoint.min.utils.client.ChatUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.text.TextComponentString;
 
 /**
  * @projectName: MIN
@@ -31,12 +29,6 @@ public class CommandMin {
                         }
                     }
                 }
-            //} else if (args[0].equalsIgnoreCase("irc")) {
-            //    if (args.length == 1) {
-            //        ChatUtil.printToChat(new TextComponentString("\247b[MIN-IRC] \247cUsage: /min irc <IRC Command>"));
-            //    } else {
-//
-            //    }
             }
         }
         return false;

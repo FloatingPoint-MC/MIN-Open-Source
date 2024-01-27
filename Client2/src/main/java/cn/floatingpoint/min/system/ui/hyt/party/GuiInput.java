@@ -37,24 +37,21 @@ public class GuiInput extends GuiScreen {
             @Override
             protected void beforeClick() {
                 Minecraft.getMinecraft().player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
-                        new PacketBuffer(new PacketBuffer(Unpooled.buffer()
-                                .writeInt(10))
+                        new PacketBuffer(new PacketBuffer(Unpooled.buffer().writeInt(10))
                                 .writeString(guiUuid)
                                 .writeString("input")
                                 .writeString("")
                                 .writeInt(1))
                 ));
                 Minecraft.getMinecraft().player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
-                        new PacketBuffer(new PacketBuffer(Unpooled.buffer()
-                                .writeInt(10))
+                        new PacketBuffer(new PacketBuffer(Unpooled.buffer().writeInt(10))
                                 .writeString(guiUuid)
                                 .writeString("input")
                                 .writeString(inputField.getText().trim())
                                 .writeInt(0))
                 ));
                 Minecraft.getMinecraft().player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
-                        new PacketBuffer(new PacketBuffer(Unpooled.buffer()
-                                .writeInt(10))
+                        new PacketBuffer(new PacketBuffer(Unpooled.buffer().writeInt(10))
                                 .writeString(guiUuid)
                                 .writeString("input")
                                 .writeString(inputField.getText().trim())
@@ -65,10 +62,10 @@ public class GuiInput extends GuiScreen {
             @Override
             protected void whenClick() {
                 Minecraft.getMinecraft().player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
-                        new PacketBuffer(Unpooled.buffer()
-                                .writeInt(26))
+                        new PacketBuffer(Unpooled.buffer().writeInt(26))
                                 .writeString("GUI$" + guiUuid + "@input")
-                                .writeString("{\"input\":\"" + inputField.getText() + "\"}")));
+                                .writeString("{\"input\":\"" + inputField.getText() + "\"}")
+                ));
             }
         };
     }

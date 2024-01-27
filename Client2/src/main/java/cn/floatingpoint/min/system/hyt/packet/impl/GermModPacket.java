@@ -87,8 +87,7 @@ public class GermModPacket implements CustomPacket {
                                     @Override
                                     protected void whenClick() {
                                         Minecraft.getMinecraft().player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
-                                                new PacketBuffer(Unpooled.buffer()
-                                                        .writeInt(26))
+                                                new PacketBuffer(Unpooled.buffer().writeInt(26))
                                                         .writeString("GUI$team_create@create")
                                                         .writeString("{\"null\":null}")));
                                     }
@@ -98,8 +97,7 @@ public class GermModPacket implements CustomPacket {
                             @Override
                             protected void whenClick() {
                                 Minecraft.getMinecraft().player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
-                                        new PacketBuffer(Unpooled.buffer()
-                                                .writeInt(26))
+                                        new PacketBuffer(Unpooled.buffer().writeInt(26))
                                                 .writeString("GUI$team_create@join")
                                                 .writeString("{\"null\":null}")));
                             }
@@ -163,8 +161,7 @@ public class GermModPacket implements CustomPacket {
                                 @Override
                                 protected void whenClick() {
                                     Minecraft.getMinecraft().player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
-                                            new PacketBuffer(Unpooled.buffer()
-                                                    .writeInt(26))
+                                            new PacketBuffer(Unpooled.buffer().writeInt(26))
                                                     .writeString("GUI$team_main@" + finalPostAction)
                                                     .writeString("{\"null\":null}")));
                                 }
@@ -206,10 +203,10 @@ public class GermModPacket implements CustomPacket {
                                 .writeString("input")
                                 .writeInt(0))));
                         Minecraft.getMinecraft().player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
-                                new PacketBuffer(Unpooled.buffer()
-                                        .writeInt(26))
+                                new PacketBuffer(Unpooled.buffer().writeInt(26))
                                         .writeString("GUI$team_invite_list@input")
-                                        .writeString("{\"null\":null}")));
+                                        .writeString("{\"null\":null}")
+                        ));
                     } else if (guiUuid.equals("team_kick_list")) {
                         //TODO: Kick Player
                     }
