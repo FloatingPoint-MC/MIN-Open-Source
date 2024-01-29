@@ -19,15 +19,18 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.http.HttpClientCodec;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
+import io.netty.handler.codec.http.websocketx.WebSocketClientProtocolHandler;
+import io.netty.handler.codec.http.websocketx.WebSocketVersion;
 import me.konago.nativeobfuscator.Native;
 import net.minecraft.client.Minecraft;
 
 import java.net.InetSocketAddress;
-import java.security.Key;
+import java.net.URI;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
 import java.util.Arrays;
-import java.util.Map;
 
 public class IRCClient {
     private static IRCClient theIRC;
@@ -49,10 +52,22 @@ public class IRCClient {
             EventLoopGroup group = new NioEventLoopGroup();
             bootstrap.group(group);
             bootstrap.channel(NioSocketChannel.class);
+            URI uri = new URI("ws://localhost:65535/websocket");
             bootstrap.handler(new ChannelInitializer<NioSocketChannel>() {
                 @Override
                 protected void initChannel(NioSocketChannel channel) {
                     channel.pipeline()
+                            .addLast(new HttpClientCodec())
+                            .addLast(new HttpObjectAggregator(65535))
+                            .addLast(new WebSocketClientProtocolHandler(
+                                    WebSocketClientHandshakerFactory.newHandshaker(
+                                            uri,
+                                            WebSocketVersion.V13,
+                                            null,
+                                            true,
+                                            null
+                                    )
+                            ))
                             .addLast("decoder", new Decoder())
                             .addLast("encoder", new Encoder())
                             .addLast(netManager);
@@ -60,18 +75,7 @@ public class IRCClient {
             });
             bootstrap.option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.TCP_NODELAY, true);
             // 连接服务端
-            bootstrap.connect(new InetSocketAddress("127.0.0.1", 65535)).sync().channel();
-            //bootstrap.connect(new InetSocketAddress(MiscUtil.getRemoteIP(), 65535)).sync().channel();
-            Map<String, Key> map = RSAUtil.generateKeys();
-            Encoder.hasKey = false;
-            Encoder.key = null;
-            Decoder.hasKey = true;
-            Decoder.key = (PrivateKey) map.get("PRIVATE_KEY");
-            this.netManager.sendPacket(new CPacketKey(map.get("PUBLIC_KEY").getEncoded()));
-            System.out.println("[MIN] Successfully connected to the server!");
-            if (Minecraft.getMinecraft().currentScreen instanceof GuiStatus guiStatus) {
-                guiStatus.fail();
-            }
+            bootstrap.connect(new InetSocketAddress(uri.getHost(), uri.getPort())).sync().channel();
             return true;
         } catch (Exception e) {
             if (Minecraft.DEBUG_MODE()) {

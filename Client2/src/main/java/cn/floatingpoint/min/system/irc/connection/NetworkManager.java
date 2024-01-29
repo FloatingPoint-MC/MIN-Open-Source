@@ -1,19 +1,30 @@
 package cn.floatingpoint.min.system.irc.connection;
 
+import cn.floatingpoint.min.management.Managers;
+import cn.floatingpoint.min.system.irc.Client;
+import cn.floatingpoint.min.system.irc.GuiStatus;
 import cn.floatingpoint.min.system.irc.IRCClient;
 import cn.floatingpoint.min.system.irc.handler.INetHandler;
 import cn.floatingpoint.min.system.irc.handler.NetHandlerClient;
+import cn.floatingpoint.min.system.irc.packet.Decoder;
+import cn.floatingpoint.min.system.irc.packet.Encoder;
 import cn.floatingpoint.min.system.irc.packet.EnumConnectionState;
 import cn.floatingpoint.min.system.irc.packet.Packet;
+import cn.floatingpoint.min.system.irc.packet.impl.CPacketKey;
+import cn.floatingpoint.min.utils.math.RSAUtil;
 import io.netty.channel.*;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
+import net.minecraft.client.Minecraft;
 
+import java.security.Key;
+import java.security.PrivateKey;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -32,6 +43,17 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
         this.channel = ctx.channel();
         this.setConnectionState(EnumConnectionState.PROTOCOL);
         this.packetListener = new NetHandlerClient(this);
+        Map<String, Key> map = RSAUtil.generateKeys();
+        Encoder.hasKey = false;
+        Encoder.key = null;
+        Decoder.hasKey = true;
+        Decoder.key = (PrivateKey) map.get("PRIVATE_KEY");
+        this.sendPacket(new CPacketKey(map.get("PUBLIC_KEY").getEncoded()));
+        System.out.println("[MIN] Successfully connected to the server!");
+        if (Minecraft.getMinecraft().currentScreen instanceof GuiStatus guiStatus) {
+            Client.setStatus("\247f" + Managers.i18NManager.getTranslation("irc.disconnect"));
+            guiStatus.fail();
+        }
     }
 
     @Override
