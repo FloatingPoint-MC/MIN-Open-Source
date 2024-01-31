@@ -85,6 +85,7 @@ public class IRCClient extends WebSocketClient {
      * @param handshakedata The handshake of the websocket instance
      */
     @Override
+    @Native
     public void onOpen(ServerHandshake handshakedata) {
         Map<String, Key> map = RSAUtil.generateKeys();
         Encoder.hasKey = false;
@@ -131,6 +132,7 @@ public class IRCClient extends WebSocketClient {
      *               host.
      **/
     @Override
+    @Native
     public void onClose(int code, String reason, boolean remote) {
         IRCClient.getInstance().startReconnection();
     }
