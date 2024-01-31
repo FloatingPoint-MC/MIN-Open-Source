@@ -7,6 +7,7 @@ import cn.floatingpoint.min.system.ui.hyt.germ.GuiGermScreen;
 import cn.floatingpoint.min.system.ui.hyt.germ.component.impl.GermModButton;
 import cn.floatingpoint.min.system.ui.hyt.germ.component.impl.GermPartyKick;
 import cn.floatingpoint.min.system.ui.hyt.germ.component.impl.GermPartyRequest;
+import cn.floatingpoint.min.system.ui.hyt.germ.component.impl.GermText;
 import cn.floatingpoint.min.system.ui.hyt.party.GuiInput;
 import cn.floatingpoint.min.utils.client.ChatUtil;
 import io.netty.buffer.ByteBuf;
@@ -66,17 +67,33 @@ public class GermModPacket implements CustomPacket {
                 if (objectMap == null) return;
                 if (guiUuid.equalsIgnoreCase("mainmenu")) {
                     for (String key : objectMap.keySet()) {
-                        if (key.equalsIgnoreCase("options") || key.endsWith("_bg")) continue;
-                        Map<String, Object> context = (Map<String, Object>) objectMap.get(key);
-                        if (context.containsKey("relativeParts")) {
-                            context = (Map<String, Object>) context.get("relativeParts");
-                            if (context.containsKey("主分类")) {
-                                context = (Map<String, Object>) context.get("主分类");
-                                if (context.containsKey("relativeParts")) {
-                                    context = (Map<String, Object>) context.get("relativeParts");
-                                    ArrayList<GermComponent> buttons = openGui(context.keySet(), guiUuid);
-                                    if (!buttons.isEmpty()) {
-                                        mc.displayGuiScreen(new GuiComponentPage(guiUuid, buttons));
+                        if (yml.contains("只有队长才可以加入游戏哦")) {
+                            ArrayList<GermComponent> components = new ArrayList<>();
+                            components.add(new GermText("只有队长才可以加入游戏捏"));
+                            components.add(new GermModButton("自适应背景$确认", "确认"));
+                            mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
+                                    new PacketBuffer(Unpooled.buffer()
+                                            .writeInt(4)
+                                            .writeInt(0)
+                                            .writeInt(0))
+                                            .writeString(guiUuid)
+                                            .writeString(guiUuid)
+                                            .writeString(guiUuid)
+                            ));
+                            mc.displayGuiScreen(new GuiComponentPage(guiUuid, components));
+                        } else {
+                            if (key.equalsIgnoreCase("options") || key.endsWith("_bg")) continue;
+                            Map<String, Object> context = (Map<String, Object>) objectMap.get(key);
+                            if (context.containsKey("relativeParts")) {
+                                context = (Map<String, Object>) context.get("relativeParts");
+                                if (context.containsKey("主分类")) {
+                                    context = (Map<String, Object>) context.get("主分类");
+                                    if (context.containsKey("relativeParts")) {
+                                        context = (Map<String, Object>) context.get("relativeParts");
+                                        ArrayList<GermComponent> buttons = openGui(context.keySet(), guiUuid);
+                                        if (!buttons.isEmpty()) {
+                                            mc.displayGuiScreen(new GuiComponentPage(guiUuid, buttons));
+                                        }
                                     }
                                 }
                             }
