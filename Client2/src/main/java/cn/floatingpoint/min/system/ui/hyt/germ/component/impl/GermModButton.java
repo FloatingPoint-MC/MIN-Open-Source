@@ -1,6 +1,7 @@
-package cn.floatingpoint.min.system.ui.hyt.germ;
+package cn.floatingpoint.min.system.ui.hyt.germ.component.impl;
 
 import cn.floatingpoint.min.management.Managers;
+import cn.floatingpoint.min.system.ui.hyt.germ.component.GermComponent;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -14,11 +15,11 @@ import java.awt.*;
  * @author: vlouboos
  * @date: 2023-07-21 15:18:30
  */
-public class GermModButton {
-    private final Minecraft mc = Minecraft.getMinecraft();
-    private final String path;
-    private final String text;
-    private boolean hovered;
+public class GermModButton implements GermComponent {
+    protected final Minecraft mc = Minecraft.getMinecraft();
+    protected final String path;
+    protected final String text;
+    protected boolean hovered;
 
     public GermModButton(String path, String text) {
         this.path = path;
@@ -26,7 +27,8 @@ public class GermModButton {
         hovered = false;
     }
 
-    public void drawButton(String parentUuid, int x, int y, int mouseX, int mouseY) {
+    @Override
+    public void drawComponent(String parentUuid, int x, int y, int mouseX, int mouseY) {
         if (Gui.isHovered(x - 50, y - 10, x + 50, y + 10, mouseX, mouseY)) {
             if (!hovered) {
                 mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease", new PacketBuffer(new PacketBuffer(Unpooled.buffer().writeInt(13))
@@ -56,6 +58,17 @@ public class GermModButton {
         Managers.fontManager.sourceHansSansCN_Regular_18.drawCenteredString(text.replace("\2478", ""), x, startY + 6, new Color(216, 216, 216).getRGB());
     }
 
+    @Override
+    public int getHeight() {
+        return 20;
+    }
+
+    @Override
+    public int getSeparation() {
+        return 20;
+    }
+
+    @Override
     public void mouseClicked(String parentUuid) {
         if (hovered) {
             beforeClick();

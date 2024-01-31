@@ -4,18 +4,35 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 
+import java.util.ArrayList;
+
 /**
  * @projectName: MIN
  * @author: vlouboos
  * @date: 2023-07-20 11:16:33
  */
 public class ChatUtil {
+    private static final ArrayList<ITextComponent> storedMessages = new ArrayList<>();
+
+    public static void refreshMessage() {
+        storedMessages.forEach(Minecraft.getMinecraft().ingameGUI.getChatGUI()::printChatMessage);
+        storedMessages.clear();
+    }
+
     public static void printToChatWithPrefix(String message) {
-        Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentString("\247b[MIN] \247f" + message));
+        if (Minecraft.getMinecraft().world != null && Minecraft.getMinecraft().player != null && Minecraft.getMinecraft().ingameGUI != null) {
+            Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentString("\247b[MIN] \247f" + message));
+        } else {
+            storedMessages.add(new TextComponentString("\247b[MIN] \247f" + message));
+        }
     }
 
     public static void printToChat(ITextComponent message) {
-        Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(message);
+        if (Minecraft.getMinecraft().world != null && Minecraft.getMinecraft().player != null && Minecraft.getMinecraft().ingameGUI != null) {
+            Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(message);
+        } else {
+            storedMessages.add(message);
+        }
     }
 
     public static String buildMessage(String... args) {

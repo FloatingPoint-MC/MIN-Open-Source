@@ -44,7 +44,7 @@ public class GuiEditAction extends GuiScreen {
             }
             this.buttonList.add(new GuiButton(1, this.width / 2 - 100, this.height - 52, 98, 20, Managers.i18NManager.getTranslation("shortcut.save")));
         }
-        this.buttonList.add(new GuiButton(2, this.width / 2 + 2, this.height - 52, 98, 20, Managers.i18NManager.getTranslation("shortcut.back")));
+        this.buttonList.add(new GuiButton(2, this.width / 2 + 2, this.height - 52, 98, 20, Managers.i18NManager.getTranslation("back")));
         this.buttonList.add(new GuiButton(3, this.width / 2 - 96 + mc.fontRenderer.getStringWidth(Managers.i18NManager.getTranslation("shortcut.action.type")), 41, 98, 20, Managers.i18NManager.getTranslation("shortcut.action." + action.type().name())));
     }
 

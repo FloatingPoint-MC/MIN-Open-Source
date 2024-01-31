@@ -126,7 +126,7 @@ public class GuiLogin extends GuiScreen {
             if (isHovered(width / 2 - 89, 164, width / 2 - 89 + regLength, 173, mouseX, mouseY)) {
                 mc.displayGuiScreen(new GuiRegister(this));
             } else {
-                Client.setStatus("\247e" + Managers.i18NManager.getTranslation("login.idle"));
+                Client.setStatus("\247e" + Managers.i18NManager.getTranslation("idle"));
             }
         }
         login.mouseClicked(mouseX, mouseY, mouseButton);
@@ -145,7 +145,7 @@ public class GuiLogin extends GuiScreen {
                 RegistryEditUtil.writeValue("FloatingPoint/MINClient", "username", this.username.getText());
                 RegistryEditUtil.writeValue("FloatingPoint/MINClient", "password", this.rememberPassword ? this.password.getText() : "None");
                 RegistryEditUtil.writeValue("FloatingPoint/MINClient", "remember", this.rememberPassword ? "1" : "0");
-                mc.displayGuiScreen(new GuiStatus(this, nextScreen, Managers.i18NManager.getTranslation("login.back"), Managers.i18NManager.getTranslation("login.back")));
+                mc.displayGuiScreen(new GuiStatus(this, nextScreen, Managers.i18NManager.getTranslation("back"), Managers.i18NManager.getTranslation("back")));
                 IRCClient.getInstance().enableIRC();
             } else {
                 mc.displayGuiScreen(nextScreen);

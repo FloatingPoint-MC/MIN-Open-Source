@@ -1,6 +1,8 @@
 package cn.floatingpoint.min.system.irc.handler;
 
+import cn.floatingpoint.min.MIN;
 import cn.floatingpoint.min.management.Managers;
+import cn.floatingpoint.min.management.impl.ClientManager;
 import cn.floatingpoint.min.system.irc.Client;
 import cn.floatingpoint.min.system.irc.GuiStatus;
 import cn.floatingpoint.min.system.irc.IRCClient;
@@ -9,6 +11,7 @@ import cn.floatingpoint.min.system.irc.packet.Encoder;
 import cn.floatingpoint.min.system.irc.packet.impl.*;
 import cn.floatingpoint.min.utils.client.ChatUtil;
 import net.minecraft.client.gui.GuiChat;
+import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
@@ -173,7 +176,7 @@ public class NetHandlerClient implements INetHandlerClient {
                 break;
             case PASS_REGISTER:
                 if (this.mc.currentScreen instanceof GuiStatus gui) {
-                    Client.setStatus("\247aThanks for using MIN Client!", "\247aYour account has been registered. Hope you'll have a good time!");
+                    Client.setStatus("\247a" + Managers.i18NManager.getTranslation("login.register.thanks"), "\247a" + Managers.i18NManager.getTranslation("login.register.wish"));
                     Client.setLoggedIn(false);
                     Client.setUsername(null);
                     Client.setPassword(null);
@@ -219,7 +222,11 @@ public class NetHandlerClient implements INetHandlerClient {
 
     @Override
     public void handlePlayer(SPacketPlayer packetIn) {
-        Managers.clientManager.clientMateUuids.put(packetIn.getUniqueId(), packetIn.getRank());
+        NetworkPlayerInfo info = mc.player.connection.getPlayerInfo(packetIn.getUniqueId());
+        if (info != null) {
+            info.setPlayerTexturesLoaded(false);
+            Managers.clientManager.clientMateUuids.put(packetIn.getUniqueId(), new ClientManager.ClientMate(packetIn.getSkinName(), packetIn.getSkinId(), packetIn.getRank()));
+        }
     }
 
     @Override
@@ -254,5 +261,29 @@ public class NetHandlerClient implements INetHandlerClient {
         ChatUtil.printToChat(textComponents);
         ChatUtil.printToChat(new TextComponentString(""));
         ChatUtil.printToChat(new TextComponentString("\247m--------------------------------------------"));
+    }
+
+    @Override
+    public void handleHandshake(SPacketHandshake packetIn) {
+        if (!MIN.VERSION.equalsIgnoreCase(packetIn.getVersion())) {
+            ChatUtil.printToChatWithPrefix(Managers.i18NManager.getTranslation("update.tip").replace("{0}", packetIn.getVersion()));
+        }
+    }
+
+    @Override
+    public void handleSkin(SPacketSkin packetIn) {
+        if (packetIn.getAction() == SPacketSkin.Action.CHANGED) {
+            Client.setStatus("\247a" + Managers.i18NManager.getTranslation("skin.changed").replace("{0}", "\247e" + packetIn.getAddition() + "\247a"));
+        } else if (packetIn.getAction() == SPacketSkin.Action.INVALID_NAME) {
+            Client.setStatus("\247c" + Managers.i18NManager.getTranslation("skin.invalid.name"));
+        } else if (packetIn.getAction() == SPacketSkin.Action.INVALID_CODE) {
+            Client.setStatus("\247c" + Managers.i18NManager.getTranslation("skin.invalid.code"));
+        } else if (packetIn.getAction() == SPacketSkin.Action.FAIL) {
+            Client.setStatus("\247c" + Managers.i18NManager.getTranslation("skin.expired"));
+        } else if (packetIn.getAction() == SPacketSkin.Action.BOUGHT) {
+            Client.setStatus("\247a" + Managers.i18NManager.getTranslation("skin.bought").replace("{0}", Managers.i18NManager.getTranslation(packetIn.getAddition())));
+        } else if (packetIn.getAction() == SPacketSkin.Action.RENEWED) {
+            Client.setStatus("\247a" + Managers.i18NManager.getTranslation("skin.renewed").replace("{0}", Managers.i18NManager.getTranslation(packetIn.getAddition())));
+        }
     }
 }

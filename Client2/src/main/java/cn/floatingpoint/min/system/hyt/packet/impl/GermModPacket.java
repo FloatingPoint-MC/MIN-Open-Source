@@ -1,10 +1,14 @@
 package cn.floatingpoint.min.system.hyt.packet.impl;
 
 import cn.floatingpoint.min.system.hyt.packet.CustomPacket;
-import cn.floatingpoint.min.system.ui.hyt.germ.GermModButton;
-import cn.floatingpoint.min.system.ui.hyt.germ.GuiButtonPage;
+import cn.floatingpoint.min.system.ui.hyt.germ.component.GermComponent;
+import cn.floatingpoint.min.system.ui.hyt.germ.GuiComponentPage;
 import cn.floatingpoint.min.system.ui.hyt.germ.GuiGermScreen;
+import cn.floatingpoint.min.system.ui.hyt.germ.component.impl.GermModButton;
+import cn.floatingpoint.min.system.ui.hyt.germ.component.impl.GermPartyKick;
+import cn.floatingpoint.min.system.ui.hyt.germ.component.impl.GermPartyRequest;
 import cn.floatingpoint.min.system.ui.hyt.party.GuiInput;
+import cn.floatingpoint.min.utils.client.ChatUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import me.konago.nativeobfuscator.Native;
@@ -70,9 +74,9 @@ public class GermModPacket implements CustomPacket {
                                 context = (Map<String, Object>) context.get("主分类");
                                 if (context.containsKey("relativeParts")) {
                                     context = (Map<String, Object>) context.get("relativeParts");
-                                    ArrayList<GermModButton> buttons = openGui(context.keySet(), guiUuid);
+                                    ArrayList<GermComponent> buttons = openGui(context.keySet(), guiUuid);
                                     if (!buttons.isEmpty()) {
-                                        mc.displayGuiScreen(new GuiButtonPage(guiUuid, buttons));
+                                        mc.displayGuiScreen(new GuiComponentPage(guiUuid, buttons));
                                     }
                                 }
                             }
@@ -81,7 +85,7 @@ public class GermModPacket implements CustomPacket {
                     prevGuiUuid = guiUuid;
                 } else if (guiUuid.startsWith("team_") && mc.player.ticksExisted > 6) {
                     if (guiUuid.equals("team_create")) {
-                        ArrayList<GermModButton> buttons = new ArrayList<>();
+                        ArrayList<GermComponent> buttons = new ArrayList<>();
                         buttons.add(
                                 new GermModButton("create", "创建队伍") {
                                     @Override
@@ -111,7 +115,7 @@ public class GermModPacket implements CustomPacket {
                                         .writeString(guiUuid)
                                         .writeString(guiUuid)
                         ));
-                        mc.displayGuiScreen(new GuiButtonPage(guiUuid, buttons).title("花雨庭组队系统"));
+                        mc.displayGuiScreen(new GuiComponentPage(guiUuid, buttons).title("花雨庭组队系统"));
                     } else if (guiUuid.equals("team_list")) {
                         mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
                                 new PacketBuffer(Unpooled.buffer()
@@ -149,7 +153,7 @@ public class GermModPacket implements CustomPacket {
                     } else if (guiUuid.equals("team_main")) {
                         Map<String, Object> context = (Map<String, Object>) objectMap.get("buttons");
                         context = (Map<String, Object>) context.get("relativeParts");
-                        ArrayList<GermModButton> buttons = new ArrayList<>();
+                        ArrayList<GermComponent> buttons = new ArrayList<>();
                         for (String key : context.keySet()) {
                             Map<String, Object> buttonMap = (Map<String, Object>) context.get(key);
                             String postRequest = buttonMap.get("clickScript").toString().trim();
@@ -181,9 +185,31 @@ public class GermModPacket implements CustomPacket {
                                         .writeString(guiUuid)
                                         .writeString(guiUuid)
                         ));
-                        mc.displayGuiScreen(new GuiButtonPage(guiUuid, buttons).title(((ArrayList<String>) ((Map<String, Object>) objectMap.get("title")).get("texts")).get(0)));
+                        mc.displayGuiScreen(new GuiComponentPage(guiUuid, buttons).title(((ArrayList<String>) ((Map<String, Object>) objectMap.get("title")).get("texts")).get(0)));
                     } else if (guiUuid.equals("team_request_list")) {
-                        //TODO: Apply Player
+                        objectMap = (Map<String, Object>) objectMap.get("scroll");
+                        objectMap = (Map<String, Object>) objectMap.get("scrollableParts");
+                        if (objectMap == null) {
+                            ChatUtil.printToChatWithPrefix("\247a\247l没有人申请你的组队捏！");
+                        } else {
+                            ArrayList<GermComponent> components = new ArrayList<>();
+                            for (String keyEntry : objectMap.keySet()) {
+                                Map<String, Object> childEntry = (Map<String, Object>) objectMap.get(keyEntry);
+                                childEntry = (Map<String, Object>) childEntry.get("relativeParts");
+                                String textName = ((ArrayList<String>) ((Map<String, Object>) childEntry.get("name")).get("texts")).get(0);
+                                mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
+                                        new PacketBuffer(Unpooled.buffer()
+                                                .writeInt(4)
+                                                .writeInt(0)
+                                                .writeInt(0))
+                                                .writeString(guiUuid)
+                                                .writeString(guiUuid)
+                                                .writeString(guiUuid)
+                                ));
+                                components.add(new GermPartyRequest(keyEntry.substring(6)));
+                            }
+                            mc.displayGuiScreen(new GuiComponentPage(guiUuid, components).title("申请列表"));
+                        }
                     } else if (guiUuid.equals("team_invite_list")) {
                         mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
                                 new PacketBuffer(Unpooled.buffer()
@@ -208,7 +234,29 @@ public class GermModPacket implements CustomPacket {
                                         .writeString("{\"null\":null}")
                         ));
                     } else if (guiUuid.equals("team_kick_list")) {
-                        //TODO: Kick Player
+                        objectMap = (Map<String, Object>) objectMap.get("scroll");
+                        objectMap = (Map<String, Object>) objectMap.get("scrollableParts");
+                        if (objectMap == null) {
+                            ChatUtil.printToChatWithPrefix("\247a\247l你的队伍里就剩下你一个人了捏！");
+                        } else {
+                            ArrayList<GermComponent> components = new ArrayList<>();
+                            for (String keyEntry : objectMap.keySet()) {
+                                Map<String, Object> childEntry = (Map<String, Object>) objectMap.get(keyEntry);
+                                childEntry = (Map<String, Object>) childEntry.get("relativeParts");
+                                String textName = ((ArrayList<String>) ((Map<String, Object>) childEntry.get("name")).get("texts")).get(0);
+                                mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
+                                        new PacketBuffer(Unpooled.buffer()
+                                                .writeInt(4)
+                                                .writeInt(0)
+                                                .writeInt(0))
+                                                .writeString(guiUuid)
+                                                .writeString(guiUuid)
+                                                .writeString(guiUuid)
+                                ));
+                                components.add(new GermPartyKick(keyEntry.substring(6)));
+                            }
+                            mc.displayGuiScreen(new GuiComponentPage(guiUuid, components).title("踢出队员"));
+                        }
                     }
                     prevGuiUuid = guiUuid;
                 } else {
@@ -295,15 +343,15 @@ public class GermModPacket implements CustomPacket {
 
     @Native
     private void updateScreen(String content) {
-        ArrayList<GermModButton> buttons = getButtons(content);
+        ArrayList<GermComponent> buttons = getButtons(content);
         if (!buttons.isEmpty()) {
-            mc.displayGuiScreen(new GuiButtonPage("mainmenu", buttons));
+            mc.displayGuiScreen(new GuiComponentPage("mainmenu", buttons));
         }
     }
 
     @SuppressWarnings("all")
     private void openOldGui(Map<String, Object> context, String key, String guiUuid) {
-        ArrayList<GermModButton> buttons = new ArrayList<>();
+        ArrayList<GermComponent> buttons = new ArrayList<>();
         for (String k : context.keySet()) {
             if (!k.equalsIgnoreCase("scrollableParts")) continue;
             context = (Map<String, Object>) context.get("scrollableParts");
@@ -313,6 +361,7 @@ public class GermModPacket implements CustomPacket {
                     scrollableSubMap = (Map<String, Object>) scrollableSubMap.get("relativeParts");
                     for (String k1 : scrollableSubMap.keySet()) {
                         scrollableSubMap = (Map<String, Object>) scrollableSubMap.get(k1);
+                        if (scrollableSubMap == null) return;
                         if (scrollableSubMap.containsKey("texts")) {
                             String buttonText = ((ArrayList<String>) scrollableSubMap.get("texts")).get(0);
                             buttons.add(new GermModButton(key + "$" + uuid + "$" + k1, buttonText));
@@ -332,11 +381,11 @@ public class GermModPacket implements CustomPacket {
                             .writeString(guiUuid)
                             .writeString(guiUuid)
             ));
-            mc.displayGuiScreen(new GuiButtonPage(guiUuid, buttons));
+            mc.displayGuiScreen(new GuiComponentPage(guiUuid, buttons));
         }
     }
 
-    private ArrayList<GermModButton> getButtons(String content) {
+    private ArrayList<GermComponent> getButtons(String content) {
         StringTokenizer token = new StringTokenizer(content, "@");
         token.nextToken();
         if (!token.nextToken().equals("data")) return new ArrayList<>();
@@ -346,8 +395,8 @@ public class GermModPacket implements CustomPacket {
         return analyzeButton(jsonArray);
     }
 
-    private ArrayList<GermModButton> analyzeButton(JSONArray jsonArray) {
-        ArrayList<GermModButton> buttons = new ArrayList<>();
+    private ArrayList<GermComponent> analyzeButton(JSONArray jsonArray) {
+        ArrayList<GermComponent> buttons = new ArrayList<>();
         for (int i = 0; i < jsonArray.length(); i++) {
             Object o = jsonArray.get(i);
             if (o instanceof JSONObject jsonObject) {
@@ -359,8 +408,8 @@ public class GermModPacket implements CustomPacket {
         return buttons;
     }
 
-    private ArrayList<GermModButton> openGui(Set<String> keys, String uuid) {
-        ArrayList<GermModButton> buttons = new ArrayList<>();
+    private ArrayList<GermComponent> openGui(Set<String> keys, String uuid) {
+        ArrayList<GermComponent> buttons = new ArrayList<>();
         for (String k1 : keys) {
             String buttonText = getText(k1);
             if (buttonText.isEmpty()) continue;

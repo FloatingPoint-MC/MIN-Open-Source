@@ -16,4 +16,8 @@ public interface INetHandlerClient extends INetHandler {
     void handlePlayer(SPacketPlayer packetIn);
 
     void handleMuted(SPacketMuted packetIn);
+
+    void handleHandshake(SPacketHandshake packetIn);
+
+    void handleSkin(SPacketSkin packetIn);
 }

@@ -95,7 +95,7 @@ public class GuiRegister extends GuiScreen {
         username.mouseClicked(mouseX, mouseY, mouseButton);
         password.mouseClicked(mouseX, mouseY, mouseButton);
         confirmPassword.mouseClicked(mouseX, mouseY, mouseButton);
-        Client.setStatus("\247e" + Managers.i18NManager.getTranslation("login.idle"));
+        Client.setStatus("\247e" + Managers.i18NManager.getTranslation("idle"));
         register.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
@@ -116,7 +116,7 @@ public class GuiRegister extends GuiScreen {
             try {
                 Client.setStatus("\247f" + Managers.i18NManager.getTranslation("login.registering"));
                 IRCClient.getInstance().addToSendQueue(new CPacketRegister(username.getText(), password.getText(), HWIDUtil.getHWID()));
-                mc.displayGuiScreen(new GuiStatus(GuiRegister.this, parent, Managers.i18NManager.getTranslation("login.register.success"), Managers.i18NManager.getTranslation("login.back")));
+                mc.displayGuiScreen(new GuiStatus(GuiRegister.this, parent, Managers.i18NManager.getTranslation("login.register.success"), Managers.i18NManager.getTranslation("back")));
             } catch (NoSuchAlgorithmException e) {
                 throw new RuntimeException(e);
             }

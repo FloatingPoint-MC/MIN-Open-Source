@@ -10,8 +10,7 @@ public class Client {
     private static String username;
     private static String password;
     private static boolean loggedIn = false;
-    private static List<String> status = Collections.singletonList("\247e" + Managers.i18NManager.getTranslation("login.idle"));
-    private static long lastMS;
+    private static List<String> status = Collections.singletonList("\247e" + Managers.i18NManager.getTranslation("idle"));
 
     public static String getUsername() {
         return username;
@@ -43,13 +42,5 @@ public class Client {
 
     public static void setStatus(String... status) {
         Client.status = Arrays.asList(status);
-    }
-
-    public static long getLastMS() {
-        return lastMS;
-    }
-
-    public static void setLastMS(long lastMS) {
-        Client.lastMS = lastMS;
     }
 }

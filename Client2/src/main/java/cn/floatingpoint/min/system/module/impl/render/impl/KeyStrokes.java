@@ -2,6 +2,7 @@ package cn.floatingpoint.min.system.module.impl.render.impl;
 
 import cn.floatingpoint.min.management.Managers;
 import cn.floatingpoint.min.system.module.impl.render.RenderModule;
+import cn.floatingpoint.min.system.module.value.impl.ModeValue;
 import cn.floatingpoint.min.system.module.value.impl.OptionValue;
 import cn.floatingpoint.min.system.ui.components.DraggableGameView;
 import cn.floatingpoint.min.utils.client.Pair;
@@ -32,6 +33,22 @@ public class KeyStrokes extends RenderModule implements DraggableGameView {
             super.setValue(value);
         }
     };
+    private final OptionValue showCPS = new OptionValue(true) {
+        @Override
+        public void setValue(Boolean value) {
+            leftCounter.clear();
+            rightCounter.clear();
+            super.setValue(value);
+        }
+    };
+    public static final ModeValue cpsCountsDetermine = new ModeValue(new String[]{"Accepted", "Inputted"}, "Accepted") {
+        @Override
+        public void setValue(String value) {
+            leftCounter.clear();
+            rightCounter.clear();
+            super.setValue(value);
+        }
+    };
     public final static HashSet<Long> leftCounter = new HashSet<>();
     public final static HashSet<Long> rightCounter = new HashSet<>();
     private final HashMap<String, Integer> colors = new HashMap<>();
@@ -45,7 +62,9 @@ public class KeyStrokes extends RenderModule implements DraggableGameView {
                 new Pair<>("ShowMoveKeys", showMoveKeys),
                 new Pair<>("ShowJumpKey", showJumpKey),
                 new Pair<>("ShowSneakKey", showSneakKey),
-                new Pair<>("ShowMouseButton", showMouseButton)
+                new Pair<>("ShowMouseButton", showMouseButton),
+                new Pair<>("ShowCPS", showCPS),
+                new Pair<>("CPSCountsDetermine", cpsCountsDetermine)
         );
     }
 
@@ -93,8 +112,8 @@ public class KeyStrokes extends RenderModule implements DraggableGameView {
             drawable = true;
             leftCounter.removeIf(time -> System.currentTimeMillis() - time >= 1000L);
             rightCounter.removeIf(time -> System.currentTimeMillis() - time >= 1000L);
-            drawButton("LMB", mc.gameSettings.keyBindAttack.getKeyCode(), x, height + y, 34, leftCounter.isEmpty() ? "LMB" : leftCounter.size() + "CPS");
-            drawButton("RMB", mc.gameSettings.keyBindUseItem.getKeyCode(), x + 36, height + y, 34, rightCounter.isEmpty() ? "RMB" : rightCounter.size() + "CPS");
+            drawButton("LMB", mc.gameSettings.keyBindAttack.getKeyCode(), x, height + y, 34, (!showCPS.getValue() || leftCounter.isEmpty()) ? "LMB" : leftCounter.size() + "CPS");
+            drawButton("RMB", mc.gameSettings.keyBindUseItem.getKeyCode(), x + 36, height + y, 34, (!showCPS.getValue() || rightCounter.isEmpty()) ? "RMB" : rightCounter.size() + "CPS");
             height += 22;
         } else {
             height -= 2;

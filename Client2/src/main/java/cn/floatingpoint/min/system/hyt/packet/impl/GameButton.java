@@ -1,6 +1,6 @@
 package cn.floatingpoint.min.system.hyt.packet.impl;
 
-import cn.floatingpoint.min.system.ui.hyt.germ.GermModButton;
+import cn.floatingpoint.min.system.ui.hyt.germ.component.impl.GermModButton;
 import io.netty.buffer.Unpooled;
 import me.konago.nativeobfuscator.Native;
 import net.minecraft.client.Minecraft;

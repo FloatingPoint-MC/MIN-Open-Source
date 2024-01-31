@@ -9,43 +9,34 @@ import java.util.UUID;
 
 public class SPacketPlayer implements Packet<INetHandlerClient> {
     private UUID uniqueId;
+    private String skinName;
+    private UUID skinId;
     private int rank;
-
-    public SPacketPlayer() {}
-
-    public SPacketPlayer(UUID uniqueId, int rank) {
-        this.uniqueId = uniqueId;
-        this.rank = rank;
-    }
-
     public UUID getUniqueId() {
         return uniqueId;
+    }
+
+    public String getSkinName() {
+        return skinName;
+    }
+
+    public UUID getSkinId() {
+        return skinId;
     }
 
     public int getRank() {
         return rank;
     }
 
-    /**
-     * Reads the raw packet data from the data stream.
-     *
-     * @param buf
-     */
     @Override
     public void readPacketData(PacketBuffer buf) throws IOException {
         this.uniqueId = buf.readUniqueId();
+        this.skinName = buf.readStringFromBuffer(16);
+        this.skinId = buf.readUniqueId();
         this.rank = buf.readVarIntFromBuffer();
     }
-
-    /**
-     * Writes the raw packet data to the data stream.
-     *
-     * @param buf
-     */
     @Override
     public void writePacketData(PacketBuffer buf) throws IOException {
-        buf.writeUniqueId(this.uniqueId);
-        buf.writeVarIntToBuffer(this.rank);
     }
 
     @Override

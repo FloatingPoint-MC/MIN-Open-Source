@@ -601,7 +601,8 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
             if (!DEBUG_MODE()) {
                 this.displayGuiScreen(new GuiLoading());
             } else {
-                this.displayGuiScreen(mainMenu);
+                this.displayGuiScreen(new GuiLogin());
+                //this.displayGuiScreen(mainMenu);
             }
         }
         this.renderEngine.deleteTexture(this.mojangLogo);
@@ -1413,7 +1414,9 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
 
     private void clickMouse() {
         if (this.leftClickCounter <= 0) {
-            KeyStrokes.leftCounter.add(System.currentTimeMillis());
+            if (KeyStrokes.cpsCountsDetermine.isCurrentMode("Accepted")) {
+                KeyStrokes.leftCounter.add(System.currentTimeMillis());
+            }
             if (this.objectMouseOver == null) {
                 LOGGER.error("Null returned as 'hitResult', this shouldn't happen!");
 
@@ -1599,20 +1602,14 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
                 MIN.runAsync(() -> {
                     if (this.player != null) {
                         IRCClient.getInstance().addToSendQueue(new CPacketJoinServer(player.getUniqueID()));
-                        //try {
-                        //    JSONObject json = WebUtil.getJSONFromPost("https://minserver.vlouboos.repl.co/online/activate?username=" + this.player.getName() + "&uuid=" + this.player.getUniqueID());
-                        //    String version = json.getString("version");
-                        //    if (!version.equals(MIN.VERSION)) {
-                        //        ChatUtil.printToChatWithPrefix(Managers.i18NManager.getTranslation("update.tip").replace("{0}", version));
-                        //    }
-                        //} catch (URISyntaxException | IOException e) {
-                        //    throw new RuntimeException(e);
-                        //}
                     }
                 });
             }
             if (this.player.ticksExisted % 60 == 0) {
                 MIN.checkIfAsyncThreadAlive();
+            }
+            if (Minecraft.getMinecraft().player.ticksExisted < 3) {
+                ChatUtil.refreshMessage();
             }
         }
 
@@ -2076,6 +2073,9 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
         } else {
             while (this.gameSettings.keyBindAttack.isPressed()) {
                 this.clickMouse();
+                if (KeyStrokes.cpsCountsDetermine.isCurrentMode("Inputted")) {
+                    KeyStrokes.leftCounter.add(System.currentTimeMillis());
+                }
             }
 
             while (this.gameSettings.keyBindUseItem.isPressed()) {
@@ -2971,6 +2971,6 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
 
     @Native
     public static boolean DEBUG_MODE() {
-        return true;
+        return false;
     }
 }

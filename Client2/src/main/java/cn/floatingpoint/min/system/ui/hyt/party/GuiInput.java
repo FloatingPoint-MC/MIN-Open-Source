@@ -2,8 +2,8 @@ package cn.floatingpoint.min.system.ui.hyt.party;
 
 import cn.floatingpoint.min.management.Managers;
 import cn.floatingpoint.min.system.ui.components.InputField;
-import cn.floatingpoint.min.system.ui.hyt.germ.GermModButton;
 import cn.floatingpoint.min.system.ui.hyt.germ.GuiGermScreen;
+import cn.floatingpoint.min.system.ui.hyt.germ.component.impl.GermModButton;
 import cn.floatingpoint.min.utils.render.RenderUtil;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
@@ -73,10 +73,10 @@ public class GuiInput extends GuiScreen {
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         GlStateManager.enableBlend();
-        RenderUtil.drawImage(new ResourceLocation("min/hyt/background.png"), width / 2 - 100, height / 2 - 81, 200, 162);
+        RenderUtil.drawImage(new ResourceLocation("min/hyt/page/background.png"), width / 2 - 100, height / 2 - 81, 200, 162);
         Managers.fontManager.sourceHansSansCN_Regular_20.drawCenteredString("花雨庭组队系统", width / 2, height / 2 - 72, new Color(216, 216, 216).getRGB());
         inputField.drawTextBox();
-        confirm.drawButton(guiUuid, width / 2, height / 2 + 30, mouseX, mouseY);
+        confirm.drawComponent(guiUuid, width / 2, height / 2 + 30, mouseX, mouseY);
         GlStateManager.disableBlend();
     }
 

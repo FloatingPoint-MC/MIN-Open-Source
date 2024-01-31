@@ -9,8 +9,10 @@ import cn.floatingpoint.min.threads.MouseHandlerThread;
 import me.konago.nativeobfuscator.Native;
 import net.minecraft.client.Minecraft;
 
+import java.net.URISyntaxException;
+
 public class MIN {
-    public static final String VERSION = "2.11";
+    public static final String VERSION = "2.12";
     private static final AsyncLoopThread asyncLoopThread = new AsyncLoopThread();
 
     @Native
@@ -22,7 +24,11 @@ public class MIN {
         MouseHandlerThread mouseHandlerThread = new MouseHandlerThread();
         mouseHandlerThread.setName("Mouse Handler Thread");
         mouseHandlerThread.start();
-        new IRCClient();
+        try {
+            new IRCClient();
+        } catch (URISyntaxException e) {
+            Minecraft.getMinecraft().shutdown();
+        }
     }
 
     public static void stop() {

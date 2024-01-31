@@ -2,19 +2,24 @@ package cn.floatingpoint.min.system.module.impl.render.impl;
 
 import cn.floatingpoint.min.system.module.impl.render.RenderModule;
 import cn.floatingpoint.min.system.module.value.impl.ModeValue;
+import cn.floatingpoint.min.system.module.value.impl.OptionValue;
 import cn.floatingpoint.min.utils.client.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.SoundCategory;
 
+import java.util.Random;
 import java.util.regex.Matcher;
 
 public class KillEffect extends RenderModule {
     public static ModeValue mode = new ModeValue(new String[]{"Flame", "Lightning"}, "Flame");
+    public static OptionValue sound = new OptionValue(true);
 
     public KillEffect() {
-        addValues(new Pair<>("Mode", mode));
+        addValues(new Pair<>("Mode", mode), new Pair<>("Sound", sound));
     }
 
     @Override
@@ -44,9 +49,16 @@ public class KillEffect extends RenderModule {
                         double z = (double) player.getPosition().getZ() + 0.5D + ((double) Minecraft.getMinecraft().world.rand.nextFloat() - 0.5D) * 2.0D;
                         Minecraft.getMinecraft().world.spawnParticle(EnumParticleTypes.FLAME, x, y, z, 0.0D, 0.0D, 0.0D);
                     }
+                    if (sound.getValue()) {
+                        Minecraft.getMinecraft().world.playSound(player.posX + 0.5D, player.posY + player.getEyeHeight(), player.posZ + 0.5D, SoundEvents.BLOCK_FIRE_AMBIENT, SoundCategory.BLOCKS, 1.0F, 1.0F, false);
+                    }
                 } else if (KillEffect.mode.isCurrentMode("Lightning")) {
-                    EntityLightningBolt entity = new EntityLightningBolt(Minecraft.getMinecraft().world, player.posX, player.posY + player.getEyeHeight(), player.posZ, true);
-                    Minecraft.getMinecraft().world.addWeatherEffect(entity);
+                    Minecraft.getMinecraft().world.addWeatherEffect(new EntityLightningBolt(Minecraft.getMinecraft().world, player.posX, player.posY + player.getEyeHeight(), player.posZ, true));
+                    if (sound.getValue()) {
+                        Random rand = new Random();
+                        Minecraft.getMinecraft().world.playSound(player.posX, player.posY + player.getEyeHeight(), player.posZ, SoundEvents.ENTITY_LIGHTNING_THUNDER, SoundCategory.WEATHER, 10000.0F, 0.8F + rand.nextFloat() * 0.2F, false);
+                        Minecraft.getMinecraft().world.playSound(player.posX, player.posY + player.getEyeHeight(), player.posZ, SoundEvents.ENTITY_LIGHTNING_IMPACT, SoundCategory.WEATHER, 2.0F, 0.5F + rand.nextFloat() * 0.2F, false);
+                    }
                 }
             }
         }

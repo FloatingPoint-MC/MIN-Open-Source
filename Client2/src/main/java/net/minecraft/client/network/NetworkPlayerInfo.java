@@ -2,15 +2,14 @@ package net.minecraft.client.network;
 
 import cn.floatingpoint.min.MIN;
 import cn.floatingpoint.min.management.Managers;
-import cn.floatingpoint.min.utils.client.PlayerUtil;
-import cn.floatingpoint.min.utils.client.WebUtil;
+import cn.floatingpoint.min.management.impl.ClientManager;
+import cn.floatingpoint.min.system.irc.IRCClient;
+import cn.floatingpoint.min.system.irc.packet.impl.CPacketPlayer;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Maps;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Map;
 import javax.annotation.Nullable;
 
@@ -21,8 +20,6 @@ import net.minecraft.scoreboard.ScorePlayerTeam;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.GameType;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class NetworkPlayerInfo {
     /**
@@ -118,14 +115,14 @@ public class NetworkPlayerInfo {
                         return;
                     }
                     GameProfile gameProfile = null;
-                    try {
-                        JSONObject json = WebUtil.getJSONFromPost("https://minserver.vlouboos.repl.co/skin/get?username=" + this.gameProfile.getName());
-                        if (json.getInt("code") == 0) {
-                            String raw = json.getString("uuid");
-                            gameProfile = new GameProfile(PlayerUtil.formUUID(raw), json.getString("name"));
-                            gameProfile = Minecraft.getMinecraft().getSessionService().fillProfileProperties(gameProfile, false);
+                    ClientManager.ClientMate clientMate = Managers.clientManager.clientMateUuids.get(this.gameProfile.getId());
+                    if (clientMate != null) {
+                        if (!clientMate.skinName().isEmpty()) {
+                            gameProfile = new GameProfile(clientMate.skinId(), clientMate.skinName());
+                            Minecraft.getMinecraft().getSessionService().fillProfileProperties(gameProfile, true);
                         }
-                    } catch (URISyntaxException | IOException | JSONException ignored) {
+                    } else {
+                        IRCClient.getInstance().addToSendQueue(new CPacketPlayer(this.gameProfile.getId()));
                     }
                     Minecraft.getMinecraft().getSkinManager().loadProfileTextures(gameProfile == null ? this.gameProfile : gameProfile, (typeIn, location, profileTexture) -> {
                         switch (typeIn) {
@@ -147,15 +144,6 @@ public class NetworkPlayerInfo {
                                 NetworkPlayerInfo.this.playerTextures.put(Type.ELYTRA, location);
                         }
                     }, gameProfile == null);
-                    try {
-                        JSONObject json = WebUtil.getJSONFromPost("https://minserver.vlouboos.repl.co/online/get?username=" + this.gameProfile.getName());
-                        int id = json.getInt("code");
-                        if (id != -1) {
-                            String raw = json.getString("uuid");
-                            Managers.clientManager.clientMateUuids.put(PlayerUtil.formUUID(raw), id);
-                        }
-                    } catch (URISyntaxException | IOException | JSONException ignored) {
-                    }
                 });
             }
         }

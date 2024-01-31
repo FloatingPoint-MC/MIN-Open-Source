@@ -62,6 +62,7 @@ public class GuiLoading extends GuiScreen {
                     mc.displayGuiScreen(new GuiFirstStart());
                 } else {
                     mc.displayGuiScreen(new GuiDamnJapaneseAction(new GuiLogin()));
+                    //mc.displayGuiScreen(new GuiDamnJapaneseAction(mc.mainMenu));
                 }
             }
         }

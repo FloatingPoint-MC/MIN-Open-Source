@@ -1,6 +1,9 @@
 package cn.floatingpoint.min.system.irc;
 
+import cn.floatingpoint.min.management.Managers;
 import cn.floatingpoint.min.system.irc.connection.NetworkManager;
+import cn.floatingpoint.min.system.irc.handler.INetHandler;
+import cn.floatingpoint.min.system.irc.handler.NetHandlerClient;
 import cn.floatingpoint.min.system.irc.packet.Decoder;
 import cn.floatingpoint.min.system.irc.packet.Encoder;
 import cn.floatingpoint.min.system.irc.packet.Packet;
@@ -13,69 +16,45 @@ import cn.floatingpoint.min.utils.client.HWIDUtil;
 import cn.floatingpoint.min.utils.client.Pair;
 import cn.floatingpoint.min.utils.math.RSAUtil;
 import cn.floatingpoint.min.utils.math.TimeHelper;
-import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.http.HttpClientCodec;
-import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
-import io.netty.handler.codec.http.websocketx.WebSocketClientProtocolHandler;
-import io.netty.handler.codec.http.websocketx.WebSocketVersion;
+import io.netty.buffer.Unpooled;
 import me.konago.nativeobfuscator.Native;
 import net.minecraft.client.Minecraft;
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
 
-import java.net.InetSocketAddress;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
+import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.util.Arrays;
+import java.util.Map;
 
-public class IRCClient {
+public class IRCClient extends WebSocketClient {
     private static IRCClient theIRC;
     public NetworkManager netManager;
     public boolean connect;
     public boolean connectedUser;
 
-    public IRCClient() {
+    public IRCClient() throws URISyntaxException {
+        super(new URI("wss://irc.minclient.xyz"));
+        //super(new URI("ws://127.0.0.1:65535"));
         theIRC = this;
-        this.connect = this.connect();
+        this.connect = this.startConnection();
     }
 
     @Native
-    private boolean connect() {
+    private boolean startConnection() {
         try {
             System.out.println("Try connecting IRC server...");
-            this.netManager = new NetworkManager();
-            Bootstrap bootstrap = new Bootstrap();
-            EventLoopGroup group = new NioEventLoopGroup();
-            bootstrap.group(group);
-            bootstrap.channel(NioSocketChannel.class);
-            URI uri = new URI("ws://localhost:65535/websocket");
-            bootstrap.handler(new ChannelInitializer<NioSocketChannel>() {
-                @Override
-                protected void initChannel(NioSocketChannel channel) {
-                    channel.pipeline()
-                            .addLast(new HttpClientCodec())
-                            .addLast(new HttpObjectAggregator(65535))
-                            .addLast(new WebSocketClientProtocolHandler(
-                                    WebSocketClientHandshakerFactory.newHandshaker(
-                                            uri,
-                                            WebSocketVersion.V13,
-                                            null,
-                                            true,
-                                            null
-                                    )
-                            ))
-                            .addLast("decoder", new Decoder())
-                            .addLast("encoder", new Encoder())
-                            .addLast(netManager);
+            this.netManager = new NetworkManager(this);
+            connect();
+            if (Minecraft.getMinecraft().isCallingFromMinecraftThread()) {
+                while (!this.isOpen()) {
+                    Thread.sleep(1000L);
                 }
-            });
-            bootstrap.option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.TCP_NODELAY, true);
-            // 连接服务端
-            bootstrap.connect(new InetSocketAddress(uri.getHost(), uri.getPort())).sync().channel();
+            }
             return true;
         } catch (Exception e) {
             if (Minecraft.DEBUG_MODE()) {
@@ -97,6 +76,76 @@ public class IRCClient {
             Minecraft.getMinecraft().setIngameNotInFocus();
             return false;
         }
+    }
+
+    /**
+     * Called after an opening handshake has been performed and the given websocket is ready to be
+     * written on.
+     *
+     * @param handshakedata The handshake of the websocket instance
+     */
+    @Override
+    public void onOpen(ServerHandshake handshakedata) {
+        Map<String, Key> map = RSAUtil.generateKeys();
+        Encoder.hasKey = false;
+        Encoder.key = null;
+        Decoder.hasKey = true;
+        Decoder.key = (PrivateKey) map.get("PRIVATE_KEY");
+        netManager.packetListener = new NetHandlerClient(netManager);
+        netManager.lock = false;
+        netManager.sendPacket(new CPacketKey(map.get("PUBLIC_KEY").getEncoded()));
+        System.out.println("[MIN] Successfully connected to the server!");
+        if (Minecraft.getMinecraft().currentScreen instanceof GuiStatus guiStatus) {
+            Client.setStatus("\247f" + Managers.i18NManager.getTranslation("irc.disconnect"));
+            guiStatus.fail();
+        }
+    }
+
+    /**
+     * Callback for string messages received from the remote host
+     *
+     * @param message The UTF-8 decoded message that was received.
+     * @see #onMessage(ByteBuffer)
+     **/
+    @Override
+    public void onMessage(String message) {
+
+    }
+
+    @SuppressWarnings("all")
+    @Override
+    public void onMessage(ByteBuffer bytes) {
+        try {
+            ((Packet<INetHandler>) Decoder.decode(Unpooled.wrappedBuffer(bytes))).processPacket(netManager.packetListener);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Called after the websocket connection has been closed.
+     *
+     * @param code   The codes can be looked up here: {@link org.java_websocket.framing.CloseFrame}
+     * @param reason Additional information string
+     * @param remote Returns whether or not the closing of the connection was initiated by the remote
+     *               host.
+     **/
+    @Override
+    public void onClose(int code, String reason, boolean remote) {
+        IRCClient.getInstance().startReconnection();
+    }
+
+    /**
+     * Called when errors occurs. If an error causes the websocket connection to fail {@link
+     * #onClose(int, String, boolean)} will be called additionally.<br> This method will be called
+     * primarily because of IO or protocol errors.<br> If the given exception is an RuntimeException
+     * that probably means that you encountered a bug.<br>
+     *
+     * @param ex The exception causing this error
+     **/
+    @Override
+    public void onError(Exception ex) {
+        startReconnection();
     }
 
     public static IRCClient getInstance() {
@@ -201,7 +250,6 @@ public class IRCClient {
             if (Encoder.hasKey) {
                 this.addToSendQueue(new CPacketLogin(Client.getUsername(), Client.getPassword(), HWIDUtil.getHWID()));
             }
-            connectedUser = true;
         } catch (NoSuchAlgorithmException e) {
             this.connect = false;
             IRCClient.getInstance().connectedUser = Client.getUsername() != null;
@@ -220,14 +268,14 @@ public class IRCClient {
         }
     }
 
-    public void reconnect() {
+    public void startReconnection() {
         Decoder.hasKey = Encoder.hasKey = false;
         Decoder.key = null;
         Encoder.key = null;
         new Thread(() -> {
             try {
                 Thread.sleep(5000L);
-                Minecraft.getMinecraft().addScheduledTask(this::connect);
+                Minecraft.getMinecraft().addScheduledTask(this::reconnect);
             } catch (InterruptedException e) {
                 while (true) {
                     try {

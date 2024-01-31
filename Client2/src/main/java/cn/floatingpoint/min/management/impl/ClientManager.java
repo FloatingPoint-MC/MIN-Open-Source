@@ -25,7 +25,7 @@ import java.util.UUID;
  * @date: 2023-07-18 11:26:03
  */
 public class ClientManager implements Manager {
-    public HashMap<UUID, Integer> clientMateUuids;
+    public HashMap<UUID, ClientMate> clientMateUuids;
     public HashMap<String, Rank> ranks = new HashMap<>();
     public float titleSize, titleX, titleY;
     public HashSet<String> cooldown = new HashSet<>();
@@ -132,6 +132,10 @@ public class ClientManager implements Manager {
     }
 
     public int isClientMate(UUID uuid) {
-        return clientMateUuids.getOrDefault(uuid, -1);
+        return clientMateUuids.getOrDefault(uuid, new ClientMate("", UUID.randomUUID(), -1)).rank;
+    }
+
+    public record ClientMate(String skinName, UUID skinId, int rank) {
+
     }
 }

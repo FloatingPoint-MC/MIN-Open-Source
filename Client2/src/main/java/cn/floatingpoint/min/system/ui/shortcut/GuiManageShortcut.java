@@ -33,7 +33,7 @@ public class GuiManageShortcut extends GuiScreen {
         delete = new GuiButton(2, width / 2 + 2, height - 52, 98, 20, Managers.i18NManager.getTranslation("shortcut.delete"));
         this.buttonList.add(delete);
         delete.enabled = false;
-        this.buttonList.add(new GuiButton(3, width / 2 + 2, height - 30, 98, 20, Managers.i18NManager.getTranslation("shortcut.back")));
+        this.buttonList.add(new GuiButton(3, width / 2 + 2, height - 30, 98, 20, Managers.i18NManager.getTranslation("back")));
     }
 
     @Override

@@ -52,7 +52,7 @@ public class GuiEditShortcut extends GuiScreen {
             this.buttonList.get(0).enabled = false;
         }
         selectAction = new GuiSelectAction(shortcut, this, this.width, this.height, this.height / 2, this.height - 64, 12);
-        this.buttonList.add(new GuiButton(2, this.width / 2 + 2, this.height - 52, 98, 20, Managers.i18NManager.getTranslation("shortcut.back")));
+        this.buttonList.add(new GuiButton(2, this.width / 2 + 2, this.height - 52, 98, 20, Managers.i18NManager.getTranslation("back")));
         this.buttonList.add(new GuiButton(3, mc.fontRenderer.getStringWidth(Managers.i18NManager.getTranslation("shortcut.key")) + 8, this.height / 2 - 36, 98, 20, Keyboard.getKeyName(key).replace("NONE", "None")));
         this.buttonList.add(new GuiButton(4, this.width - 152, this.height / 2 - 17, 48, 16, Managers.i18NManager.getTranslation("shortcut.add")));
         edit = new GuiButton(5, this.width - 102, this.height / 2 - 17, 48, 16, Managers.i18NManager.getTranslation("shortcut.edit"));
