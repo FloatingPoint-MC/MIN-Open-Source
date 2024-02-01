@@ -107,7 +107,7 @@ public class NetHandlerClient implements INetHandlerClient {
                 break;
             case PASS_LOGIN:
                 if (this.mc.currentScreen instanceof GuiStatus gui) {
-                    gui.setTitle(Managers.i18NManager.getTranslation("login.fail.login"));
+                    gui.setTitle("");
                     Client.setStatus("\247a" + Managers.i18NManager.getTranslation("login.logged").replace("{0}", "\247e" + packetIn.getUsername() + "\247a"));
                     Client.setUsername(packetIn.getUsername());
                     IRCClient.getInstance().connectedUser = Client.getUsername() != null;

@@ -1415,6 +1415,11 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
         switch (spackettitle$type) {
             case TITLE:
                 s = s2;
+                if (Managers.moduleManager.miscModules.get("AutoText").isEnabled() && AutoText.whenToSend.isCurrentMode("Win")) {
+                    if (s.equals("\247aVICTORY\247r")) {
+                        AutoText.timeToSendGG = true;
+                    }
+                }
                 break;
 
             case SUBTITLE:

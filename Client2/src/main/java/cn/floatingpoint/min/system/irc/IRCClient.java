@@ -36,11 +36,14 @@ public class IRCClient extends WebSocketClient {
     public NetworkManager netManager;
     public boolean connect;
     public boolean connectedUser;
+    private boolean firstConnect;
 
     public IRCClient() throws URISyntaxException {
         super(new URI("wss://irc.minclient.xyz"));
         //super(new URI("ws://127.0.0.1:65535"));
+        setTcpNoDelay(true);
         theIRC = this;
+        firstConnect = true;
         this.connect = this.startConnection();
     }
 
@@ -50,11 +53,12 @@ public class IRCClient extends WebSocketClient {
             System.out.println("Try connecting IRC server...");
             this.netManager = new NetworkManager(this);
             connect();
-            if (Minecraft.getMinecraft().isCallingFromMinecraftThread()) {
+            if (firstConnect) {
                 while (!this.isOpen()) {
                     Thread.sleep(1000L);
                 }
             }
+            firstConnect = false;
             return true;
         } catch (Exception e) {
             if (Minecraft.DEBUG_MODE()) {

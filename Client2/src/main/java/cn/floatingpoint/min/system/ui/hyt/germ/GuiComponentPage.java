@@ -52,12 +52,12 @@ public class GuiComponentPage extends GuiGermScreen {
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         GlStateManager.pushMatrix();
-        RenderUtil.drawImage(new ResourceLocation("min/hyt/page/header.png"), width / 2 - 100, height / 2 - 50 - componentHeight / 2, 200, 40);
-        Managers.fontManager.sourceHansSansCN_Regular_20.drawCenteredString(this.title, width / 2, height / 2 - 40 - componentHeight / 2, new Color(216, 216, 216).getRGB());
+        RenderUtil.drawImage(new ResourceLocation("min/hyt/page/header.png"), width / 2 - 100, height / 2 - 50 - componentHeight / 2 + 20, 200, 40);
+        Managers.fontManager.sourceHansSansCN_Regular_20.drawCenteredString(this.title, width / 2, height / 2 - 40 - componentHeight / 2 + 20, new Color(216, 216, 216).getRGB());
         GlStateManager.enableBlend();
         GlStateManager.enableAlpha();
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-        int y = height / 2 - componentHeight / 2 + 10;
+        int y = height / 2 - componentHeight / 2 + 30;
         ArrayList<GermComponent> components = new ArrayList<>(this.components);
         for (int i = 0; i < components.size(); ++i) {
             GermComponent component = components.get(i);

@@ -97,10 +97,7 @@ public class WorldClient extends World {
                 module.enableOnStartUp();
             }
         });
-        Managers.clientManager.clientMateUuids.clear();
         Managers.fileManager.shouldSave = true;
-        Managers.clientManager.cooldown.clear();
-        Managers.clientManager.lock = false;
         Managers.clientManager.vexGui = false;
     }
 

@@ -76,7 +76,7 @@ public class Scoreboard extends RenderModule implements DraggableGameView {
         net.minecraft.scoreboard.Scoreboard scoreboard = scoreObjective.getScoreboard();
         List<Score> list = scoreboard.getSortedScores(scoreObjective).stream().filter(p_apply_1_ -> !p_apply_1_.getPlayerName().startsWith("#")).collect(Collectors.toList());
         ArrayList<Score> scores = new ArrayList<>();
-        Score score = new Score(scoreboard, scoreObjective, "\247bsuo.im/min  ");
+        Score score = new Score(scoreboard, scoreObjective, "\247bwww.minclient.xyz  ");
         score.setScorePoints(0);
         scores.add(score);
 

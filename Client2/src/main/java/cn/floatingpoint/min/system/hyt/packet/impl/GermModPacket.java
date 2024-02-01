@@ -312,7 +312,7 @@ public class GermModPacket implements CustomPacket {
                 PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
                 buffer.writeInt(16);
                 buffer.writeString("3.4.2");
-                buffer.writeString(Base64.getEncoder().encodeToString(encode("花雨庭你为什么要获取我们的计算机信息？").replace("\r\n", "").getBytes(StandardCharsets.UTF_8)));
+                buffer.writeString(Base64.getEncoder().encodeToString(encode("花雨庭你为什么要获取我们的计算机信息？").getBytes(StandardCharsets.UTF_8)));
                 mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease", buffer));
                 shouldSend = false;
             }

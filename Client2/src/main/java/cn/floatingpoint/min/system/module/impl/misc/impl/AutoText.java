@@ -14,7 +14,7 @@ import cn.floatingpoint.min.utils.math.TimeHelper;
  */
 public class AutoText extends MiscModule {
     public static final ModeValue whenToSend = new ModeValue(new String[]{"Win", "End"}, "Win");
-    private final IntegerValue delay = new IntegerValue(0, 5000, 1000, 1000);
+    private final IntegerValue delay = new IntegerValue(0, 5000, 500, 1000);
     private final TextValue text = new TextValue("GG");
     private final TimeHelper timer = new TimeHelper();
     public static boolean timeToSendGG = false;
