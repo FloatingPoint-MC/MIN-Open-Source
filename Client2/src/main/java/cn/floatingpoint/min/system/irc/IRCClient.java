@@ -33,6 +33,7 @@ import java.util.Map;
 
 public class IRCClient extends WebSocketClient {
     private static IRCClient theIRC;
+    private int count;
     public NetworkManager netManager;
     public boolean connect;
     public boolean connectedUser;
@@ -44,10 +45,12 @@ public class IRCClient extends WebSocketClient {
         setTcpNoDelay(true);
         theIRC = this;
         firstConnect = true;
+        count = 0;
         this.connect = this.startConnection();
     }
 
     @Native
+    @SuppressWarnings("all")
     private boolean startConnection() {
         try {
             System.out.println("Try connecting IRC server...");
@@ -56,7 +59,26 @@ public class IRCClient extends WebSocketClient {
             if (firstConnect) {
                 while (!this.isOpen()) {
                     Thread.sleep(1000L);
+                    count++;
+                    if (count > 30) {
+                        break;
+                    }
                 }
+            }
+            if (count > 30) {
+                System.out.println("[MIN] Failed in connecting!");
+                new Thread(() -> {
+                    while (true) {
+                        try {
+                            if (Minecraft.getMinecraft().currentScreen == null || !(Minecraft.getMinecraft().currentScreen instanceof GuiFailedConnect)) {
+                                Minecraft.getMinecraft().displayGuiScreen(new GuiFailedConnect("Unable to connect to the server!"));
+                            }
+                        } catch (Exception exception) {
+                            break;
+                        }
+                    }
+                }).start();
+                return false;
             }
             firstConnect = false;
             return true;
