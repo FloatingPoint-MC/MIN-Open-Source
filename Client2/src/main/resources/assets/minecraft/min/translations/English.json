@@ -410,6 +410,8 @@
   "irc.tip": "Sharing your Ban ID may affect the processing of your appeal!",
   "irc.reason": "Reason",
   "irc.disconnect": "Disconnected from the server, please retry.",
+  "irc.fail.title": "Unable to connect to the server!",
+  "irc.fail.exit": "Exit Game",
   "skin.tip": "Activate code/Skin IGN",
   "skin.buy": "Buy",
   "skin.apply": "Apply",

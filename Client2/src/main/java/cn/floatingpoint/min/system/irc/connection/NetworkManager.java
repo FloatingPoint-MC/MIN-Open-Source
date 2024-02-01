@@ -9,7 +9,7 @@ import org.java_websocket.exceptions.WebsocketNotConnectedException;
 public class NetworkManager {
     private final IRCClient client;
     public INetHandler packetListener;
-    public boolean lock;
+    public volatile boolean lock;
 
     public NetworkManager(IRCClient client) {
         this.client = client;

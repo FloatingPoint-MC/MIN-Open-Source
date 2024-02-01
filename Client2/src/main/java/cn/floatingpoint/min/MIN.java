@@ -9,6 +9,7 @@ import cn.floatingpoint.min.threads.MouseHandlerThread;
 import me.konago.nativeobfuscator.Native;
 import net.minecraft.client.Minecraft;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 
 public class MIN {
@@ -16,7 +17,7 @@ public class MIN {
     private static final AsyncLoopThread asyncLoopThread = new AsyncLoopThread();
 
     @Native
-    public static void init() {
+    public static void init() throws IOException {
         Managers.init();
         asyncLoopThread.setName("Asynchronous Loop Thread");
         asyncLoopThread.setDaemon(true);

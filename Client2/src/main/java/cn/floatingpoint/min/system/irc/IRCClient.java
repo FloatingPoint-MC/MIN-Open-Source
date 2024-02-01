@@ -22,6 +22,7 @@ import net.minecraft.client.Minecraft;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
@@ -39,7 +40,7 @@ public class IRCClient extends WebSocketClient {
     public boolean connectedUser;
     private boolean firstConnect;
 
-    public IRCClient() throws URISyntaxException {
+    public IRCClient() throws URISyntaxException, IOException {
         super(new URI("wss://irc.minclient.xyz"));
         //super(new URI("ws://127.0.0.1:65535"));
         setTcpNoDelay(true);
@@ -51,37 +52,11 @@ public class IRCClient extends WebSocketClient {
 
     @Native
     @SuppressWarnings("all")
-    private boolean startConnection() {
+    private boolean startConnection() throws IOException {
         try {
             System.out.println("Try connecting IRC server...");
             this.netManager = new NetworkManager(this);
             connect();
-            if (firstConnect) {
-                while (!this.isOpen()) {
-                    Thread.sleep(1000L);
-                    count++;
-                    if (count > 30) {
-                        break;
-                    }
-                }
-            }
-            if (count > 30) {
-                System.out.println("[MIN] Failed in connecting!");
-                new Thread(() -> {
-                    while (true) {
-                        try {
-                            if (Minecraft.getMinecraft().currentScreen == null || !(Minecraft.getMinecraft().currentScreen instanceof GuiFailedConnect)) {
-                                Minecraft.getMinecraft().displayGuiScreen(new GuiFailedConnect("Unable to connect to the server!"));
-                            }
-                        } catch (Exception exception) {
-                            break;
-                        }
-                    }
-                }).start();
-                return false;
-            }
-            firstConnect = false;
-            return true;
         } catch (Exception e) {
             if (Minecraft.DEBUG_MODE()) {
                 e.printStackTrace();
@@ -92,7 +67,7 @@ public class IRCClient extends WebSocketClient {
                 while (true) {
                     try {
                         if (Minecraft.getMinecraft().currentScreen == null || !(Minecraft.getMinecraft().currentScreen instanceof GuiFailedConnect)) {
-                            Minecraft.getMinecraft().displayGuiScreen(new GuiFailedConnect("Unable to connect to the server!"));
+                            Minecraft.getMinecraft().displayGuiScreen(new GuiFailedConnect(Managers.i18NManager.getTranslation("irc.fail.title")));
                         }
                     } catch (Exception exception) {
                         break;
@@ -102,6 +77,28 @@ public class IRCClient extends WebSocketClient {
             Minecraft.getMinecraft().setIngameNotInFocus();
             return false;
         }
+        if (firstConnect) {
+            while (!this.isOpen()) {
+                try {
+                    Thread.sleep(1000L);
+                    count++;
+                    if (count > 30) {
+                        break;
+                    }
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        if (count > 30) {
+            System.out.println("[MIN] Failed in connecting!");
+            if (Minecraft.getMinecraft().currentScreen == null || !(Minecraft.getMinecraft().currentScreen instanceof GuiFailedConnect)) {
+                Minecraft.getMinecraft().displayGuiScreen(new GuiFailedConnect(Managers.i18NManager.getTranslation("irc.fail.title")));
+            }
+            throw new IOException("Failed to connect server");
+        }
+        firstConnect = false;
+        return true;
     }
 
     /**
@@ -173,7 +170,6 @@ public class IRCClient extends WebSocketClient {
      **/
     @Override
     public void onError(Exception ex) {
-        startReconnection();
     }
 
     public static IRCClient getInstance() {
@@ -286,7 +282,7 @@ public class IRCClient extends WebSocketClient {
                 while (true) {
                     try {
                         if (Minecraft.getMinecraft().currentScreen == null || !(Minecraft.getMinecraft().currentScreen instanceof GuiFailedConnect)) {
-                            Minecraft.getMinecraft().displayGuiScreen(new GuiFailedConnect("Unable to connect to the server!"));
+                            Minecraft.getMinecraft().displayGuiScreen(new GuiFailedConnect(Managers.i18NManager.getTranslation("irc.fail.title")));
                         }
                     } catch (Exception ignored) {
                     }
@@ -297,6 +293,7 @@ public class IRCClient extends WebSocketClient {
     }
 
     public void startReconnection() {
+        netManager.lock = true;
         Decoder.hasKey = Encoder.hasKey = false;
         Decoder.key = null;
         Encoder.key = null;
@@ -308,7 +305,7 @@ public class IRCClient extends WebSocketClient {
                 while (true) {
                     try {
                         if (Minecraft.getMinecraft().currentScreen == null || !(Minecraft.getMinecraft().currentScreen instanceof GuiFailedConnect)) {
-                            Minecraft.getMinecraft().displayGuiScreen(new GuiFailedConnect("Unable to connect to the server!"));
+                            Minecraft.getMinecraft().displayGuiScreen(new GuiFailedConnect(Managers.i18NManager.getTranslation("irc.fail.title")));
                         }
                     } catch (Exception ignored) {
                     }
