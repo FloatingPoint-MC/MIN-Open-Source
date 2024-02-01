@@ -12,7 +12,7 @@ import net.minecraft.client.Minecraft;
 import java.net.URISyntaxException;
 
 public class MIN {
-    public static final String VERSION = "2.12";
+    public static final String VERSION = "2.12.1";
     private static final AsyncLoopThread asyncLoopThread = new AsyncLoopThread();
 
     @Native

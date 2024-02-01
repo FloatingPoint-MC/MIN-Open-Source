@@ -336,6 +336,9 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
                 Joiner.on('\0').join(Iterables.concat(Arrays.asList("FML|HS", "FML", "FML|MP"), channels)).getBytes(StandardCharsets.UTF_8)
         )))));
         this.client.gameSettings.sendSettingsToServer();
+        Managers.clientManager.clientMateUuids.clear();
+        Managers.clientManager.cooldown.clear();
+        Managers.clientManager.lock = false;
         this.netManager.sendPacket(new CPacketCustomPayload("MC|Brand", (new PacketBuffer(Unpooled.buffer())).writeString(ClientBrandRetriever.getClientModName())));
     }
 
