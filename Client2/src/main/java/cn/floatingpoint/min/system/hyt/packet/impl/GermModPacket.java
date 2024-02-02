@@ -145,7 +145,12 @@ public class GermModPacket implements CustomPacket {
                                 components.add(new GermPartyApply(playerName));
                             }
                         }
-                        components.add(new GermModButton("input", "手动输入"));
+                        components.add(new GermModButton("input", "手动输入") {
+                            @Override
+                            protected boolean doesCloseOnClickButton() {
+                                return false;
+                            }
+                        });
                         mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
                                 new PacketBuffer(Unpooled.buffer()
                                         .writeInt(4)
@@ -250,7 +255,12 @@ public class GermModPacket implements CustomPacket {
                             String playerName = ((ArrayList<String>) ((Map<String, Object>) entry.get("name")).get("texts")).get(0);
                             components.add(new GermPartyInvite(playerName));
                         }
-                        components.add(new GermModButton("input", "手动输入"));
+                        components.add(new GermModButton("input", "手动输入") {
+                            @Override
+                            protected boolean doesCloseOnClickButton() {
+                                return false;
+                            }
+                        });
                         mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
                                 new PacketBuffer(Unpooled.buffer()
                                         .writeInt(4)
