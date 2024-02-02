@@ -368,36 +368,116 @@ public class GuiIngame extends Gui {
         GlStateManager.pushMatrix();
         if (mc.currentScreen instanceof GuiChat) {
             int color = new Color(46, 46, 46).getRGB();
-            int outlineColor = new Color(85, 255, 255).getRGB();
+            int outlineColor = new Color(206, 206, 206).getRGB();
+            //int outlineColor = new Color(85, 255, 255).getRGB();
             Managers.draggableGameViewManager.draggableMap.forEach((draggableGameView, vec2i) -> {
                 if (draggableGameView.isDrawable()) {
-                    drawRect(scaledresolution.getScaledWidth() / 2 + vec2i.x + draggableGameView.xOffset(),
-                            vec2i.y + draggableGameView.yOffset(),
-                            scaledresolution.getScaledWidth() / 2 + vec2i.x + draggableGameView.getWidth() + draggableGameView.xOffset(),
-                            vec2i.y + draggableGameView.getHeight() + draggableGameView.yOffset(),
-                            outlineColor);
+                    //drawRect(scaledresolution.getScaledWidth() / 2 + vec2i.x + draggableGameView.xOffset(),
+                    //        vec2i.y + draggableGameView.yOffset(),
+                    //        scaledresolution.getScaledWidth() / 2 + vec2i.x + draggableGameView.getWidth() + draggableGameView.xOffset(),
+                    //        vec2i.y + draggableGameView.getHeight() + draggableGameView.yOffset(),
+                    //        outlineColor);
                     String text = Managers.i18NManager.getTranslation("module.implement." + draggableGameView.getIdentity());
                     int width = Managers.fontManager.sourceHansSansCN_Regular_18.getStringWidth(text);
+                    int left = scaledresolution.getScaledWidth() / 2 + vec2i.x + draggableGameView.xOffset();
+                    int right = left + draggableGameView.getWidth();
+                    int top = vec2i.y + draggableGameView.yOffset();
+                    int bottom = top + draggableGameView.getHeight();
+                    boolean shouldDrawLeft = left > 0 && left < scaledresolution.getScaledWidth();
+                    if (shouldDrawLeft) {
+                        drawRect(left - 1,
+                                top,
+                                left,
+                                bottom,
+                                outlineColor);
+                    }
+                    if (right > 0 && right < scaledresolution.getScaledWidth()) {
+                        drawRect(right,
+                                top,
+                                right + 1,
+                                bottom + 1,
+                                outlineColor);
+                    }
                     if (vec2i.y < scaledresolution.getScaledHeight() / 2) {
-                        drawRect(scaledresolution.getScaledWidth() / 2 + vec2i.x + draggableGameView.xOffset(),
-                                vec2i.y + draggableGameView.getHeight() + draggableGameView.yOffset(),
-                                scaledresolution.getScaledWidth() / 2 + vec2i.x + width + 4 + draggableGameView.xOffset(),
-                                vec2i.y + draggableGameView.getHeight() + 10 + draggableGameView.yOffset(),
+                        // Component
+                        drawRect(left + width + 1,
+                                bottom,
+                                right,
+                                bottom + 1,
+                                outlineColor);
+                        if (top != 0) {
+                            drawRect(Math.max(0, left - 1),
+                                    top - 1,
+                                    Math.min(right + 1, scaledresolution.getScaledWidth()),
+                                    top,
+                                    outlineColor);
+                        }
+
+                        // Description
+                        if (shouldDrawLeft) {
+                            drawRect(left - 1,
+                                    bottom,
+                                    left,
+                                    bottom + 11,
+                                    outlineColor);
+                        }
+                        drawRect(left,
+                                bottom + 10,
+                                left + width,
+                                bottom + 11,
+                                outlineColor);
+                        drawRect(left + width,
+                                bottom,
+                                left + width + 1,
+                                bottom + 11,
                                 outlineColor);
                         Managers.fontManager.sourceHansSansCN_Regular_18.drawString(text,
-                                scaledresolution.getScaledWidth() / 2 + vec2i.x + 2 + draggableGameView.xOffset(),
-                                vec2i.y + draggableGameView.getHeight() + 1 + draggableGameView.yOffset(),
-                                color);
+                                left,
+                                bottom + 2,
+                                outlineColor);
                     } else {
-                        drawRect(scaledresolution.getScaledWidth() / 2 + vec2i.x + draggableGameView.xOffset(),
-                                vec2i.y - 10 + draggableGameView.yOffset(),
-                                scaledresolution.getScaledWidth() / 2 + vec2i.x + width + 4 + draggableGameView.xOffset(),
-                                vec2i.y + draggableGameView.yOffset(),
+                        // Component
+                        drawRect(left + width + 1,
+                                top - 1,
+                                right + 1,
+                                top,
                                 outlineColor);
+                        if (bottom != scaledresolution.getScaledHeight()) {
+                            drawRect(Math.max(0, left - 1),
+                                    bottom,
+                                    Math.min(right + 1, scaledresolution.getScaledWidth()),
+                                    bottom + 1,
+                                    outlineColor);
+                        }
+
+                        // Description
+                        if (shouldDrawLeft) {
+                            drawRect(left - 1,
+                                    top - 11,
+                                    left,
+                                    top,
+                                    outlineColor);
+                        }
+                        drawRect(left,
+                                top - 11,
+                                left + width,
+                                top - 10,
+                                outlineColor);
+                        drawRect(left + width,
+                                top - 11,
+                                left + width + 1,
+                                top,
+                                outlineColor);
+
+                        //drawRect(scaledresolution.getScaledWidth() / 2 + vec2i.x + draggableGameView.xOffset(),
+                        //        vec2i.y - 11 + draggableGameView.yOffset(),
+                        //        scaledresolution.getScaledWidth() / 2 + vec2i.x + width + 4 + draggableGameView.xOffset(),
+                        //        vec2i.y + draggableGameView.yOffset(),
+                        //        outlineColor);
                         Managers.fontManager.sourceHansSansCN_Regular_18.drawString(text,
-                                scaledresolution.getScaledWidth() / 2 + vec2i.x + 2 + draggableGameView.xOffset(),
-                                vec2i.y - 9 + draggableGameView.yOffset(),
-                                color);
+                                left,
+                                top - 9,
+                                outlineColor);
                     }
                 }
             });
