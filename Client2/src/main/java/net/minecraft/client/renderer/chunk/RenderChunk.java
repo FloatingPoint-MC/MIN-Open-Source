@@ -27,6 +27,7 @@ import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntityBed;
 import net.minecraft.tileentity.TileEntityChest;
 import net.optifine.Config;
 import net.minecraft.tileentity.TileEntity;
@@ -182,14 +183,26 @@ public class RenderChunk {
                 if (iblockstate.getBlock().hasTileEntity()) {
                     TileEntity tileentity = chunkcacheof.getTileEntity(blockposm, Chunk.EnumCreateEntityType.CHECK);
 
-                    if ((block instanceof BlockChest || block instanceof BlockBed) && tileentity == null) {
-                        tileentity = new TileEntityChest(BlockChest.Type.BASIC);
-                        tileentity.setWorld(world);
-                        NBTTagCompound compound = new NBTTagCompound();
-                        compound.setInteger("x", blockposm.getX());
-                        compound.setInteger("y", blockposm.getY());
-                        compound.setInteger("z", blockposm.getZ());
-                        tileentity.readFromNBT(compound);
+                    if (tileentity == null) {
+                        if (block instanceof BlockChest) {
+                            tileentity = new TileEntityChest(BlockChest.Type.BASIC);
+                            tileentity.setWorld(world);
+                            NBTTagCompound compound = new NBTTagCompound();
+                            compound.setInteger("x", blockposm.getX());
+                            compound.setInteger("y", blockposm.getY());
+                            compound.setInteger("z", blockposm.getZ());
+                            tileentity.readFromNBT(compound);
+                        } else if (block instanceof BlockBed) {
+                            System.out.println("1");
+                            tileentity = new TileEntityBed();
+                            tileentity.setWorld(world);
+                            NBTTagCompound compound = new NBTTagCompound();
+                            compound.setInteger("x", blockposm.getX());
+                            compound.setInteger("y", blockposm.getY());
+                            compound.setInteger("z", blockposm.getZ());
+                            compound.setInteger("color", 14);
+                            tileentity.readFromNBT(compound);
+                        }
                     }
 
                     if (tileentity != null) {
