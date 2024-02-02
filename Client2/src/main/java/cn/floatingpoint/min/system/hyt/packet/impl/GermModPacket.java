@@ -4,10 +4,7 @@ import cn.floatingpoint.min.system.hyt.packet.CustomPacket;
 import cn.floatingpoint.min.system.ui.hyt.germ.component.GermComponent;
 import cn.floatingpoint.min.system.ui.hyt.germ.GuiComponentPage;
 import cn.floatingpoint.min.system.ui.hyt.germ.GuiGermScreen;
-import cn.floatingpoint.min.system.ui.hyt.germ.component.impl.GermModButton;
-import cn.floatingpoint.min.system.ui.hyt.germ.component.impl.GermPartyKick;
-import cn.floatingpoint.min.system.ui.hyt.germ.component.impl.GermPartyRequest;
-import cn.floatingpoint.min.system.ui.hyt.germ.component.impl.GermText;
+import cn.floatingpoint.min.system.ui.hyt.germ.component.impl.*;
 import cn.floatingpoint.min.system.ui.hyt.party.GuiInput;
 import cn.floatingpoint.min.utils.client.ChatUtil;
 import io.netty.buffer.ByteBuf;
@@ -134,6 +131,21 @@ public class GermModPacket implements CustomPacket {
                         ));
                         mc.displayGuiScreen(new GuiComponentPage(guiUuid, buttons).title("花雨庭组队系统"));
                     } else if (guiUuid.equals("team_list")) {
+                        Map<String, Object> context = (Map<String, Object>) objectMap.get("scroll");
+                        context = (Map<String, Object>) context.get("scrollableParts");
+                        ArrayList<GermComponent> components = new ArrayList<>();
+                        for (String key : context.keySet()) {
+                            Map<String, Object> entry = (Map<String, Object>) ((Map<String, Object>) context.get(key)).get("relativeParts");
+                            String playerName = ((ArrayList<String>) ((Map<String, Object>) entry.get("name")).get("texts")).get(0);
+                            entry = (Map<String, Object>) entry.get("bt");
+                            String type = ((ArrayList<String>) entry.get("tooltip")).get(0);
+                            if (type.equals("接受邀请")) {
+                                components.add(new GermPartyInvitation(playerName));
+                            } else if (type.equals("申请加入")) {
+                                components.add(new GermPartyApply(playerName));
+                            }
+                        }
+                        components.add(new GermModButton("input", "手动输入"));
                         mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
                                 new PacketBuffer(Unpooled.buffer()
                                         .writeInt(4)
@@ -143,19 +155,21 @@ public class GermModPacket implements CustomPacket {
                                         .writeString(guiUuid)
                                         .writeString(guiUuid)
                         ));
-                        mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease", new PacketBuffer(new PacketBuffer(Unpooled.buffer().writeInt(13))
-                                .writeString(guiUuid)
-                                .writeString("input")
-                                .writeInt(2))));
-                        mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease", new PacketBuffer(new PacketBuffer(Unpooled.buffer().writeInt(13))
-                                .writeString(guiUuid)
-                                .writeString("input")
-                                .writeInt(0))));
-                        Minecraft.getMinecraft().player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
-                                new PacketBuffer(Unpooled.buffer()
-                                        .writeInt(26))
-                                        .writeString("GUI$team_list@input")
-                                        .writeString("{\"null\":null}")));
+                        mc.displayGuiScreen(new GuiComponentPage(guiUuid, components));
+                        // Old-fashioned handed input
+                        //mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease", new PacketBuffer(new PacketBuffer(Unpooled.buffer().writeInt(13))
+                        //        .writeString(guiUuid)
+                        //        .writeString("input")
+                        //        .writeInt(2))));
+                        //mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease", new PacketBuffer(new PacketBuffer(Unpooled.buffer().writeInt(13))
+                        //        .writeString(guiUuid)
+                        //        .writeString("input")
+                        //        .writeInt(0))));
+                        //Minecraft.getMinecraft().player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
+                        //        new PacketBuffer(Unpooled.buffer()
+                        //                .writeInt(26))
+                        //                .writeString("GUI$team_list@input")
+                        //                .writeString("{\"null\":null}")));
                     } else if (guiUuid.equals("team_input")) {
                         mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
                                 new PacketBuffer(Unpooled.buffer()
@@ -228,6 +242,15 @@ public class GermModPacket implements CustomPacket {
                             mc.displayGuiScreen(new GuiComponentPage(guiUuid, components).title("申请列表"));
                         }
                     } else if (guiUuid.equals("team_invite_list")) {
+                        Map<String, Object> context = (Map<String, Object>) objectMap.get("scroll");
+                        context = (Map<String, Object>) context.get("scrollableParts");
+                        ArrayList<GermComponent> components = new ArrayList<>();
+                        for (String key : context.keySet()) {
+                            Map<String, Object> entry = (Map<String, Object>) ((Map<String, Object>) context.get(key)).get("relativeParts");
+                            String playerName = ((ArrayList<String>) ((Map<String, Object>) entry.get("name")).get("texts")).get(0);
+                            components.add(new GermPartyInvite(playerName));
+                        }
+                        components.add(new GermModButton("input", "手动输入"));
                         mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
                                 new PacketBuffer(Unpooled.buffer()
                                         .writeInt(4)
@@ -237,19 +260,22 @@ public class GermModPacket implements CustomPacket {
                                         .writeString(guiUuid)
                                         .writeString(guiUuid)
                         ));
-                        mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease", new PacketBuffer(new PacketBuffer(Unpooled.buffer().writeInt(13))
-                                .writeString(guiUuid)
-                                .writeString("input")
-                                .writeInt(2))));
-                        mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease", new PacketBuffer(new PacketBuffer(Unpooled.buffer().writeInt(13))
-                                .writeString(guiUuid)
-                                .writeString("input")
-                                .writeInt(0))));
-                        Minecraft.getMinecraft().player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
-                                new PacketBuffer(Unpooled.buffer().writeInt(26))
-                                        .writeString("GUI$team_invite_list@input")
-                                        .writeString("{\"null\":null}")
-                        ));
+                        mc.displayGuiScreen(new GuiComponentPage(guiUuid, components));
+
+                        // Old-fashioned handed input
+                        //mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease", new PacketBuffer(new PacketBuffer(Unpooled.buffer().writeInt(13))
+                        //        .writeString(guiUuid)
+                        //        .writeString("input")
+                        //        .writeInt(2))));
+                        //mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease", new PacketBuffer(new PacketBuffer(Unpooled.buffer().writeInt(13))
+                        //        .writeString(guiUuid)
+                        //        .writeString("input")
+                        //        .writeInt(0))));
+                        //Minecraft.getMinecraft().player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
+                        //        new PacketBuffer(Unpooled.buffer().writeInt(26))
+                        //                .writeString("GUI$team_invite_list@input")
+                        //                .writeString("{\"null\":null}")
+                        //));
                     } else if (guiUuid.equals("team_kick_list")) {
                         objectMap = (Map<String, Object>) objectMap.get("scroll");
                         objectMap = (Map<String, Object>) objectMap.get("scrollableParts");
@@ -351,9 +377,11 @@ public class GermModPacket implements CustomPacket {
         } else if (packetId == 737) {
             // Lobby HUD
         } else if (packetId == 714) {
-            // HUD Position
+            // Lobby HUD Position
         } else if (packetId == 723) {
-            // HUD Key
+            // Lobby HUD Key
+        } else if (packetId == 2141) {
+            // 蠢比大喇叭
         } else {
             if (Minecraft.DEBUG_MODE()) {
                 int size = packetBuffer.readableBytes();

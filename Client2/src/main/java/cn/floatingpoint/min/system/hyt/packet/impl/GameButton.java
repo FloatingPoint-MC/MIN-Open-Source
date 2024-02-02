@@ -21,7 +21,7 @@ public class GameButton extends GermModButton {
         Minecraft.getMinecraft().player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
                 new PacketBuffer(Unpooled.buffer()
                         .writeInt(26))
-                        .writeString("GUI$mainmenu@subject/" + key.substring(8))
+                        .writeString("GUI$mainmenu@subject/" + key.substring(8).replace("fight_team", "team_fight"))
                         .writeString("{\"click\":\"1\"}")));
     }
 

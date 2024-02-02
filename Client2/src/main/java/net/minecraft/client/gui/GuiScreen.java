@@ -581,7 +581,7 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback {
         }
     }
 
-    private void openWebLink(URI url) {
+    protected void openWebLink(URI url) {
         try {
             Class<?> oclass = Class.forName("java.awt.Desktop");
             Object object = oclass.getMethod("getDesktop").invoke(null);

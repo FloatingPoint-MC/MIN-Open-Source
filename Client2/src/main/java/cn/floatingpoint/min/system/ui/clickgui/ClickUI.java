@@ -9,6 +9,7 @@ import cn.floatingpoint.min.system.ui.shortcut.GuiManageShortcut;
 import cn.floatingpoint.min.utils.math.FunctionUtil;
 import cn.floatingpoint.min.utils.math.Vec3f;
 import cn.floatingpoint.min.utils.render.RenderUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
@@ -80,6 +81,7 @@ public class ClickUI extends GuiScreen {
         moduleAnimations.forEach((m, a) -> moduleAnimations.put(m, FunctionUtil.smooth(a, modulePositions.get(m), 3.5f)));
         valueAnimations.forEach((v, a) -> valueAnimations.put(v, a + valuePositions.get(v).compareTo(a)));
         for (Category category : Category.values()) {
+            if (!Minecraft.DEBUG_MODE() && category == Category.HUNDRED_PERCENT_LEGAL) continue;
             categoryAnimations.putIfAbsent(category, 0);
             categoryPositions.putIfAbsent(category, 0);
             RenderUtil.drawRoundedRect(animationLeft - 100, y, animationLeft - 20, y + 20, 2, category == selectedCategory ? backgroundColor : categoryColor);
@@ -397,6 +399,7 @@ public class ClickUI extends GuiScreen {
         if (moduleToBindKey != null) return;
         int y = height / 2 - 10;
         for (Category category : Category.values()) {
+            if (!Minecraft.DEBUG_MODE() && category == Category.HUNDRED_PERCENT_LEGAL) continue;
             if (isHovered(animationLeft - 100, y, animationLeft - 20, y + 20, mouseX, mouseY)) {
                 selectedCategory = category;
                 openSetting = false;

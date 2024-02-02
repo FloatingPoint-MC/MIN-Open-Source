@@ -9,6 +9,8 @@ import cn.floatingpoint.min.system.module.impl.boost.impl.FastLoad;
 import cn.floatingpoint.min.system.module.impl.boost.impl.MemoryManager;
 import cn.floatingpoint.min.system.module.impl.boost.impl.RawMouseInput;
 import cn.floatingpoint.min.system.module.impl.boost.impl.Sprint;
+import cn.floatingpoint.min.system.module.impl.hundredpercentlegal.HundredPercentLegalModule;
+import cn.floatingpoint.min.system.module.impl.hundredpercentlegal.impl.XRay;
 import cn.floatingpoint.min.system.module.impl.misc.MiscModule;
 import cn.floatingpoint.min.system.module.impl.misc.impl.*;
 import cn.floatingpoint.min.system.module.impl.render.RenderModule;
@@ -28,6 +30,7 @@ public class ModuleManager implements Manager {
     public final LinkedHashMap<String, BoostModule> boostModules = new LinkedHashMap<>();
     public final LinkedHashMap<String, MiscModule> miscModules = new LinkedHashMap<>();
     public final LinkedHashMap<String, RenderModule> renderModules = new LinkedHashMap<>();
+    public final LinkedHashMap<String, HundredPercentLegalModule> hundredPercentLegalModules = new LinkedHashMap<>();
     public final LinkedHashMap<String, Module> modules = new LinkedHashMap<>();
     public final TimeHelper antiNoise = new TimeHelper();
 
@@ -82,9 +85,15 @@ public class ModuleManager implements Manager {
         renderModules.put("StatusDisplay", new StatusDisplay());
         renderModules.put("TNTTimer", new TNTTimer());
 
+        if (Minecraft.DEBUG_MODE()) {
+            hundredPercentLegalModules.put("XRay", new XRay());
+        }
+
         modules.putAll(boostModules);
         modules.putAll(miscModules);
         modules.putAll(renderModules);
+
+        // Don't put illegal modules to all-module-map!
 
         String context = Managers.fileManager.readAsString("module/status.json");
         try {
@@ -140,6 +149,7 @@ public class ModuleManager implements Manager {
             case Boost -> boostModules;
             case Misc -> miscModules;
             case Render -> renderModules;
+            case HUNDRED_PERCENT_LEGAL -> hundredPercentLegalModules;
         };
     }
 }

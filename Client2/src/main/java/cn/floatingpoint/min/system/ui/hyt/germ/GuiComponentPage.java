@@ -40,6 +40,7 @@ public class GuiComponentPage extends GuiGermScreen {
     @Override
     public void initGui() {
         ArrayList<GermComponent> components = new ArrayList<>(this.components);
+        componentHeight = 0;
         for (int i = 0; i < components.size(); ++i) {
             GermComponent component = components.get(i);
             componentHeight += component.getHeight();

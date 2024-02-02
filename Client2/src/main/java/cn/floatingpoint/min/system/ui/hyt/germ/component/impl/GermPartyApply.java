@@ -10,18 +10,18 @@ import net.minecraft.network.play.client.CPacketCustomPayload;
 
 import java.awt.*;
 
-public class GermPartyKick implements GermComponent {
+public class GermPartyApply implements GermComponent {
     private final String playerName;
-    private final GermModIconButton kick;
+    private final GermModIconButton apply;
 
-    public GermPartyKick(String playerName) {
+    public GermPartyApply(String playerName) {
         this.playerName = playerName;
-        this.kick = new GermModIconButton("bt", "min/hyt/page/kick.png", 12, 12) {
+        apply = new GermModIconButton("bt", "min/hyt/page/apply.png", 12, 12) {
             @Override
             protected void whenClick() {
                 Minecraft.getMinecraft().player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
                         new PacketBuffer(Unpooled.buffer().writeInt(26))
-                                .writeString("GUI$team_kick_list@bt_kick")
+                                .writeString("GUI$team_list@bt_request")
                                 .writeString("{\"player_name\":\"" + playerName + "\"}")
                 ));
             }
@@ -40,13 +40,12 @@ public class GermPartyKick implements GermComponent {
         Gui.drawRect(endX - 0.5D, startY, endX, endY, new Color(216, 216, 216, 102).getRGB());
         Gui.drawRect(startX + 0.5D, startY, endX - 0.5D, startY + 0.5, new Color(216, 216, 216, 102).getRGB());
         Managers.fontManager.sourceHansSansCN_Regular_20.drawString(playerName, x - 80, y - 4, new Color(216, 216, 216).getRGB());
-        Managers.fontManager.sourceHansSansCN_Regular_20.drawString(playerName, x - 80, y - 4, new Color(216, 216, 216).getRGB());
-        this.kick.drawComponent(parentUuid, x + 68, y, mouseX, mouseY);
+        apply.drawComponent(parentUuid, x + 68, y, mouseX, mouseY);
     }
 
     @Override
     public void mouseClicked(String parentUuid) {
-        this.kick.mouseClicked(parentUuid);
+        apply.mouseClicked(parentUuid);
     }
 
     @Override

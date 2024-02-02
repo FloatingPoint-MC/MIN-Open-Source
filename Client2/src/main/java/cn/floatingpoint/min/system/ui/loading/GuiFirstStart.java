@@ -8,6 +8,8 @@ import net.minecraft.client.gui.GuiScreen;
 
 import java.awt.*;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * @projectName: MIN
@@ -61,7 +63,12 @@ public class GuiFirstStart extends GuiScreen {
                     if (stage == -2) {
                         mc.displayGuiScreen(new GuiDamnJapaneseAction(new GuiLogin()));
                     } else if (stage == 1) {
-                        mc.displayGuiScreen(new GuiTutorial());
+                        try {
+                            openWebLink(new URI("https://www.bilibili.com/video/BV12T4m1S7Vw"));
+                            mc.displayGuiScreen(new GuiDamnJapaneseAction(new GuiLogin()));
+                        } catch (URISyntaxException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }
             }

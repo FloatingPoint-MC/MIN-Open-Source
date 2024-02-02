@@ -3,6 +3,7 @@ package net.minecraft.client.renderer;
 import cn.floatingpoint.min.management.Managers;
 import cn.floatingpoint.min.system.boost.EntityCulling;
 import cn.floatingpoint.min.system.module.Module;
+import cn.floatingpoint.min.system.module.impl.hundredpercentlegal.impl.XRay;
 import cn.floatingpoint.min.system.module.impl.render.RenderModule;
 import cn.floatingpoint.min.system.module.impl.render.impl.Animation;
 import cn.floatingpoint.min.system.module.impl.render.impl.FreeLook;
@@ -1574,6 +1575,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
         this.mc.profiler.endStartSection("hand");
 
         Managers.moduleManager.renderModules.values().stream().filter(Module::isEnabled).forEach(RenderModule::onRender3D);
+        XRay.doXray();
 
         if (!Shaders.isShadowPass) {
             if (flag) {

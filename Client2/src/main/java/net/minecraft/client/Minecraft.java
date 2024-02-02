@@ -1812,6 +1812,11 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
                             module.toggle();
                         }
                     }
+                    for (Module module : Managers.moduleManager.hundredPercentLegalModules.values()) {
+                        if (module.getKey() == i) {
+                            module.toggle();
+                        }
+                    }
                     for (Shortcut shortcut : Managers.clientManager.shortcuts) {
                         if (i == shortcut.key()) {
                             ChatUtil.printToChatWithPrefix(Managers.i18NManager.getTranslation("shortcut.execute") + ": " + shortcut.name());
