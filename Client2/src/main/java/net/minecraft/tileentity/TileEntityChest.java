@@ -234,8 +234,7 @@ public class TileEntityChest extends TileEntityLockableLoot implements ITickable
         if (this.isChestAt(blockpos)) {
             TileEntity tileentity = this.world.getTileEntity(blockpos);
 
-            if (tileentity instanceof TileEntityChest) {
-                TileEntityChest tileentitychest = (TileEntityChest) tileentity;
+            if (tileentity instanceof TileEntityChest tileentitychest) {
                 tileentitychest.setNeighbor(this, side.getOpposite());
                 return tileentitychest;
             }
@@ -265,7 +264,6 @@ public class TileEntityChest extends TileEntityLockableLoot implements ITickable
 
         if (!this.world.isRemote && this.numPlayersUsing != 0 && (this.ticksSinceSync + i + j + k) % 200 == 0) {
             this.numPlayersUsing = 0;
-            float f = 5.0F;
 
             for (EntityPlayer entityplayer : this.world.getEntitiesWithinAABB(EntityPlayer.class, new AxisAlignedBB((float) i - 5.0F, (float) j - 5.0F, (float) k - 5.0F, (float) (i + 1) + 5.0F, (float) (j + 1) + 5.0F, (float) (k + 1) + 5.0F))) {
                 if (entityplayer.openContainer instanceof ContainerChest) {
@@ -279,7 +277,6 @@ public class TileEntityChest extends TileEntityLockableLoot implements ITickable
         }
 
         this.prevLidAngle = this.lidAngle;
-        float f1 = 0.1F;
 
         if (this.numPlayersUsing > 0 && this.lidAngle == 0.0F && this.adjacentChestZNeg == null && this.adjacentChestXNeg == null) {
             double d1 = (double) i + 0.5D;
@@ -308,8 +305,6 @@ public class TileEntityChest extends TileEntityLockableLoot implements ITickable
             if (this.lidAngle > 1.0F) {
                 this.lidAngle = 1.0F;
             }
-
-            float f3 = 0.5F;
 
             if (this.lidAngle < 0.5F && f2 >= 0.5F && this.adjacentChestZNeg == null && this.adjacentChestXNeg == null) {
                 double d3 = (double) i + 0.5D;

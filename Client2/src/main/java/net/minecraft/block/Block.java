@@ -284,17 +284,16 @@ public class Block {
         }
     }
 
-    @Deprecated
 
     /**
      * Get the actual Block state of this Block at the given position. This applies properties not visible in the
      * metadata, such as fence connections.
      */
+    @Deprecated
     public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos) {
         return state;
     }
 
-    @Deprecated
 
     /**
      * Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
@@ -302,17 +301,18 @@ public class Block {
      * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
      * fine.
      */
+    @Deprecated
     public IBlockState withRotation(IBlockState state, Rotation rot) {
         return state;
     }
 
-    @Deprecated
 
     /**
      * Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed
      * blockstate.
      * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
+    @Deprecated
     public IBlockState withMirror(IBlockState state, Mirror mirrorIn) {
         return state;
     }

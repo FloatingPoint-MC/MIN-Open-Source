@@ -9,9 +9,7 @@ import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.Nullable;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockCactus;
-import net.minecraft.block.BlockRedstoneWire;
+import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -28,6 +26,8 @@ import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntityChest;
 import net.optifine.Config;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
@@ -146,7 +146,6 @@ public class RenderChunk {
 
     public void rebuildChunk(float x, float y, float z, ChunkCompileTaskGenerator generator) {
         CompiledChunk compiledchunk = new CompiledChunk();
-        int i = 1;
         BlockPos blockpos = new BlockPos(this.position);
         BlockPos blockpos1 = blockpos.add(15, 15, 15);
         generator.getLock().lock();
@@ -182,6 +181,16 @@ public class RenderChunk {
 
                 if (iblockstate.getBlock().hasTileEntity()) {
                     TileEntity tileentity = chunkcacheof.getTileEntity(blockposm, Chunk.EnumCreateEntityType.CHECK);
+
+                    if ((block instanceof BlockChest || block instanceof BlockBed) && tileentity == null) {
+                        tileentity = new TileEntityChest(BlockChest.Type.BASIC);
+                        tileentity.setWorld(world);
+                        NBTTagCompound compound = new NBTTagCompound();
+                        compound.setInteger("x", blockposm.getX());
+                        compound.setInteger("y", blockposm.getY());
+                        compound.setInteger("z", blockposm.getZ());
+                        tileentity.readFromNBT(compound);
+                    }
 
                     if (tileentity != null) {
                         TileEntitySpecialRenderer<TileEntity> tileentityspecialrenderer = TileEntityRendererDispatcher.instance.getRenderer(tileentity);

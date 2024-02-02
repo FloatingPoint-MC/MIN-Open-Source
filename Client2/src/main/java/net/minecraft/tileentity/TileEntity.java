@@ -130,6 +130,10 @@ public abstract class TileEntity {
         return this.blockMetadata;
     }
 
+    public void setBlockMetadata(int blockMetadata) {
+        this.blockMetadata = blockMetadata;
+    }
+
     /**
      * For tile entities, ensures the chunk containing the tile entity is saved to disk later - the game won't think it
      * hasn't changed and skip it.
