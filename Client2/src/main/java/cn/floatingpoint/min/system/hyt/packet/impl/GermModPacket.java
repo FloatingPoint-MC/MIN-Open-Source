@@ -348,6 +348,12 @@ public class GermModPacket implements CustomPacket {
                     updateScreen(content);
                 }
             }
+        } else if (packetId == 737) {
+            // Lobby HUD
+        } else if (packetId == 714) {
+            // HUD Position
+        } else if (packetId == 723) {
+            // HUD Key
         } else {
             if (Minecraft.DEBUG_MODE()) {
                 int size = packetBuffer.readableBytes();

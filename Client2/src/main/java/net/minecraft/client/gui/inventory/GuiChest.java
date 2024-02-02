@@ -6,9 +6,10 @@ import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.util.ResourceLocation;
 
-public class GuiChest extends GuiContainer
-{
-    /** The ResourceLocation containing the chest GUI texture. */
+public class GuiChest extends GuiContainer {
+    /**
+     * The ResourceLocation containing the chest GUI texture.
+     */
     private static final ResourceLocation CHEST_GUI_TEXTURE = new ResourceLocation("textures/gui/container/generic_54.png");
     private final IInventory upperChestInventory;
 
@@ -22,14 +23,11 @@ public class GuiChest extends GuiContainer
      */
     private final int inventoryRows;
 
-    public GuiChest(IInventory upperInv, IInventory lowerInv)
-    {
+    public GuiChest(IInventory upperInv, IInventory lowerInv) {
         super(new ContainerChest(upperInv, lowerInv, Minecraft.getMinecraft().player));
         this.upperChestInventory = upperInv;
         this.lowerChestInventory = lowerInv;
         this.allowUserInput = false;
-        int i = 222;
-        int j = 114;
         this.inventoryRows = lowerInv.getSizeInventory() / 9;
         this.ySize = 114 + this.inventoryRows * 18;
     }
@@ -37,8 +35,7 @@ public class GuiChest extends GuiContainer
     /**
      * Draws the screen and all the components in it.
      */
-    public void drawScreen(int mouseX, int mouseY, float partialTicks)
-    {
+    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         this.drawDefaultBackground();
         super.drawScreen(mouseX, mouseY, partialTicks);
         this.renderHoveredToolTip(mouseX, mouseY);
@@ -47,8 +44,7 @@ public class GuiChest extends GuiContainer
     /**
      * Draw the foreground layer for the GuiContainer (everything in front of the items)
      */
-    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
-    {
+    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
         this.fontRenderer.drawString(this.lowerChestInventory.getDisplayName().getUnformattedText(), 8, 6, 4210752);
         this.fontRenderer.drawString(this.upperChestInventory.getDisplayName().getUnformattedText(), 8, this.ySize - 96 + 2, 4210752);
     }
@@ -56,8 +52,7 @@ public class GuiChest extends GuiContainer
     /**
      * Draws the background layer of this container (behind the items).
      */
-    protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY)
-    {
+    protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         this.mc.getTextureManager().bindTexture(CHEST_GUI_TEXTURE);
         int i = (this.width - this.xSize) / 2;
