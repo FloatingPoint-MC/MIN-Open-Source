@@ -10,6 +10,7 @@ import cn.floatingpoint.min.system.irc.connection.NetworkManager;
 import cn.floatingpoint.min.system.irc.packet.Encoder;
 import cn.floatingpoint.min.system.irc.packet.impl.*;
 import cn.floatingpoint.min.utils.client.ChatUtil;
+import me.konago.nativeobfuscator.Native;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.util.text.TextComponentString;
@@ -196,6 +197,7 @@ public class NetHandlerClient implements INetHandlerClient {
     }
 
     @Override
+    @Native
     public void handleKey(SPacketKey packetIn) {
         byte[] remotePublicKey = packetIn.getKey();
         X509EncodedKeySpec publicSpec = new X509EncodedKeySpec(remotePublicKey);
@@ -288,6 +290,7 @@ public class NetHandlerClient implements INetHandlerClient {
     }
 
     @Override
+    @Native
     public void handleHandshake(SPacketHandshake packetIn) {
         Client.setVexViewVersion(packetIn.getVexViewData());
         Client.setModList(packetIn.getModList());

@@ -1575,7 +1575,9 @@ public class EntityRenderer implements IResourceManagerReloadListener {
         this.mc.profiler.endStartSection("hand");
 
         Managers.moduleManager.renderModules.values().stream().filter(Module::isEnabled).forEach(RenderModule::onRender3D);
-        XRay.doXray();
+        if (Minecraft.DEBUG_MODE()) {
+            XRay.doXray();
+        }
 
         if (!Shaders.isShadowPass) {
             if (flag) {

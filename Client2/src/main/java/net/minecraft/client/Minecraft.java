@@ -2979,6 +2979,6 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
 
     @Native
     public static boolean DEBUG_MODE() {
-        return true;
+        return false;
     }
 }
