@@ -3,6 +3,7 @@ package net.minecraft.client.network;
 import cn.floatingpoint.min.management.Managers;
 import cn.floatingpoint.min.system.hyt.packet.CustomPacket;
 import cn.floatingpoint.min.system.hyt.packet.impl.Hyt0Packet;
+import cn.floatingpoint.min.system.irc.Client;
 import cn.floatingpoint.min.system.module.impl.misc.impl.AutoText;
 import cn.floatingpoint.min.system.module.impl.render.impl.KillEffect;
 import com.google.common.base.Joiner;
@@ -323,6 +324,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
         this.currentServerMaxPlayers = packetIn.getMaxPlayers();
         this.client.player.setReducedDebug(packetIn.isReducedDebugInfo());
         this.client.playerController.setGameType(packetIn.getGameType());
+        this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.wrappedBuffer(Client.getModList()))));
         Set<String> channels = new LinkedHashSet<>();
         channels.add("ChatVexView");
         channels.add("Base64VexView");

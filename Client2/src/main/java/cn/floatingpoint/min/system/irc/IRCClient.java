@@ -77,17 +77,15 @@ public class IRCClient extends WebSocketClient {
             Minecraft.getMinecraft().setIngameNotInFocus();
             return false;
         }
-        if (firstConnect) {
-            while (!this.isOpen()) {
-                try {
-                    Thread.sleep(1000L);
-                    count++;
-                    if (count > 30) {
-                        break;
-                    }
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+        while (!this.isOpen() && firstConnect) {
+            try {
+                Thread.sleep(1000L);
+                count++;
+                if (count > 30) {
+                    break;
                 }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         }
         if (count > 30) {
@@ -133,7 +131,7 @@ public class IRCClient extends WebSocketClient {
      **/
     @Override
     public void onMessage(String message) {
-
+        System.out.println(message);
     }
 
     @SuppressWarnings("all")
@@ -170,6 +168,12 @@ public class IRCClient extends WebSocketClient {
      **/
     @Override
     public void onError(Exception ex) {
+        if (firstConnect) {
+            if (Minecraft.DEBUG_MODE()) {
+                ex.printStackTrace();
+            }
+            count = 31;
+        }
     }
 
     public static IRCClient getInstance() {

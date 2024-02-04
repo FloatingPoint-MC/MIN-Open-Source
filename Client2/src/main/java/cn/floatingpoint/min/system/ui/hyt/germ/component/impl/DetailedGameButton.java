@@ -1,6 +1,5 @@
-package cn.floatingpoint.min.system.hyt.packet.impl;
+package cn.floatingpoint.min.system.ui.hyt.germ.component.impl;
 
-import cn.floatingpoint.min.system.ui.hyt.germ.component.impl.GermModButton;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;

@@ -50,6 +50,7 @@ public class SPacketAccount implements Packet<INetHandlerClient> {
         FAIL_BANNED,
         PASS_REGISTER,
         FAIL_REGISTER_EXIST,
+        FAIL_REGISTER_REGISTERED,
         LOG_OUT
     }
 }

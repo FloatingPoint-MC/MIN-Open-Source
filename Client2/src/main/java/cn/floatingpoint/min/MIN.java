@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 public class MIN {
-    public static final String VERSION = "2.12.1";
+    public static final String VERSION = "2.12.2";
     private static final AsyncLoopThread asyncLoopThread = new AsyncLoopThread();
 
     @Native

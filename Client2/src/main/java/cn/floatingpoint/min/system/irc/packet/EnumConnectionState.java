@@ -35,6 +35,7 @@ public class EnumConnectionState {
         registerPacket(EnumPacketDirection.CLIENTBOUND, SPacketPlayer.class);
         registerPacket(EnumPacketDirection.CLIENTBOUND, SPacketSkin.class);
         registerPacket(EnumPacketDirection.CLIENTBOUND, SPacketTabComplete.class);
+        registerPacket(EnumPacketDirection.CLIENTBOUND, SPacketVersion.class);
     }
 
     private static void registerPacket(EnumPacketDirection direction, Class<? extends Packet<?>> packetClass) {

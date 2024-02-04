@@ -11,6 +11,8 @@ public class Client {
     private static String password;
     private static boolean loggedIn = false;
     private static List<String> status = Collections.singletonList("\247e" + Managers.i18NManager.getTranslation("idle"));
+    private static String vexViewVersion;
+    private static byte[] modList;
 
     public static String getUsername() {
         return username;
@@ -42,5 +44,21 @@ public class Client {
 
     public static void setStatus(String... status) {
         Client.status = Arrays.asList(status);
+    }
+
+    public static void setVexViewVersion(String vexViewData) {
+        vexViewVersion = vexViewData;
+    }
+
+    public static String getVexViewVersion() {
+        return vexViewVersion;
+    }
+
+    public static void setModList(byte[] modList) {
+        Client.modList = modList;
+    }
+
+    public static byte[] getModList() {
+        return modList;
     }
 }

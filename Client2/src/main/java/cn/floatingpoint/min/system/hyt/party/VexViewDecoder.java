@@ -9,14 +9,15 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.GZIPInputStream;
 
-public class ButtonDecoder {
+public class VexViewDecoder {
     private final String[] elements;
     public final boolean sign;
+    public String result;
 
-    public ButtonDecoder(ByteBuf byteBuf) {
+    public VexViewDecoder(ByteBuf byteBuf) {
         byte[] bytes = new byte[byteBuf.readableBytes()];
         byteBuf.readBytes(bytes);
-        String result = decode(bytes);
+        result = decode(bytes);
         if (!result.contains("[but]手动输入")) {
             sign = result.contains("[gui]https://img.166.net/gameyw-misc/opd/squash/20221221/104939-4q3d0pgm59.png");
             if (sign) {

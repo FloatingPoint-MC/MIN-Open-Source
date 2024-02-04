@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.zip.GZIPOutputStream;
 
 public class Sender {
-    private static void sendJson(JSONObject json) {
+    public static void sendJson(JSONObject json) {
         byte[] data = encode(json.toString());
         ByteBuf buf = Unpooled.wrappedBuffer(data);
         Minecraft.getMinecraft().player.connection.sendPacket(new CPacketCustomPayload("VexView", new PacketBuffer(buf)));

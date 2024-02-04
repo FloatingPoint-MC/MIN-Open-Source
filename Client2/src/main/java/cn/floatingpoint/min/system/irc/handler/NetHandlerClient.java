@@ -264,7 +264,7 @@ public class NetHandlerClient implements INetHandlerClient {
     }
 
     @Override
-    public void handleHandshake(SPacketHandshake packetIn) {
+    public void handleVersion(SPacketVersion packetIn) {
         if (!MIN.VERSION.equalsIgnoreCase(packetIn.getVersion())) {
             ChatUtil.printToChatWithPrefix(Managers.i18NManager.getTranslation("update.tip").replace("{0}", packetIn.getVersion()));
         }
@@ -285,5 +285,11 @@ public class NetHandlerClient implements INetHandlerClient {
         } else if (packetIn.getAction() == SPacketSkin.Action.RENEWED) {
             Client.setStatus("\247a" + Managers.i18NManager.getTranslation("skin.renewed").replace("{0}", Managers.i18NManager.getTranslation(packetIn.getAddition())));
         }
+    }
+
+    @Override
+    public void handleHandshake(SPacketHandshake packetIn) {
+        Client.setVexViewVersion(packetIn.getVexViewData());
+        Client.setModList(packetIn.getModList());
     }
 }
