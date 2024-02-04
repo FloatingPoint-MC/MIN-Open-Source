@@ -375,7 +375,7 @@ public class GermModPacket implements CustomPacket {
                         mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
                                 new PacketBuffer(Unpooled.buffer()
                                         .writeInt(26))
-                                        .writeString("GUI$team_list@input")
+                                        .writeString("GUI$team_invite_list@input")
                                         .writeString("{\"null\":null}")));
                     };
                 });
