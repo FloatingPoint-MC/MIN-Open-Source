@@ -23,10 +23,9 @@ public class VexViewPacket implements CustomPacket {
             Sender.clickButton(vexViewDecoder.getButton("sign").getId());
         } else {
             JSONObject json = new JSONObject(vexViewDecoder.result);
-            if (json.getString("packet_type").equals("ver")) {
-                ScaledResolution scaledResolution = new ScaledResolution(mc);
+            if (json.getString("packet_type").equals("ver") && json.getString("packet_sub_type").equals("get")) {
                 Sender.sendJson(new JSONObject()
-                        .put("packet_sub_type", scaledResolution.getScaledWidth() + ":" + scaledResolution.getScaledHeight())
+                        .put("packet_sub_type", "16:9")
                         .put("packet_data", Client.getVexViewVersion())
                         .put("packet_type", "ver"));
             }

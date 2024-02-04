@@ -99,11 +99,10 @@ public class Scoreboard extends RenderModule implements DraggableGameView {
 
         for (j = 0; j < scores.size(); ) {
             ++j;
-            int k = y - j * fontRenderer.FONT_HEIGHT;
-            int l = x - 3 + 2;
+            int k = y - (j + 1) * fontRenderer.FONT_HEIGHT;
             if (j == scores.size()) {
-                width = l + 2 - l1;
-                height = y - k;
+                width = x + 2 - l1;
+                height = y - k + 1;
             }
         }
 
@@ -115,7 +114,7 @@ public class Scoreboard extends RenderModule implements DraggableGameView {
             String s1 = ScorePlayerTeam.formatPlayerName(playersTeam, score1.getPlayerName());
             String s2 = TextFormatting.RED + String.valueOf(score1.getScorePoints());
             int k = y - j * fontRenderer.FONT_HEIGHT + height;
-            int l = x - 3 + 2 + width;
+            int l = x + width;
             if (background.getValue()) {
                 Gui.drawRect(l1 - 2, k, l, k + fontRenderer.FONT_HEIGHT, 1342177280);
             }

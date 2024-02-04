@@ -476,7 +476,7 @@ public class GermModPacket implements CustomPacket {
             Object o = jsonArray.get(i);
             if (o instanceof JSONObject jsonObject) {
                 String sid = jsonObject.getString("sid");
-                String name = jsonObject.getString("name").replace("&e&l", "");
+                String name = jsonObject.getString("name").replace("&e&l", "").replace("\247m", "");
                 buttons.add(new DetailedGameButton("自适应背景$细分分类$游戏" + i, name, i, sid));
             }
         }

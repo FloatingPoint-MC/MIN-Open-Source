@@ -6,8 +6,7 @@ import cn.floatingpoint.min.system.hyt.packet.impl.Hyt0Packet;
 import cn.floatingpoint.min.system.irc.Client;
 import cn.floatingpoint.min.system.module.impl.misc.impl.AutoText;
 import cn.floatingpoint.min.system.module.impl.render.impl.KillEffect;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Iterables;
+import cn.floatingpoint.min.system.ui.hyt.forge.GameData;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -28,7 +27,6 @@ import javax.annotation.Nullable;
 
 import net.minecraft.advancements.Advancement;
 import net.minecraft.block.Block;
-import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.GuardianSound;
 import net.minecraft.client.audio.ISound;
@@ -52,11 +50,7 @@ import net.minecraft.client.gui.inventory.GuiContainerCreative;
 import net.minecraft.client.gui.recipebook.GuiRecipeBook;
 import net.minecraft.client.gui.recipebook.IRecipeShownListener;
 import net.minecraft.client.gui.toasts.RecipeToast;
-import net.minecraft.client.multiplayer.ClientAdvancementManager;
-import net.minecraft.client.multiplayer.PlayerControllerMP;
-import net.minecraft.client.multiplayer.ServerData;
-import net.minecraft.client.multiplayer.ServerList;
-import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.multiplayer.*;
 import net.minecraft.client.particle.ParticleItemPickup;
 import net.minecraft.client.player.inventory.ContainerLocalMenu;
 import net.minecraft.client.player.inventory.LocalBlockIntercommunication;
@@ -293,12 +287,17 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     private final Random avRandomizer = new Random();
 
+    public int phase;
+    private GameData gameData;
+
     public NetHandlerPlayClient(Minecraft mcIn, @Nullable GuiScreen screen, NetworkManager networkManagerIn, GameProfile profileIn) {
         this.client = mcIn;
         this.guiScreenServer = screen;
         this.netManager = networkManagerIn;
         this.profile = profileIn;
         this.advancementManager = new ClientAdvancementManager(mcIn);
+        this.phase = 0;
+        this.gameData = null;
     }
 
     /**
@@ -314,34 +313,8 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleJoinGame(SPacketJoinGame packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
-        this.client.playerController = new PlayerControllerMP(this.client, this);
-        this.world = new WorldClient(this, new WorldSettings(0L, packetIn.getGameType(), false, packetIn.isHardcoreMode(), packetIn.getWorldType()), packetIn.getDimension(), packetIn.getDifficulty(), this.client.profiler);
-        this.client.gameSettings.difficulty = packetIn.getDifficulty();
-        this.client.loadWorld(this.world);
-        this.client.player.dimension = packetIn.getDimension();
-        this.client.displayGuiScreen(new GuiDownloadTerrain());
-        this.client.player.setEntityId(packetIn.getPlayerId());
-        this.currentServerMaxPlayers = packetIn.getMaxPlayers();
-        this.client.player.setReducedDebug(packetIn.isReducedDebugInfo());
-        this.client.playerController.setGameType(packetIn.getGameType());
-        this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.wrappedBuffer(Client.getModList()))));
-        Set<String> channels = new LinkedHashSet<>();
-        channels.add("ChatVexView");
-        channels.add("Base64VexView");
-        channels.add("FORGE");
-        channels.add("germplugin-netease");
-        channels.add("VexView");
-        channels.add("hyt0");
-        channels.add("armourers");
-        channels.add("promotion");
-        this.netManager.sendPacket(new CPacketCustomPayload("REGISTER", (new PacketBuffer(Unpooled.buffer().writeBytes(
-                Joiner.on('\0').join(Iterables.concat(Arrays.asList("FML|HS", "FML", "FML|MP"), channels)).getBytes(StandardCharsets.UTF_8)
-        )))));
-        this.client.gameSettings.sendSettingsToServer();
-        Managers.clientManager.clientMateUuids.clear();
-        Managers.clientManager.cooldown.clear();
-        Managers.clientManager.lock = false;
-        this.netManager.sendPacket(new CPacketCustomPayload("MC|Brand", (new PacketBuffer(Unpooled.buffer())).writeString(ClientBrandRetriever.getClientModName())));
+        gameData = new GameData(packetIn.getGameType(), packetIn.isHardcoreMode(), packetIn.getWorldType(), packetIn.getDimension(), packetIn.getDifficulty(), packetIn.getPlayerId(), packetIn.getMaxPlayers(), packetIn.isReducedDebugInfo());
+        loadWorld();
     }
 
     /**
@@ -1718,7 +1691,34 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
                 String s1 = packetbuffer3.readString(256);
                 this.client.getSoundHandler().stop(s1, SoundCategory.getByName(s));
                 break;
+            case "FML|HS":
+                PacketBuffer buffer = packetIn.getBufferData();
+                byte[] bytes = new byte[buffer.readableBytes()];
+                System.out.println(new String(bytes));
+                switch (phase) {
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5:
+                        break;
+                }
+                phase++;
+                break;
         }
+    }
+
+    private void loadWorld() {
+        this.client.playerController = new PlayerControllerMP(this.client, this);
+        this.world = new WorldClient(this, new WorldSettings(0L, gameData.gameType(), false, gameData.hardcoreMode(), gameData.worldType()), gameData.dimension(), gameData.difficulty(), this.client.profiler);
+        this.client.gameSettings.difficulty = gameData.difficulty();
+        this.client.loadWorld(this.world);
+        this.client.player.dimension = gameData.dimension();
+        this.client.displayGuiScreen(new GuiDownloadTerrain());
+        this.client.player.setEntityId(gameData.playerId());
+        this.currentServerMaxPlayers = gameData.maxPlayers();
+        this.client.player.setReducedDebug(gameData.reducedDebugInfo());
+        this.client.playerController.setGameType(gameData.gameType());
     }
 
     /**

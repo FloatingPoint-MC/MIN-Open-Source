@@ -35,6 +35,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.annotation.Nullable;
 import javax.crypto.SecretKey;
 
+import net.minecraft.network.play.client.CPacketCustomPayload;
 import net.minecraft.util.CryptManager;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.LazyLoadBase;
@@ -165,6 +166,10 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
                 this.readWriteLock.writeLock().unlock();
             }
         }
+    }
+
+    public void sendFMLPacket(CPacketCustomPayload packetIn) {
+        this.dispatchPacket(packetIn, null);
     }
 
     @SafeVarargs

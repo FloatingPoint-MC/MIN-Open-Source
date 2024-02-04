@@ -1,15 +1,22 @@
 package net.minecraft.client.network;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.exceptions.AuthenticationException;
 import com.mojang.authlib.exceptions.AuthenticationUnavailableException;
 import com.mojang.authlib.exceptions.InvalidCredentialsException;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
+import io.netty.buffer.Unpooled;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.PublicKey;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import javax.annotation.Nullable;
 import javax.crypto.SecretKey;
 
@@ -18,12 +25,14 @@ import net.minecraft.client.gui.GuiDisconnected;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.network.EnumConnectionState;
 import net.minecraft.network.NetworkManager;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.login.INetHandlerLoginClient;
 import net.minecraft.network.login.client.CPacketEncryptionResponse;
 import net.minecraft.network.login.server.SPacketDisconnect;
 import net.minecraft.network.login.server.SPacketEnableCompression;
 import net.minecraft.network.login.server.SPacketEncryptionRequest;
 import net.minecraft.network.login.server.SPacketLoginSuccess;
+import net.minecraft.network.play.client.CPacketCustomPayload;
 import net.minecraft.util.CryptManager;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -70,7 +79,6 @@ public class NetHandlerLoginClient implements INetHandlerLoginClient {
                 return;
             }
         }
-
         this.networkManager.sendPacket(new CPacketEncryptionResponse(secretkey, publickey, packetIn.getVerifyToken()), new GenericFutureListener<Future<? super Void>>() {
             public void operationComplete(Future<? super Void> p_operationComplete_1_) throws Exception {
                 NetHandlerLoginClient.this.networkManager.enableEncryption(secretkey);
@@ -85,7 +93,21 @@ public class NetHandlerLoginClient implements INetHandlerLoginClient {
     public void handleLoginSuccess(SPacketLoginSuccess packetIn) {
         this.gameProfile = packetIn.getProfile();
         this.networkManager.setConnectionState(EnumConnectionState.PLAY);
-        this.networkManager.setNetHandler(new NetHandlerPlayClient(this.mc, this.previousGuiScreen, this.networkManager, this.gameProfile));
+        NetHandlerPlayClient client = new NetHandlerPlayClient(this.mc, this.previousGuiScreen, this.networkManager, this.gameProfile);
+        this.networkManager.setNetHandler(client);
+        Set<String> channels = new LinkedHashSet<>();
+        channels.add("ChatVexView");
+        channels.add("Base64VexView");
+        channels.add("FORGE");
+        channels.add("germplugin-netease");
+        channels.add("VexView");
+        channels.add("hyt0");
+        channels.add("armourers");
+        channels.add("promotion");
+        this.networkManager.sendPacket(new CPacketCustomPayload("REGISTER", (new PacketBuffer(Unpooled.buffer().writeBytes(
+                Joiner.on('\0').join(Iterables.concat(Arrays.asList("FML|HS", "FML", "FML|MP"), channels)).getBytes(StandardCharsets.UTF_8)
+        )))));
+        client.phase = 1;
     }
 
     /**
