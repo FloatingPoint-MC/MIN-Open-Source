@@ -191,7 +191,6 @@ public class GermModPacket implements CustomPacket {
     }
 
     @SuppressWarnings("all")
-    @Native
     private void vTeam(String guiUuid, Map<String, Object> objectMap) {
         switch (guiUuid) {
             case "team_create" -> {
@@ -247,6 +246,15 @@ public class GermModPacket implements CustomPacket {
                     protected boolean doesCloseOnClickButton() {
                         return false;
                     }
+
+                    @Override
+                    protected void whenClick() {
+                        mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
+                                new PacketBuffer(Unpooled.buffer()
+                                        .writeInt(26))
+                                        .writeString("GUI$team_list@input")
+                                        .writeString("{\"null\":null}")));
+                    };
                 });
                 mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
                         new PacketBuffer(Unpooled.buffer()
@@ -361,6 +369,15 @@ public class GermModPacket implements CustomPacket {
                     protected boolean doesCloseOnClickButton() {
                         return false;
                     }
+
+                    @Override
+                    protected void whenClick() {
+                        mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
+                                new PacketBuffer(Unpooled.buffer()
+                                        .writeInt(26))
+                                        .writeString("GUI$team_list@input")
+                                        .writeString("{\"null\":null}")));
+                    };
                 });
                 mc.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease",
                         new PacketBuffer(Unpooled.buffer()
