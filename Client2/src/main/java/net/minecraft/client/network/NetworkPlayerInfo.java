@@ -126,22 +126,15 @@ public class NetworkPlayerInfo {
                     }
                     Minecraft.getMinecraft().getSkinManager().loadProfileTextures(gameProfile == null ? this.gameProfile : gameProfile, (typeIn, location, profileTexture) -> {
                         switch (typeIn) {
-                            case SKIN:
+                            case SKIN -> {
                                 NetworkPlayerInfo.this.playerTextures.put(Type.SKIN, location);
                                 NetworkPlayerInfo.this.skinType = profileTexture.getMetadata("model");
-
                                 if (NetworkPlayerInfo.this.skinType == null) {
                                     NetworkPlayerInfo.this.skinType = "default";
                                 }
-
-                                break;
-
-                            case CAPE:
-                                NetworkPlayerInfo.this.playerTextures.put(Type.CAPE, location);
-                                break;
-
-                            case ELYTRA:
-                                NetworkPlayerInfo.this.playerTextures.put(Type.ELYTRA, location);
+                            }
+                            case CAPE -> NetworkPlayerInfo.this.playerTextures.put(Type.CAPE, location);
+                            case ELYTRA -> NetworkPlayerInfo.this.playerTextures.put(Type.ELYTRA, location);
                         }
                     }, gameProfile == null);
                 });

@@ -25,11 +25,11 @@ public class MIN {
         MouseHandlerThread mouseHandlerThread = new MouseHandlerThread();
         mouseHandlerThread.setName("Mouse Handler Thread");
         mouseHandlerThread.start();
-        try {
-            new IRCClient();
-        } catch (URISyntaxException e) {
-            Minecraft.getMinecraft().shutdown();
-        }
+        //try {
+        //    new IRCClient();
+        //} catch (URISyntaxException e) {
+        //    Minecraft.getMinecraft().shutdown();
+        //}
     }
 
     public static void stop() {

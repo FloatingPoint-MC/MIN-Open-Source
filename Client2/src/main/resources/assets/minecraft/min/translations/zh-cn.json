@@ -1,7 +1,7 @@
 {
   "WARNING": "不要修改此语言文件，否则你的语言将会丢失！",
   "language.identity": "简体中文",
-  "language.version": "206",
+  "language.version": "210",
   "module.category.Boost": "优化类",
   "module.category.Misc": "杂项类",
   "module.category.Render": "视觉类",
@@ -323,6 +323,8 @@
   "idle": "空闲中...",
   "back": "返回",
   "success": "成功",
+  "on": "开",
+  "off": "关",
   "clickgui.bind": "按下一个按键(按下Esc解绑按键)...",
   "clickgui.setting": "设置",
   "clickgui.language": "语言",
@@ -342,6 +344,7 @@
   "chat.channel": "聊天频道",
   "chat.channel.min": "MIN服务器",
   "chat.channel.world": "当前世界",
+  "chat.giant": "超大字体",
   "shortcut": "快捷方式",
   "shortcut.name": "名字",
   "shortcut.key": "按键",
@@ -412,7 +415,7 @@
   "irc.tip": "共享您的封禁ID可能会影响您的申诉处理！",
   "irc.reason": "原因",
   "irc.disconnect": "从服务器断开连接，请重试！",
-  "irc.fail.title": "无法连接至服务器！",
+  "irc.fail.title": "无法连接至服务器，请几分钟后再试！",
   "irc.fail.exit": "退出游戏",
   "skin.tip": "激活码/正版ID",
   "skin.buy": "购买",
@@ -426,5 +429,6 @@
   "skin.expire.never": "永不过期",
   "skin.changed": "成功将皮肤更换为{0}。",
   "skin.bought": "成功购买皮肤使用权限，到期时间: {0}",
-  "skin.renewed": "成功续费皮肤使用权限，到期时间: {0}"
+  "skin.renewed": "成功续费皮肤使用权限，到期时间: {0}",
+  "text.giant.limit": "你最多可以输入8个字符。"
 }

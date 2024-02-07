@@ -48,7 +48,6 @@ public class GuiNewChat extends Gui {
                 GlStateManager.scale(f1, f1, 1.0F);
                 int l = 0;
 
-                fontRenderer = ChatBar.font.isCurrentMode("Minecraft") ? mc.fontRenderer : Managers.fontManager.sourceHansSansCN_Regular_18;
                 for (int i1 = 0; i1 + this.scrollPos < this.drawnChatLines.size() && i1 < i; ++i1) {
                     ChatLine chatline = this.drawnChatLines.get(i1 + this.scrollPos);
 
@@ -76,6 +75,7 @@ public class GuiNewChat extends Gui {
                                     drawRect(-2, j2 - 9, k + 4, j2, l1 / 2 << 24);
                                 }
                                 String s = chatline.getChatComponent().getFormattedText();
+                                fontRenderer = (ChatBar.font.isCurrentMode("Minecraft") || (((int) s.charAt(s.length() - 3)) <= 10495 && ((int) s.charAt(s.length() - 3)) >= 10240)) ? mc.fontRenderer : Managers.fontManager.sourceHansSansCN_Regular_18;
                                 GlStateManager.enableBlend();
                                 if (ChatBar.shadow.getValue()) {
                                     fontRenderer.drawStringWithShadow(s, 0, j2 - 8, 16777215 + (l1 << 24));

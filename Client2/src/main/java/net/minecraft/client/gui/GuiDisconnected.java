@@ -9,6 +9,8 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 
+import javax.annotation.Nullable;
+
 public class GuiDisconnected extends GuiScreen {
     private final String reason;
     private final ITextComponent message;
@@ -17,7 +19,7 @@ public class GuiDisconnected extends GuiScreen {
     private int textHeight;
     private boolean banned;
 
-    public GuiDisconnected(GuiScreen screen, String reasonLocalizationKey, ITextComponent chatComp) {
+    public GuiDisconnected(@Nullable GuiScreen screen, String reasonLocalizationKey, ITextComponent chatComp) {
         this.parentScreen = screen;
         this.reason = I18n.format(reasonLocalizationKey);
         this.message = chatComp;

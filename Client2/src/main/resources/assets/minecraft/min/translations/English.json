@@ -1,7 +1,7 @@
 {
   "WARNING": "DO NOT MODIFY THIS LANGUAGE FILE OR YOUR LANGUAGE MIGHT BE REPLACED!",
   "language.identity": "English",
-  "language.version": "206",
+  "language.version": "210",
   "module.category.Boost": "Boost",
   "module.category.Misc": "Misc",
   "module.category.Render": "Render",
@@ -323,6 +323,8 @@
   "idle": "Idle...",
   "back": "Back",
   "success": "Success",
+  "on": "On",
+  "off": "Off",
   "clickgui.bind": "Press a key(Press Escape to unbind key)...",
   "clickgui.setting": "Settings",
   "clickgui.language": "Language",
@@ -342,6 +344,7 @@
   "chat.channel": "Chat Channel",
   "chat.channel.min": "MIN Server",
   "chat.channel.world": "Current World",
+  "chat.giant": "Giant Text",
   "shortcut": "Shortcuts",
   "shortcut.name": "Name",
   "shortcut.key": "Key",
@@ -412,7 +415,7 @@
   "irc.tip": "Sharing your Ban ID may affect the processing of your appeal!",
   "irc.reason": "Reason",
   "irc.disconnect": "Disconnected from the server, please retry.",
-  "irc.fail.title": "Unable to connect to the server!",
+  "irc.fail.title": "Unable to connect to the server, please try again in several minutes!",
   "irc.fail.exit": "Exit Game",
   "skin.tip": "Activate code/Skin IGN",
   "skin.buy": "Buy",
@@ -426,5 +429,6 @@
   "skin.expire.never": "Never",
   "skin.changed": "Successfully changed skin to {0}.",
   "skin.bought": "Successfully bought permission of skin, expired at: {0}",
-  "skin.renewed": "Successfully renewed permission of skin, expired at: {0}"
+  "skin.renewed": "Successfully renewed permission of skin, expired at: {0}",
+  "text.giant.limit": "You can type only up to 8 characters."
 }

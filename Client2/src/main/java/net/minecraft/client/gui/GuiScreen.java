@@ -37,6 +37,7 @@ import org.apache.logging.log4j.Logger;
 import org.lwjglx.input.Keyboard;
 import org.lwjglx.input.Mouse;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public abstract class GuiScreen extends Gui implements GuiYesNoCallback {
@@ -349,19 +350,17 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback {
     /**
      * Used to add chat messages to the client's GuiChat.
      */
-    public void sendChatMessage(String msg) {
+    public void sendChatMessage(@Nonnull String msg) {
         switch (Managers.clientManager.channel) {
-            case WORLD:
-                this.sendChatMessage(msg, true);
-                break;
-            case MIN:
+            case WORLD -> this.sendChatMessage(msg, true);
+            case MIN -> {
                 if (!msg.startsWith("/") || msg.startsWith("/irc")) {
                     IRCClient.processMessage(msg);
                     this.mc.ingameGUI.getChatGUI().addToSentMessages(msg);
                 } else {
                     this.sendChatMessage(msg, true);
                 }
-                break;
+            }
         }
     }
 

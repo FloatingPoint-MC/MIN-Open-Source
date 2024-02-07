@@ -35,6 +35,7 @@ public class ClientManager implements Manager {
     public boolean adsorption;
     public boolean vexGui;
     public GuiChat.Channel channel;
+    public boolean giantText;
 
     @Override
     public String getName() {
@@ -54,6 +55,7 @@ public class ClientManager implements Manager {
         vexGui = false;
         adsorption = false;
         channel = GuiChat.Channel.WORLD;
+        giantText = false;
         try {
             String context = Managers.fileManager.readAsString("config.json");
             JSONObject jsonObject = new JSONObject(context);
@@ -69,6 +71,21 @@ public class ClientManager implements Manager {
                 } else if (version == 203 || version == 204) {
                     adsorption = jsonObject.getBoolean("Adsorption");
                     channel = GuiChat.Channel.valueOf(jsonObject.getString("Chat-Channel").toUpperCase());
+                } else if (version < 210) {
+                    for (Object object : jsonObject.getJSONArray("Shortcuts")) {
+                        if (object instanceof JSONObject json) {
+                            ArrayList<Shortcut.Action> actions = new ArrayList<>();
+                            for (Object o : json.getJSONArray("Actions")) {
+                                if (o instanceof JSONObject action) {
+                                    actions.add(new Shortcut.Action(
+                                            Shortcut.Action.Type.valueOf(action.getString("Type")),
+                                            action.getString("Context")
+                                    ));
+                                }
+                            }
+                            shortcuts.add(new Shortcut(json.getString("Name"), Keyboard.getKeyIndex(json.getString("KeyBind").toUpperCase()), actions));
+                        }
+                    }
                 }
             } else {
                 adsorption = jsonObject.getBoolean("Adsorption");
@@ -87,6 +104,7 @@ public class ClientManager implements Manager {
                         shortcuts.add(new Shortcut(json.getString("Name"), Keyboard.getKeyIndex(json.getString("KeyBind").toUpperCase()), actions));
                     }
                 }
+                giantText = jsonObject.getBoolean("GiantText");
             }
             Managers.i18NManager.setSelectedLanguage(jsonObject.getString("Language"));
             titleSize = jsonObject.getFloat("Title-Size");

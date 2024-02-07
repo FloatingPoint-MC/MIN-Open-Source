@@ -4,6 +4,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 
+import javax.annotation.Nullable;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 /**
@@ -86,5 +89,56 @@ public class ChatUtil {
                 .replace("\247o", "")
                 .replace("\247r", "");
         return original;
+    }
+
+    @Nullable
+    public static String[] stretchChatLines(String original) {
+        if (original.isEmpty()) return null;
+        StringBuilder[] lineBuilders = new StringBuilder[4]; // The 8x4-text of total string
+        for (int i = 0; i < 4; i++) {
+            lineBuilders[i] = new StringBuilder();
+        }
+        String[] lines = new String[4];
+        for (char c : original.toCharArray()) { // Draw every char, graphics 2d sucks with whole string
+            // Use Graphics 2D to draw the texts
+            int width = 6 + (Minecraft.getMinecraft().fontRenderer.getStringWidth(String.valueOf(c)) - 6) * 2;
+            BufferedImage image = new BufferedImage(width, 16, BufferedImage.TYPE_INT_RGB); // A 12x16-pixel char
+            Graphics2D graphics = image.createGraphics();
+            graphics.setColor(Color.WHITE);
+            graphics.fillRect(0, 0, width, 16);
+            Font font = new Font("Courier", Font.PLAIN, 12);
+            graphics.setFont(font);
+            graphics.setColor(new Color(0, 0, 0));
+            graphics.drawString(String.valueOf(c), 0, 12);
+            int[][] hasPoint = new int[width][16]; // A fake canvas
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < 16; y++) {
+                    hasPoint[x][y] = (image.getRGB(x, y) == Color.WHITE.getRGB()) ? 0 : 1;
+                }
+            }
+            graphics.dispose();
+
+            for (int line = 0; line < 4; line++) { // Convert 16-line matrix to a 4-line text
+                for (int x = 0; x < width / 2; x++) { // Convert 16-width matrix to an 6-width text
+                    lineBuilders[line].append((char) (10240 + getBrailleIndex(line, hasPoint, x * 2)));
+                }
+            }
+        }
+        for (int i = 0; i < 4; i++) {
+            lines[i] = lineBuilders[i].toString();
+        }
+        return lines;
+    }
+
+    private static int getBrailleIndex(int line, int[][] hasPoint, int x) {
+        int y = line * 4;
+        return hasPoint[x][y] +
+                hasPoint[x][y + 1] * 2 +
+                hasPoint[x][y + 2] * 4 +
+                hasPoint[x][y + 3] * 64 +
+                hasPoint[x + 1][y] * 8 +
+                hasPoint[x + 1][y + 1] * 16 +
+                hasPoint[x + 1][y + 2] * 32 +
+                hasPoint[x + 1][y + 3] * 128;
     }
 }

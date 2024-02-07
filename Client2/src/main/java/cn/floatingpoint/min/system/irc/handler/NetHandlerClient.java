@@ -97,7 +97,7 @@ public class NetHandlerClient implements INetHandlerClient {
     @Override
     public void handleAccount(SPacketAccount packetIn) {
         switch (packetIn.getStatus()) {
-            case LOG_OUT:
+            case LOG_OUT -> {
                 if (this.mc.currentScreen instanceof GuiStatus gui) {
                     Client.setStatus("\247aLogged out!");
                     Client.setLoggedIn(false);
@@ -105,8 +105,8 @@ public class NetHandlerClient implements INetHandlerClient {
                     Client.setPassword(null);
                     gui.pass();
                 }
-                break;
-            case PASS_LOGIN:
+            }
+            case PASS_LOGIN -> {
                 if (this.mc.currentScreen instanceof GuiStatus gui) {
                     gui.setTitle("");
                     Client.setStatus("\247a" + Managers.i18NManager.getTranslation("login.logged").replace("{0}", "\247e" + packetIn.getUsername() + "\247a"));
@@ -115,8 +115,8 @@ public class NetHandlerClient implements INetHandlerClient {
                     Client.setLoggedIn(true);
                     gui.pass();
                 }
-                break;
-            case FAIL_LOGIN:
+            }
+            case FAIL_LOGIN -> {
                 if (this.mc.currentScreen instanceof GuiStatus gui) {
                     gui.setTitle(Managers.i18NManager.getTranslation("login.fail.login"));
                     Client.setStatus("\247c" + Managers.i18NManager.getTranslation("login.fail.password"));
@@ -125,8 +125,8 @@ public class NetHandlerClient implements INetHandlerClient {
                     Client.setPassword(null);
                     gui.fail();
                 }
-                break;
-            case FAIL_EXIST:
+            }
+            case FAIL_EXIST -> {
                 if (this.mc.currentScreen instanceof GuiStatus gui) {
                     gui.setTitle(Managers.i18NManager.getTranslation("login.fail.login"));
                     Client.setStatus("\247c" + Managers.i18NManager.getTranslation("login.fail.logged"));
@@ -135,8 +135,8 @@ public class NetHandlerClient implements INetHandlerClient {
                     Client.setPassword(null);
                     gui.fail();
                 }
-                break;
-            case FAIL_BANNED:
+            }
+            case FAIL_BANNED -> {
                 if (this.mc.currentScreen instanceof GuiStatus gui) {
                     long duration = packetIn.getDuration();
                     String last = "";
@@ -174,8 +174,8 @@ public class NetHandlerClient implements INetHandlerClient {
                     Client.setPassword(null);
                     gui.fail();
                 }
-                break;
-            case PASS_REGISTER:
+            }
+            case PASS_REGISTER -> {
                 if (this.mc.currentScreen instanceof GuiStatus gui) {
                     Client.setStatus("\247a" + Managers.i18NManager.getTranslation("login.register.thanks"), "\247a" + Managers.i18NManager.getTranslation("login.register.wish"));
                     Client.setLoggedIn(false);
@@ -183,8 +183,8 @@ public class NetHandlerClient implements INetHandlerClient {
                     Client.setPassword(null);
                     gui.pass();
                 }
-                break;
-            case FAIL_REGISTER_EXIST:
+            }
+            case FAIL_REGISTER_EXIST -> {
                 if (this.mc.currentScreen instanceof GuiStatus gui) {
                     Client.setStatus("\247cFailed to register(User existed)!");
                     Client.setLoggedIn(false);
@@ -192,7 +192,7 @@ public class NetHandlerClient implements INetHandlerClient {
                     Client.setPassword(null);
                     gui.fail();
                 }
-                break;
+            }
         }
     }
 

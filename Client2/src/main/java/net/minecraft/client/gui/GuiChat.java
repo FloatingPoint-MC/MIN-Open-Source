@@ -3,11 +3,13 @@ package net.minecraft.client.gui;
 import java.awt.*;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import cn.floatingpoint.min.management.Managers;
 import cn.floatingpoint.min.system.ui.components.DraggableGameView;
+import cn.floatingpoint.min.utils.client.ChatUtil;
 import cn.floatingpoint.min.utils.math.Vec2i;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ITabCompleter;
@@ -65,8 +67,11 @@ public class GuiChat extends GuiScreen implements ITabCompleter {
         this.inputField.setFocused(true);
         this.inputField.setText(this.defaultInputFieldText);
         this.inputField.setCanLoseFocus(false);
-        String buttonText = Managers.i18NManager.getTranslation("chat.channel") + ": " + Managers.i18NManager.getTranslation("chat.channel." + Managers.clientManager.channel.name().toLowerCase());
-        this.buttonList.add(new GuiButton(666, 4, this.height - 34, 8 + Managers.fontManager.sourceHansSansCN_Regular_20.getStringWidth(buttonText), 20, buttonText));
+        String channelButtonText = Managers.i18NManager.getTranslation("chat.channel") + ": " + Managers.i18NManager.getTranslation("chat.channel." + Managers.clientManager.channel.name().toLowerCase());
+        String buttonText = Managers.i18NManager.getTranslation("chat.giant") + ": " + Managers.i18NManager.getTranslation(Managers.clientManager.giantText ? "on" : "off");
+        int buttonTextLength = Managers.fontManager.sourceHansSansCN_Regular_20.getStringWidth(channelButtonText);
+        this.buttonList.add(new GuiButton(666, 4, this.height - 34, 8 + buttonTextLength, 20, channelButtonText));
+        this.buttonList.add(new GuiButton(999, 16 + buttonTextLength, this.height - 34, 8 + Managers.fontManager.sourceHansSansCN_Regular_20.getStringWidth(buttonText), 20, buttonText));
         this.tabCompleter = new GuiChat.ChatTabCompleter(this.inputField);
     }
 
@@ -116,7 +121,21 @@ public class GuiChat extends GuiScreen implements ITabCompleter {
             String s = this.inputField.getText().trim();
 
             if (!s.isEmpty()) {
-                this.sendChatMessage(s);
+                if (Managers.clientManager.giantText) {
+                    this.mc.ingameGUI.getChatGUI().addToSentMessages(s);
+                    System.out.println(mc.fontRenderer.getStringWidth(s) / 9.0 * 12.0);
+                    if (s.length() > 8) {
+                        ChatUtil.printToChatWithPrefix("\247c" + Managers.i18NManager.getTranslation("text.giant.limit"));
+                    } else {
+                        for (String s1 : Objects.requireNonNull(ChatUtil.stretchChatLines(s))) {
+                            System.out.println(((int) s1.charAt(0)));
+                            this.mc.player.sendChatMessage(s1);
+                        }
+                    }
+                } else {
+                    System.out.println(((int) s.charAt(0)));
+                    this.sendChatMessage(s);
+                }
             }
 
             this.mc.displayGuiScreen(null);
@@ -127,13 +146,14 @@ public class GuiChat extends GuiScreen implements ITabCompleter {
     protected void actionPerformed(GuiButton button) throws IOException {
         if (button.id == 666) {
             switch (Managers.clientManager.channel) {
-                case WORLD:
-                    Managers.clientManager.channel = Channel.MIN;
-                    break;
-                case MIN:
-                    Managers.clientManager.channel = Channel.WORLD;
+                case WORLD -> Managers.clientManager.channel = Channel.MIN;
+                case MIN -> Managers.clientManager.channel = Channel.WORLD;
             }
             button.displayString = Managers.i18NManager.getTranslation("chat.channel") + ": " + Managers.i18NManager.getTranslation("chat.channel." + Managers.clientManager.channel.name().toLowerCase());
+            button.width = Managers.fontManager.sourceHansSansCN_Regular_20.getStringWidth(button.displayString) + 8;
+        } else if (button.id == 999) {
+            Managers.clientManager.giantText = !Managers.clientManager.giantText;
+            button.displayString = Managers.i18NManager.getTranslation("chat.giant") + ": " + Managers.i18NManager.getTranslation(Managers.clientManager.giantText ? "on" : "off");
             button.width = Managers.fontManager.sourceHansSansCN_Regular_20.getStringWidth(button.displayString) + 8;
         }
     }
