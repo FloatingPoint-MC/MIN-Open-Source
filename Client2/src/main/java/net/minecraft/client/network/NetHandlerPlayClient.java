@@ -7,6 +7,8 @@ import cn.floatingpoint.min.system.irc.Client;
 import cn.floatingpoint.min.system.module.impl.misc.impl.AutoText;
 import cn.floatingpoint.min.system.module.impl.render.impl.KillEffect;
 import cn.floatingpoint.min.system.ui.hyt.forge.GameData;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -1692,16 +1694,32 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
                 this.client.getSoundHandler().stop(s1, SoundCategory.getByName(s));
                 break;
             case "FML|HS":
-                PacketBuffer buffer = packetIn.getBufferData();
-                byte[] bytes = new byte[buffer.readableBytes()];
-                System.out.println(new String(bytes));
                 switch (phase) {
-                    case 1:
-                    case 2:
-                    case 3:
-                    case 4:
-                    case 5:
-                        break;
+                    case 1 -> {
+                        Set<String> channels = new LinkedHashSet<>();
+                        channels.add("ChatVexView");
+                        channels.add("Base64VexView");
+                        channels.add("FORGE");
+                        channels.add("germplugin-netease");
+                        channels.add("VexView");
+                        channels.add("hyt0");
+                        channels.add("armourers");
+                        channels.add("promotion");
+                        byte[] modList = Arrays.copyOfRange(Client.getModList(), 1, Client.getModList().length);
+                        this.netManager.sendPacket(new CPacketCustomPayload("REGISTER", (new PacketBuffer(Unpooled.buffer().writeBytes(
+                                Joiner.on('\0').join(Iterables.concat(Arrays.asList("FML|HS", "FML", "FML|MP"), channels)).getBytes(StandardCharsets.UTF_8)
+                        )))));
+                        this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeByte(1).writeByte(2))));
+                        this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeBytes(modList))));
+                    }
+                    case 2, 4, 5 ->
+                            this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeByte(-1).writeByte(phase))));
+                    case 3 -> {
+                        PacketBuffer buffer = packetIn.getBufferData();
+                        boolean hasMore = buffer.readBoolean();
+                        if (hasMore) return;
+                        this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeByte(-1).writeByte(3))));
+                    }
                 }
                 phase++;
                 break;

@@ -95,18 +95,6 @@ public class NetHandlerLoginClient implements INetHandlerLoginClient {
         this.networkManager.setConnectionState(EnumConnectionState.PLAY);
         NetHandlerPlayClient client = new NetHandlerPlayClient(this.mc, this.previousGuiScreen, this.networkManager, this.gameProfile);
         this.networkManager.setNetHandler(client);
-        Set<String> channels = new LinkedHashSet<>();
-        channels.add("ChatVexView");
-        channels.add("Base64VexView");
-        channels.add("FORGE");
-        channels.add("germplugin-netease");
-        channels.add("VexView");
-        channels.add("hyt0");
-        channels.add("armourers");
-        channels.add("promotion");
-        this.networkManager.sendPacket(new CPacketCustomPayload("REGISTER", (new PacketBuffer(Unpooled.buffer().writeBytes(
-                Joiner.on('\0').join(Iterables.concat(Arrays.asList("FML|HS", "FML", "FML|MP"), channels)).getBytes(StandardCharsets.UTF_8)
-        )))));
         client.phase = 1;
     }
 
