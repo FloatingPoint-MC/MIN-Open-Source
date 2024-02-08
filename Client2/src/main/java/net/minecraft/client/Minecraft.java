@@ -2,6 +2,7 @@ package net.minecraft.client;
 
 import cn.floatingpoint.min.MIN;
 import cn.floatingpoint.min.management.Managers;
+import cn.floatingpoint.min.system.anticheat.check.Check;
 import cn.floatingpoint.min.system.boost.EntityCulling;
 import cn.floatingpoint.min.system.hyt.packet.impl.Hyt0Packet;
 import cn.floatingpoint.min.system.hyt.world.HYTChunkExecutor;
@@ -40,7 +41,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Proxy;
 import java.net.SocketAddress;
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
@@ -52,10 +52,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import javax.imageio.ImageIO;
 
 import io.netty.buffer.Unpooled;
@@ -192,9 +188,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.handshake.ServerHandshake;
-import org.json.JSONObject;
 import org.lwjglx.Sys;
 import org.lwjglx.input.Keyboard;
 import org.lwjglx.input.Mouse;
@@ -1439,6 +1432,11 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
                     case ENTITY:
                         assert this.objectMouseOver.entityHit != null;
                         this.playerController.attackEntity(this.player, this.objectMouseOver.entityHit);
+                        Managers.antiCheatManager.execute(new Check.Executable(Check.Type.LEFT_CLICK,
+                                RayTraceResult.Type.ENTITY,
+                                this.objectMouseOver.entityHit,
+                                this.player.getPositionEyes(1.0F).distanceTo(this.objectMouseOver.hitVec))
+                        );
                         break;
 
                     case BLOCK:
@@ -1617,7 +1615,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
                 });
             }
             if (this.player.ticksExisted % 60 == 0) {
-                MIN.checkIfAsyncThreadAlive();
+                MIN.checkIfAsyncThreadAlive(this);
             }
             if (Minecraft.getMinecraft().player.ticksExisted < 3) {
                 ChatUtil.refreshMessage();

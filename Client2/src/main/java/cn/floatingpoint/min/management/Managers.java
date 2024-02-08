@@ -6,6 +6,7 @@ import java.util.LinkedHashSet;
 
 public class Managers {
     public static LinkedHashSet<Manager> managers = new LinkedHashSet<>();
+    public static AntiCheatManager antiCheatManager = new AntiCheatManager();
     public static ClientManager clientManager = new ClientManager();
     public static DraggableGameViewManager draggableGameViewManager = new DraggableGameViewManager();
     public static FileManager fileManager = new FileManager();
@@ -19,6 +20,7 @@ public class Managers {
         managers.add(fontManager);
         managers.add(hytPacketManager);
         managers.add(i18NManager);
+        managers.add(antiCheatManager);
         managers.add(moduleManager);
         managers.add(draggableGameViewManager);
         managers.add(clientManager);

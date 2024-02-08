@@ -673,11 +673,6 @@ public class EntityShulker extends EntityGolem implements IMob
     {
     }
 
-    public float getCollisionBorderSize()
-    {
-        return 0.0F;
-    }
-
     public boolean isAttachedToBlock()
     {
         return this.currentAttachmentPosition != null && this.getAttachmentPos() != null;

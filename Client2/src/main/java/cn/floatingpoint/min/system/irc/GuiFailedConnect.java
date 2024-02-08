@@ -17,7 +17,7 @@ public class GuiFailedConnect extends GuiScreen {
     @Override
     public void initGui() {
         mc.setIngameNotInFocus();
-        this.buttonList.add(new GuiButton(0, this.width / 2 - 100, this.height / 2 + 48, Managers.i18NManager.getTranslation("irc.fail.exit")));
+        this.buttonList.add(new GuiButton(0, this.width / 2 - 100, this.height / 2 + 48, Managers.i18NManager.getTranslation("error.exit")));
         super.initGui();
     }
 

@@ -67,7 +67,7 @@ public class IRCClient extends WebSocketClient {
                 while (true) {
                     try {
                         if (Minecraft.getMinecraft().currentScreen == null || !(Minecraft.getMinecraft().currentScreen instanceof GuiFailedConnect)) {
-                            Minecraft.getMinecraft().displayGuiScreen(new GuiFailedConnect(Managers.i18NManager.getTranslation("irc.fail.title")));
+                            Minecraft.getMinecraft().displayGuiScreen(new GuiFailedConnect(Managers.i18NManager.getTranslation("irc.fail")));
                         }
                     } catch (Exception exception) {
                         break;
@@ -91,7 +91,7 @@ public class IRCClient extends WebSocketClient {
         if (count > 30) {
             System.out.println("[MIN] Failed in connecting!");
             if (Minecraft.getMinecraft().currentScreen == null || !(Minecraft.getMinecraft().currentScreen instanceof GuiFailedConnect)) {
-                Minecraft.getMinecraft().displayGuiScreen(new GuiFailedConnect(Managers.i18NManager.getTranslation("irc.fail.title")));
+                Minecraft.getMinecraft().displayGuiScreen(new GuiFailedConnect(Managers.i18NManager.getTranslation("irc.fail")));
             }
             throw new IOException("Failed to connect server");
         }
@@ -286,7 +286,7 @@ public class IRCClient extends WebSocketClient {
                 while (true) {
                     try {
                         if (Minecraft.getMinecraft().currentScreen == null || !(Minecraft.getMinecraft().currentScreen instanceof GuiFailedConnect)) {
-                            Minecraft.getMinecraft().displayGuiScreen(new GuiFailedConnect(Managers.i18NManager.getTranslation("irc.fail.title")));
+                            Minecraft.getMinecraft().displayGuiScreen(new GuiFailedConnect(Managers.i18NManager.getTranslation("irc.fail")));
                         }
                     } catch (Exception ignored) {
                     }
@@ -309,7 +309,7 @@ public class IRCClient extends WebSocketClient {
                 while (true) {
                     try {
                         if (Minecraft.getMinecraft().currentScreen == null || !(Minecraft.getMinecraft().currentScreen instanceof GuiFailedConnect)) {
-                            Minecraft.getMinecraft().displayGuiScreen(new GuiFailedConnect(Managers.i18NManager.getTranslation("irc.fail.title")));
+                            Minecraft.getMinecraft().displayGuiScreen(new GuiFailedConnect(Managers.i18NManager.getTranslation("irc.fail")));
                         }
                     } catch (Exception ignored) {
                     }

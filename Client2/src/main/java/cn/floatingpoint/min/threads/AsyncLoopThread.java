@@ -24,7 +24,7 @@ public class AsyncLoopThread extends Thread {
             try {
                 synchronized (runnableSet) {
                     if (runnableSet.isEmpty()) {
-                        logger.info("There is nothing left to be run asyncly, thread sleeped.");
+                        logger.info("There is nothing left to be run asyncly, thread slept.");
                         Thread.sleep(1000L);
                         continue;
                     }

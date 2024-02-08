@@ -48,11 +48,6 @@ public class EntityItemFrame extends EntityHanging
         this.getDataManager().register(ROTATION, Integer.valueOf(0));
     }
 
-    public float getCollisionBorderSize()
-    {
-        return 0.0F;
-    }
-
     /**
      * Called when the entity is attacked.
      */

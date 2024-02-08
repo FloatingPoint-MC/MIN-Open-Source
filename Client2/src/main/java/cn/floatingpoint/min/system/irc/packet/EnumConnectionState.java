@@ -15,6 +15,7 @@ public class EnumConnectionState {
     static {
         directionMaps = Maps.newEnumMap(EnumPacketDirection.class);
         registerPacket(EnumPacketDirection.SERVERBOUND, CPacketAdmin.class);
+        registerPacket(EnumPacketDirection.SERVERBOUND, CPacketAntiCheatData.class);
         registerPacket(EnumPacketDirection.SERVERBOUND, CPacketChat.class);
         registerPacket(EnumPacketDirection.SERVERBOUND, CPacketDisconnect.class);
         registerPacket(EnumPacketDirection.SERVERBOUND, CPacketHandshake.class);

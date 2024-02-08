@@ -11,6 +11,7 @@ import cn.floatingpoint.min.system.irc.packet.Encoder;
 import cn.floatingpoint.min.system.irc.packet.impl.*;
 import cn.floatingpoint.min.utils.client.ChatUtil;
 import me.konago.nativeobfuscator.Native;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.util.text.TextComponentString;
@@ -62,22 +63,28 @@ public class NetHandlerClient implements INetHandlerClient {
     @Override
     public void handleDisconnect(SPacketDisconnect packetIn) {
         switch (packetIn.getType()) {
-            case FORCE_BAN:
-                if (!packetIn.getReason().isEmpty()) {
-                    ChatUtil.printToChatWithPrefix("\247cYour are gonna be kicked by an admin!\nReason: You're banned from this server: " + packetIn.getReason());
-                } else {
-                    ChatUtil.printToChatWithPrefix("\247cYour are gonna be kicked by an admin!\nReason: You're banned from this server.");
+            case FORCE_BAN -> {
+                if (mc.world != null) {
+                    mc.world.sendQuittingDisconnectingPacket();
+                    mc.loadWorld(null);
                 }
-                mc.addScheduledTask(() -> {
-                    try {
-                        Thread.sleep(3000L);
-                    } catch (InterruptedException ignored) {
-
+                GuiStatus gui = new GuiStatus(null, null, Managers.i18NManager.getTranslation("back"), Managers.i18NManager.getTranslation("back")) {
+                    @Override
+                    protected void actionPerformed(GuiButton button) {
+                        if (button.id == 0) {
+                            mc.shutdown();
+                        }
                     }
-                    mc.shutdown();
-                });
-                break;
-            case FORCE_KICK:
+
+                    @Override
+                    public void onGuiClosed() {
+                        mc.shutdown();
+                    }
+                };
+                gui.setTitle(Managers.i18NManager.getTranslation("irc.connection.lost"));
+                mc.displayGuiScreen(gui);
+            }
+            case FORCE_KICK -> {
                 if (!packetIn.getReason().isEmpty()) {
                     ChatUtil.printToChatWithPrefix("\247cYour are gonna be kicked by an admin!\nReason: " + packetIn.getReason());
                 } else {
@@ -91,6 +98,7 @@ public class NetHandlerClient implements INetHandlerClient {
                     }
                     mc.shutdown();
                 });
+            }
         }
     }
 
@@ -138,32 +146,16 @@ public class NetHandlerClient implements INetHandlerClient {
             }
             case FAIL_BANNED -> {
                 if (this.mc.currentScreen instanceof GuiStatus gui) {
-                    long duration = packetIn.getDuration();
-                    String last = "";
-                    if (duration != 0) {
-                        long days = TimeUnit.MILLISECONDS.toDays(duration);
-                        long hours = TimeUnit.MILLISECONDS.toHours(duration) % 24;
-                        long minutes = TimeUnit.MILLISECONDS.toMinutes(duration) % 60;
-                        long seconds = TimeUnit.MILLISECONDS.toSeconds(duration) % 60;
-                        if (days != 0) {
-                            last += days + Managers.i18NManager.getTranslation(days == 1 ? "time.day" : "time.days") + " ";
-                        }
-                        if (hours != 0) {
-                            last += hours + Managers.i18NManager.getTranslation(hours == 1 ? "time.hour" : "time.hours") + " ";
-                        }
-                        if (minutes != 0) {
-                            last += minutes + Managers.i18NManager.getTranslation(minutes == 1 ? "time.minute" : "time.minutes") + " ";
-                        }
-                        if (seconds != 0) {
-                            last += seconds + Managers.i18NManager.getTranslation(seconds == 1 ? "time.second" : "time.seconds") + " ";
-                        }
-                        last = Managers.i18NManager.getTranslation("irc.expire.at").replace("{0}", "\247f" + last.trim() + "\247c");
-                    }
+                    String last = getDisplayFromDuration(packetIn.getDuration());
                     gui.setTitle(Managers.i18NManager.getTranslation("login.fail.login"));
+                    String reason = Managers.i18NManager.getTranslation("irc.banned.reason." + packetIn.getReason());
+                    if (reason.substring(18).equals(packetIn.getReason())) {
+                        reason = packetIn.getReason();
+                    }
                     Client.setStatus(
                             "\247c" + Managers.i18NManager.getTranslation("irc.banned") + "\247c" + last,
                             "",
-                            "\2477" + Managers.i18NManager.getTranslation("irc.reason") + "\2477: \247f" + packetIn.getReason(),
+                            "\2477" + Managers.i18NManager.getTranslation("irc.reason") + "\2477: \247f" + reason,
                             "\2477" + Managers.i18NManager.getTranslation("irc.more") + "\247: \247b\247nhttps://appeal.minclient.xyz/",
                             "",
                             "\2477" + Managers.i18NManager.getTranslation("irc.id") + "\2477: \247f#" + packetIn.getUsername(),
@@ -194,6 +186,30 @@ public class NetHandlerClient implements INetHandlerClient {
                 }
             }
         }
+    }
+
+    private String getDisplayFromDuration(long duration) {
+        String last = "";
+        if (duration != 0) {
+            long days = TimeUnit.MILLISECONDS.toDays(duration);
+            long hours = TimeUnit.MILLISECONDS.toHours(duration) % 24;
+            long minutes = TimeUnit.MILLISECONDS.toMinutes(duration) % 60;
+            long seconds = TimeUnit.MILLISECONDS.toSeconds(duration) % 60;
+            if (days != 0) {
+                last += days + Managers.i18NManager.getTranslation(days == 1 ? "time.day" : "time.days") + " ";
+            }
+            if (hours != 0) {
+                last += hours + Managers.i18NManager.getTranslation(hours == 1 ? "time.hour" : "time.hours") + " ";
+            }
+            if (minutes != 0) {
+                last += minutes + Managers.i18NManager.getTranslation(minutes == 1 ? "time.minute" : "time.minutes") + " ";
+            }
+            if (seconds != 0) {
+                last += seconds + Managers.i18NManager.getTranslation(seconds == 1 ? "time.second" : "time.seconds") + " ";
+            }
+            last = Managers.i18NManager.getTranslation("irc.expire.at").replace("{0}", "\247f" + last.trim() + "\247c");
+        }
+        return last;
     }
 
     @Override
@@ -234,27 +250,7 @@ public class NetHandlerClient implements INetHandlerClient {
     @Override
     public void handleMuted(SPacketMuted packetIn) {
         String reason = packetIn.getReason();
-        long duration = packetIn.getDuration();
-        String last = "";
-        if (duration != 0) {
-            long days = TimeUnit.MILLISECONDS.toDays(duration);
-            long hours = TimeUnit.MILLISECONDS.toHours(duration) % 24;
-            long minutes = TimeUnit.MILLISECONDS.toMinutes(duration) % 60;
-            long seconds = TimeUnit.MILLISECONDS.toSeconds(duration) % 60;
-            if (days != 0) {
-                last += days + Managers.i18NManager.getTranslation(days == 1 ? "time.day" : "time.days") + " ";
-            }
-            if (hours != 0) {
-                last += hours + Managers.i18NManager.getTranslation(hours == 1 ? "time.hour" : "time.hours") + " ";
-            }
-            if (minutes != 0) {
-                last += minutes + Managers.i18NManager.getTranslation(minutes == 1 ? "time.minute" : "time.minutes") + " ";
-            }
-            if (seconds != 0) {
-                last += seconds + Managers.i18NManager.getTranslation(seconds == 1 ? "time.second" : "time.seconds") + " ";
-            }
-            last = Managers.i18NManager.getTranslation("irc.expire.at").replace("{0}", "\247f" + last.trim() + "\247c");
-        }
+        String last = getDisplayFromDuration(packetIn.getDuration());
         ChatUtil.printToChat(new TextComponentString("\247m--------------------------------------------"));
         ChatUtil.printToChat(new TextComponentString(""));
         TextComponentString textComponents = new TextComponentString("   \247b[MIN-IRC] \247c" + Managers.i18NManager.getTranslation("irc.muted") + "\247c" + last);
