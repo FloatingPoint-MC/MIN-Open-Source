@@ -16,7 +16,7 @@ import cn.floatingpoint.min.system.module.impl.render.impl.Animation;
 import cn.floatingpoint.min.system.module.impl.render.impl.KeyStrokes;
 import cn.floatingpoint.min.system.module.impl.render.impl.Spinning;
 import cn.floatingpoint.min.system.shortcut.Shortcut;
-import cn.floatingpoint.min.system.ui.loading.GuiDamnJapaneseAction;
+import cn.floatingpoint.min.system.ui.loading.GuiEula;
 import cn.floatingpoint.min.system.ui.loading.GuiLoading;
 import cn.floatingpoint.min.system.ui.mainmenu.DebugMainMenu;
 import cn.floatingpoint.min.system.ui.mainmenu.MINMainMenu;
@@ -598,13 +598,13 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
             MIN.init();
 
             if (this.serverName != null) {
-                this.displayGuiScreen(new GuiDamnJapaneseAction(new GuiLogin(new GuiConnecting(this.mainMenu, this, this.serverName, this.serverPort))));
+                this.displayGuiScreen(new GuiEula(new GuiLogin(new GuiConnecting(this.mainMenu, this, this.serverName, this.serverPort))));
             } else {
                 if (!DEBUG_MODE()) {
-                    this.displayGuiScreen(new GuiLoading());
+                    this.displayGuiScreen(new GuiLoading(new GuiLogin()));
                 } else {
-                    //this.displayGuiScreen(new GuiLogin());
-                    this.displayGuiScreen(mainMenu);
+                    this.displayGuiScreen(new GuiLogin());
+                    //this.displayGuiScreen(mainMenu);
                 }
             }
         } catch (IOException ignored) {
@@ -2985,6 +2985,6 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
 
     @Native
     public static boolean DEBUG_MODE() {
-        return true;
+        return false;
     }
 }

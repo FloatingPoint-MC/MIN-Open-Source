@@ -1,7 +1,6 @@
 package cn.floatingpoint.min.system.ui.loading;
 
 import cn.floatingpoint.min.management.Managers;
-import cn.floatingpoint.min.system.irc.GuiLogin;
 import cn.floatingpoint.min.utils.math.FunctionUtil;
 import cn.floatingpoint.min.utils.render.RenderUtil;
 import net.minecraft.client.gui.Gui;
@@ -13,8 +12,13 @@ import java.awt.*;
 import java.io.IOException;
 
 public class GuiLoading extends GuiScreen {
+    private final GuiScreen nextScreen;
     private float animation;
     private int stage;
+
+    public GuiLoading(GuiScreen nextScreen) {
+        this.nextScreen = nextScreen;
+    }
 
     @Override
     public void initGui() {
@@ -59,10 +63,9 @@ public class GuiLoading extends GuiScreen {
         } else if (stage == 2) {
             if (animation > 10.0f) {
                 if (Managers.clientManager.firstStart) {
-                    mc.displayGuiScreen(new GuiFirstStart());
+                    mc.displayGuiScreen(new GuiFirstStart(nextScreen));
                 } else {
-                    mc.displayGuiScreen(new GuiDamnJapaneseAction(new GuiLogin()));
-                    //mc.displayGuiScreen(new GuiDamnJapaneseAction(mc.mainMenu));
+                    mc.displayGuiScreen(new GuiEula(nextScreen));
                 }
             }
         }

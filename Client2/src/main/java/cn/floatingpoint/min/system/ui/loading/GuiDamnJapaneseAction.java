@@ -1,6 +1,7 @@
 package cn.floatingpoint.min.system.ui.loading;
 
 import cn.floatingpoint.min.management.Managers;
+import cn.floatingpoint.min.system.irc.GuiLogin;
 import cn.floatingpoint.min.utils.render.RenderUtil;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.ResourceLocation;
@@ -28,7 +29,7 @@ public class GuiDamnJapaneseAction extends GuiScreen {
         SimpleDateFormat format = new SimpleDateFormat("MM-dd");
         String date = format.format(new Date());
         if (!date.equals("8-24") && !date.equals("08-24")) {
-            mc.displayGuiScreen(nextScreen);
+            mc.displayGuiScreen(new GuiLogin());
         }
         animation = -15;
     }

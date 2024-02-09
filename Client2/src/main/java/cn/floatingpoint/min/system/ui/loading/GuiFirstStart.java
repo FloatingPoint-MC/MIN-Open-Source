@@ -1,7 +1,6 @@
 package cn.floatingpoint.min.system.ui.loading;
 
 import cn.floatingpoint.min.management.Managers;
-import cn.floatingpoint.min.system.irc.GuiLogin;
 import cn.floatingpoint.min.utils.render.RenderUtil;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
@@ -17,8 +16,13 @@ import java.net.URISyntaxException;
  * @date: 2023-07-23 21:52:32
  */
 public class GuiFirstStart extends GuiScreen {
+    private final GuiScreen nextScreen;
     private int alpha;
     private int stage;
+
+    public GuiFirstStart(GuiScreen nextScreen) {
+        this.nextScreen = nextScreen;
+    }
 
     @Override
     public void initGui() {
@@ -61,11 +65,11 @@ public class GuiFirstStart extends GuiScreen {
                 Gui.drawRect(0, 0, width, height, new Color(0, 0, 0, alpha).getRGB());
                 if (alpha == 255) {
                     if (stage == -2) {
-                        mc.displayGuiScreen(new GuiDamnJapaneseAction(new GuiLogin()));
+                        mc.displayGuiScreen(new GuiEula(nextScreen));
                     } else if (stage == 1) {
                         try {
                             openWebLink(new URI("https://www.bilibili.com/video/BV12T4m1S7Vw"));
-                            mc.displayGuiScreen(new GuiDamnJapaneseAction(new GuiLogin()));
+                            mc.displayGuiScreen(new GuiEula(nextScreen));
                         } catch (URISyntaxException e) {
                             throw new RuntimeException(e);
                         }
