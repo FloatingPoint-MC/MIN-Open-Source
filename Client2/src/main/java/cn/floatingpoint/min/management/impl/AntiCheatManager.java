@@ -7,6 +7,7 @@ import cn.floatingpoint.min.system.anticheat.check.impl.click.impl.HitBoxCheck;
 import cn.floatingpoint.min.system.anticheat.check.impl.click.impl.ReachCheck;
 import cn.floatingpoint.min.system.anticheat.check.impl.packet.PacketCheck;
 import cn.floatingpoint.min.system.anticheat.check.impl.update.UpdateWalkingCheck;
+import cn.floatingpoint.min.system.anticheat.check.impl.update.impl.FlyCheck;
 
 import java.util.HashSet;
 
@@ -33,6 +34,8 @@ public class AntiCheatManager implements Manager {
 
         clickChecks.add(new ReachCheck());
         clickChecks.add(new HitBoxCheck());
+
+        updateWalkingChecks.add(new FlyCheck());
     }
 
     public void execute(Check.Executable executable) {
