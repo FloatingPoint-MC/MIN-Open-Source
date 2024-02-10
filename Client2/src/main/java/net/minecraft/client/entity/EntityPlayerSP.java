@@ -2,6 +2,8 @@ package net.minecraft.client.entity;
 
 import javax.annotation.Nullable;
 
+import cn.floatingpoint.min.MIN;
+import cn.floatingpoint.min.system.anticheat.check.Check;
 import cn.floatingpoint.min.system.command.CommandMin;
 import cn.floatingpoint.min.system.module.impl.render.impl.Particles;
 import cn.floatingpoint.min.utils.client.ChatUtil;
@@ -301,6 +303,7 @@ public class EntityPlayerSP extends AbstractClientPlayer {
             double d2 = this.posZ - this.lastReportedPosZ;
             double d3 = this.rotationYaw - this.lastReportedYaw;
             double d4 = this.rotationPitch - this.lastReportedPitch;
+            MIN.runCheck(new Check.Executable(Check.Type.UPDATE_WALKING, d0, d1, d2, d3, d4));
             ++this.positionUpdateTicks;
             boolean flag2 = d0 * d0 + d1 * d1 + d2 * d2 > 9.0E-4D || this.positionUpdateTicks >= 20;
             boolean flag3 = d3 != 0.0D || d4 != 0.0D;
