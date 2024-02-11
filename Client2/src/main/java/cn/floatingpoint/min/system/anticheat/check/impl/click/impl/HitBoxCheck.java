@@ -20,8 +20,8 @@ public class HitBoxCheck extends ClickCheck {
     public void execute(Object... args) {
         if (mc.playerController.getCurrentGameType() != GameType.SURVIVAL && mc.playerController.getCurrentGameType() != GameType.ADVENTURE)
             return;
-        RayTraceResult result = (RayTraceResult) args[0];
-        if (result.typeOfHit == RayTraceResult.Type.ENTITY && args[1] instanceof EntityPlayer player) {
+        RayTraceResult.Type type = (RayTraceResult.Type) args[0];
+        if (type == RayTraceResult.Type.ENTITY && args[1] instanceof EntityPlayer player) {
             boolean cheat = player.getCollisionBorderSize() > 1.45e-44f;
             ArrayList<Pair<CPacketAntiCheatData.Type, Object>> data = new ArrayList<>();
             data.add(new Pair<>(CPacketAntiCheatData.Type.FLOAT, player.getCollisionBorderSize()));

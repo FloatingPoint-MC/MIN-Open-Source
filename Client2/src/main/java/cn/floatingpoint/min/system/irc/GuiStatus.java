@@ -79,7 +79,12 @@ public class GuiStatus extends GuiScreen {
 
     }
 
-    public void setTitle(String title) {
+    public String getTitle() {
+        return title;
+    }
+
+    public GuiStatus setTitle(String title) {
         this.title = title;
+        return this;
     }
 }

@@ -145,7 +145,7 @@ public class GuiLogin extends GuiScreen {
                 RegistryEditUtil.writeValue("FloatingPoint/MINClient", "username", this.username.getText());
                 RegistryEditUtil.writeValue("FloatingPoint/MINClient", "password", this.rememberPassword ? this.password.getText() : "None");
                 RegistryEditUtil.writeValue("FloatingPoint/MINClient", "remember", this.rememberPassword ? "1" : "0");
-                mc.displayGuiScreen(new GuiStatus(this, nextScreen, Managers.i18NManager.getTranslation("back"), Managers.i18NManager.getTranslation("back")));
+                mc.displayGuiScreen(new GuiStatus(this, nextScreen, Managers.i18NManager.getTranslation("back"), Managers.i18NManager.getTranslation("back")).setTitle(""));
                 IRCClient.getInstance().enableIRC();
             } else {
                 mc.displayGuiScreen(nextScreen);

@@ -20,8 +20,8 @@ public class ReachCheck extends ClickCheck {
     public void execute(Object... args) {
         if (mc.playerController.getCurrentGameType() != GameType.SURVIVAL && mc.playerController.getCurrentGameType() != GameType.ADVENTURE)
             return;
-        RayTraceResult result = (RayTraceResult) args[0];
-        if (result.typeOfHit == RayTraceResult.Type.ENTITY && args[1] instanceof EntityPlayer) {
+        RayTraceResult.Type type = (RayTraceResult.Type) args[0];
+        if (type == RayTraceResult.Type.ENTITY && args[1] instanceof EntityPlayer) {
             boolean cheat = (double) args[2] >= 3.02;
             ArrayList<Pair<CPacketAntiCheatData.Type, Object>> data = new ArrayList<>();
             data.add(new Pair<>(CPacketAntiCheatData.Type.DOUBLE, args[2]));

@@ -10,6 +10,7 @@ import cn.floatingpoint.min.system.irc.connection.NetworkManager;
 import cn.floatingpoint.min.system.irc.packet.Encoder;
 import cn.floatingpoint.min.system.irc.packet.impl.*;
 import cn.floatingpoint.min.utils.client.ChatUtil;
+import cn.floatingpoint.min.utils.client.PacketThreadUtil;
 import me.konago.nativeobfuscator.Native;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiChat;
@@ -62,6 +63,7 @@ public class NetHandlerClient implements INetHandlerClient {
 
     @Override
     public void handleDisconnect(SPacketDisconnect packetIn) {
+        PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, mc);
         switch (packetIn.getType()) {
             case FORCE_BAN -> {
                 if (mc.world != null) {
@@ -104,6 +106,7 @@ public class NetHandlerClient implements INetHandlerClient {
 
     @Override
     public void handleAccount(SPacketAccount packetIn) {
+        PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, mc);
         switch (packetIn.getStatus()) {
             case LOG_OUT -> {
                 if (this.mc.currentScreen instanceof GuiStatus gui) {
@@ -147,9 +150,11 @@ public class NetHandlerClient implements INetHandlerClient {
             case FAIL_BANNED -> {
                 if (this.mc.currentScreen instanceof GuiStatus gui) {
                     String last = getDisplayFromDuration(packetIn.getDuration());
-                    gui.setTitle(Managers.i18NManager.getTranslation("login.fail.login"));
+                    if (!gui.getTitle().isEmpty()) {
+                        gui.setTitle(Managers.i18NManager.getTranslation("login.fail.login"));
+                    }
                     String reason = Managers.i18NManager.getTranslation("irc.banned.reason." + packetIn.getReason());
-                    if (reason.substring(18).equals(packetIn.getReason())) {
+                    if (reason.length() > 18 && reason.substring(18).equals(packetIn.getReason())) {
                         reason = packetIn.getReason();
                     }
                     Client.setStatus(

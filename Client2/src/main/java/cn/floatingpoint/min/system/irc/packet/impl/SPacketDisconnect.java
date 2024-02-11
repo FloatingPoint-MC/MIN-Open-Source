@@ -32,9 +32,7 @@ public class SPacketDisconnect implements Packet<INetHandlerClient> {
     }
 
     public enum EnumDisconnectType {
-        CLIENT_REQUEST,
         FORCE_KICK,
-        FORCE_BAN,
-        SERVER_CLOSED
+        FORCE_BAN
     }
 }

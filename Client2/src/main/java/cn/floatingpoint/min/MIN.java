@@ -31,11 +31,11 @@ public class MIN {
         antiCheatThread.setName("Anti Cheat Thread");
         antiCheatThread.setDaemon(true);
         antiCheatThread.start();
-        //try {
-        //    new IRCClient();
-        //} catch (URISyntaxException e) {
-        //    Minecraft.getMinecraft().shutdown();
-        //}
+        try {
+            new IRCClient();
+        } catch (URISyntaxException e) {
+            Minecraft.getMinecraft().shutdown();
+        }
     }
 
     public static void stop() {

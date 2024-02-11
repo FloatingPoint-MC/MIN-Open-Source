@@ -1830,10 +1830,10 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
                         }
                     }
                     if (Managers.clientManager.vexGui) {
-                        if (i == 37) {
+                        if (i == 37 || i == 0x32) {
                             this.player.connection.sendPacket(new CPacketCustomPayload("germmod-netease", new PacketBuffer(Unpooled.buffer()
                                     .writeInt(3)
-                                    .writeInt(37)
+                                    .writeInt(i)
                                     .writeBoolean(true)
                             )));
                         }

@@ -463,7 +463,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
             if (pointedEntity != null && flag) {
                 assert vec3d3 != null;
                 double distanceToEntity = vec3d.distanceTo(vec3d3);
-                if (distanceToEntity > 3.0) {
+                if (distanceToEntity > 4.2) {
                     pointedEntity = null;
                     this.mc.objectMouseOver = new RayTraceResult(RayTraceResult.Type.MISS, vec3d3, null, new BlockPos(vec3d3));
                 }

@@ -6,49 +6,31 @@ import net.minecraft.network.play.server.SPacketRespawn;
 import net.optifine.Config;
 import net.minecraft.util.IThreadListener;
 
-public class PacketThreadUtil
-{
+public class PacketThreadUtil {
     public static int lastDimensionId = Integer.MIN_VALUE;
 
-    public static <T extends INetHandler> void checkThreadAndEnqueue(final Packet<T> packetIn, final T processor, IThreadListener scheduler) throws ThreadQuickExitException
-    {
-        if (!scheduler.isCallingFromMinecraftThread())
-        {
-            scheduler.addScheduledTask(new Runnable()
-            {
-                public void run()
-                {
-                    PacketThreadUtil.clientPreProcessPacket(packetIn);
-                    packetIn.processPacket(processor);
-                }
+    public static <T extends INetHandler> void checkThreadAndEnqueue(final Packet<T> packetIn, final T processor, IThreadListener scheduler) throws ThreadQuickExitException {
+        if (!scheduler.isCallingFromMinecraftThread()) {
+            scheduler.addScheduledTask(() -> {
+                PacketThreadUtil.clientPreProcessPacket(packetIn);
+                packetIn.processPacket(processor);
             });
             throw ThreadQuickExitException.INSTANCE;
-        }
-        else
-        {
+        } else {
             clientPreProcessPacket(packetIn);
         }
     }
 
-    protected static void clientPreProcessPacket(Packet p_clientPreProcessPacket_0_)
-    {
-        if (p_clientPreProcessPacket_0_ instanceof SPacketPlayerPosLook)
-        {
+    protected static void clientPreProcessPacket(Packet<?> p_clientPreProcessPacket_0_) {
+        if (p_clientPreProcessPacket_0_ instanceof SPacketPlayerPosLook) {
             Config.getRenderGlobal().onPlayerPositionSet();
         }
 
-        if (p_clientPreProcessPacket_0_ instanceof SPacketRespawn)
-        {
-            SPacketRespawn spacketrespawn = (SPacketRespawn)p_clientPreProcessPacket_0_;
+        if (p_clientPreProcessPacket_0_ instanceof SPacketRespawn spacketrespawn) {
             lastDimensionId = spacketrespawn.getDimensionID();
-        }
-        else if (p_clientPreProcessPacket_0_ instanceof SPacketJoinGame)
-        {
-            SPacketJoinGame spacketjoingame = (SPacketJoinGame)p_clientPreProcessPacket_0_;
+        } else if (p_clientPreProcessPacket_0_ instanceof SPacketJoinGame spacketjoingame) {
             lastDimensionId = spacketjoingame.getDimension();
-        }
-        else
-        {
+        } else {
             lastDimensionId = Integer.MIN_VALUE;
         }
     }
