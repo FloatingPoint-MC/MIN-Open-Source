@@ -505,11 +505,7 @@ public class Chunk {
             } catch (Throwable throwable) {
                 CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Getting block state");
                 CrashReportCategory crashreportcategory = crashreport.makeCategory("Block being got");
-                crashreportcategory.addDetail("Location", new ICrashReportDetail<String>() {
-                    public String call() throws Exception {
-                        return CrashReportCategory.getCoordinateInfo(x, y, z);
-                    }
-                });
+                crashreportcategory.addDetail("Location", () -> CrashReportCategory.getCoordinateInfo(x, y, z));
                 throw new ReportedException(crashreport);
             }
         }

@@ -49,14 +49,26 @@ public class CPacketPlayer implements Packet<INetHandlerPlayServer>
         buf.writeByte(this.onGround ? 1 : 0);
     }
 
+    public double getX() {
+        return x;
+    }
+
     public double getX(double defaultValue)
     {
         return this.moving ? this.x : defaultValue;
     }
 
+    public double getY() {
+        return y;
+    }
+
     public double getY(double defaultValue)
     {
         return this.moving ? this.y : defaultValue;
+    }
+
+    public double getZ() {
+        return z;
     }
 
     public double getZ(double defaultValue)
@@ -77,6 +89,10 @@ public class CPacketPlayer implements Packet<INetHandlerPlayServer>
     public boolean isOnGround()
     {
         return this.onGround;
+    }
+
+    public boolean isMoving() {
+        return moving;
     }
 
     public static class Position extends CPacketPlayer

@@ -6,6 +6,7 @@ import cn.floatingpoint.min.system.anticheat.check.impl.click.ClickCheck;
 import cn.floatingpoint.min.system.anticheat.check.impl.click.impl.HitBoxCheck;
 import cn.floatingpoint.min.system.anticheat.check.impl.click.impl.ReachCheck;
 import cn.floatingpoint.min.system.anticheat.check.impl.packet.PacketCheck;
+import cn.floatingpoint.min.system.anticheat.check.impl.packet.impl.SpeedCheck;
 import cn.floatingpoint.min.system.anticheat.check.impl.update.UpdateWalkingCheck;
 import cn.floatingpoint.min.system.anticheat.check.impl.update.impl.FlyCheck;
 
@@ -35,13 +36,15 @@ public class AntiCheatManager implements Manager {
         clickChecks.add(new ReachCheck());
         clickChecks.add(new HitBoxCheck());
 
+        packetChecks.add(new SpeedCheck());
+
         updateWalkingChecks.add(new FlyCheck());
     }
 
     public void execute(Check.Executable executable) {
         switch (executable.type()) {
             case LEFT_CLICK -> clickChecks.forEach(c -> c.execute(executable.args()));
-            case PACKET_SEND -> packetChecks.forEach(c -> c.execute(executable.args()));
+            case PACKET -> packetChecks.forEach(c -> c.execute(executable.args()));
             case UPDATE_WALKING -> updateWalkingChecks.forEach(c -> c.execute(executable.args()));
         }
     }

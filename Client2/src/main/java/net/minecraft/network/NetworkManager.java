@@ -1,5 +1,7 @@
 package net.minecraft.network;
 
+import cn.floatingpoint.min.MIN;
+import cn.floatingpoint.min.system.anticheat.check.Check;
 import cn.floatingpoint.min.system.hyt.packet.impl.Hyt0Packet;
 import com.google.common.collect.Queues;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -137,6 +139,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
     protected void channelRead0(ChannelHandlerContext p_channelRead0_1_, Packet<?> p_channelRead0_2_) {
         if (this.channel.isOpen()) {
             try {
+                MIN.runCheck(new Check.Executable(Check.Type.PACKET, p_channelRead0_2_));
                 ((Packet<INetHandler>) p_channelRead0_2_).processPacket(this.packetListener);
             } catch (ThreadQuickExitException ignored) {
             }
@@ -168,10 +171,6 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
         }
     }
 
-    public void sendFMLPacket(CPacketCustomPayload packetIn) {
-        this.dispatchPacket(packetIn, null);
-    }
-
     @SafeVarargs
     public final void sendPacket(Packet<?> packetIn, GenericFutureListener<? extends Future<? super Void>> listener, GenericFutureListener<? extends Future<? super Void>>... listeners) {
         if (this.isChannelOpen()) {
@@ -193,6 +192,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
      * packet, otherwise it will add a task for the channel eventloop thread to do that.
      */
     private void dispatchPacket(final Packet<?> inPacket, @Nullable final GenericFutureListener<? extends Future<? super Void>>[] futureListeners) {
+        MIN.runCheck(new Check.Executable(Check.Type.PACKET, inPacket));
         final EnumConnectionState enumconnectionstate = EnumConnectionState.getFromPacket(inPacket);
         final EnumConnectionState enumconnectionstate1 = this.channel.attr(PROTOCOL_ATTRIBUTE_KEY).get();
 

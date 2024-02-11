@@ -978,8 +978,7 @@ public class EntityPlayerSP extends AbstractClientPlayer {
         super.updateRidden();
         this.rowingBoat = false;
 
-        if (this.getRidingEntity() instanceof EntityBoat) {
-            EntityBoat entityboat = (EntityBoat) this.getRidingEntity();
+        if (this.getRidingEntity() instanceof EntityBoat entityboat) {
             entityboat.updateInputs(this.movementInput.leftKeyDown, this.movementInput.rightKeyDown, this.movementInput.forwardKeyDown, this.movementInput.backKeyDown);
             this.rowingBoat |= this.movementInput.leftKeyDown || this.movementInput.rightKeyDown || this.movementInput.forwardKeyDown || this.movementInput.backKeyDown;
         }

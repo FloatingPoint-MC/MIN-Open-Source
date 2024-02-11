@@ -17,7 +17,7 @@ public interface Check {
     enum Type {
         UPDATE_WALKING,
         LEFT_CLICK,
-        PACKET_SEND
+        PACKET
     }
 
     record Executable(Type type, Object... args) {

@@ -1965,6 +1965,10 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
         return null;
     }
 
+    public boolean isDoneLoadingTerrain() {
+        return doneLoadingTerrain;
+    }
+
     public GameProfile getGameProfile() {
         return this.profile;
     }
