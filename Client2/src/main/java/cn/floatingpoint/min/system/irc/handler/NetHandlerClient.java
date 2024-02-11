@@ -178,7 +178,18 @@ public class NetHandlerClient implements INetHandlerClient {
             }
             case FAIL_REGISTER_EXIST -> {
                 if (this.mc.currentScreen instanceof GuiStatus gui) {
-                    Client.setStatus("\247cFailed to register(User existed)!");
+                    gui.setTitle(Managers.i18NManager.getTranslation("login.fail.register"));
+                    Client.setStatus("\247c" + Managers.i18NManager.getTranslation("login.fail.register.exist"));
+                    Client.setLoggedIn(false);
+                    Client.setUsername(null);
+                    Client.setPassword(null);
+                    gui.fail();
+                }
+            }
+            case FAIL_REGISTER_REGISTERED -> {
+                if (this.mc.currentScreen instanceof GuiStatus gui) {
+                    gui.setTitle(Managers.i18NManager.getTranslation("login.fail.register"));
+                    Client.setStatus("\247c" + Managers.i18NManager.getTranslation("login.fail.register.registered"));
                     Client.setLoggedIn(false);
                     Client.setUsername(null);
                     Client.setPassword(null);
