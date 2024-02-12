@@ -6,7 +6,6 @@ import cn.floatingpoint.min.system.hyt.party.Sender;
 import cn.floatingpoint.min.system.irc.Client;
 import io.netty.buffer.ByteBuf;
 import me.konago.nativeobfuscator.Native;
-import net.minecraft.client.gui.ScaledResolution;
 import org.json.JSONObject;
 
 public class VexViewPacket implements CustomPacket {
@@ -25,7 +24,7 @@ public class VexViewPacket implements CustomPacket {
             JSONObject json = new JSONObject(vexViewDecoder.result);
             if (json.getString("packet_type").equals("ver") && json.getString("packet_sub_type").equals("get")) {
                 Sender.sendJson(new JSONObject()
-                        .put("packet_sub_type", "16:9")
+                        .put("packet_sub_type", "1366:768")
                         .put("packet_data", Client.getVexViewVersion())
                         .put("packet_type", "ver"));
             }

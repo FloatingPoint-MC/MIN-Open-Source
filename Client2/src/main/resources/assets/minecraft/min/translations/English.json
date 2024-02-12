@@ -345,6 +345,7 @@
   "chat.channel.min": "MIN Server",
   "chat.channel.world": "Current World",
   "chat.giant": "Giant Text",
+  "chat.cooldown": "Please wait for the previous message.",
   "shortcut": "Shortcuts",
   "shortcut.name": "Name",
   "shortcut.key": "Key",

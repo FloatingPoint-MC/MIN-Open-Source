@@ -279,25 +279,19 @@ public class IntegratedServer extends MinecraftServer {
      */
     public CrashReport addServerInfoToCrashReport(CrashReport report) {
         report = super.addServerInfoToCrashReport(report);
-        report.getCategory().addDetail("Type", new ICrashReportDetail<String>() {
-            public String call() throws Exception {
-                return "Integrated Server (map_client.txt)";
-            }
-        });
-        report.getCategory().addDetail("Is Modded", new ICrashReportDetail<String>() {
-            public String call() throws Exception {
-                String s = ClientBrandRetriever.getClientModName();
+        report.getCategory().addDetail("Type", () -> "Integrated Server (map_client.txt)");
+        report.getCategory().addDetail("Is Modded", () -> {
+            String s = ClientBrandRetriever.getClientModName();
 
-                if (!s.equals("vanilla")) {
-                    return "Definitely; Client brand changed to '" + s + "'";
+            if (!s.equals("fml,forge")) {
+                return "Definitely; Client brand changed to '" + s + "'";
+            } else {
+                s = IntegratedServer.this.getServerModName();
+
+                if (!"fml,forge".equals(s)) {
+                    return "Definitely; Server brand changed to '" + s + "'";
                 } else {
-                    s = IntegratedServer.this.getServerModName();
-
-                    if (!"vanilla".equals(s)) {
-                        return "Definitely; Server brand changed to '" + s + "'";
-                    } else {
-                        return Minecraft.class.getSigners() == null ? "Very likely; Jar signature invalidated" : "Probably not. Jar signature remains and both client + server brands are untouched.";
-                    }
+                    return Minecraft.class.getSigners() == null ? "Very likely; Jar signature invalidated" : "Probably not. Jar signature remains and both client + server brands are untouched.";
                 }
             }
         });

@@ -13,7 +13,6 @@ import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.mojang.authlib.GameProfile;
-import io.netty.buffer.Unpooled;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,8 +26,10 @@ import java.util.Map.Entry;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 
+import io.netty.buffer.Unpooled;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.block.Block;
+import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.GuardianSound;
 import net.minecraft.client.audio.ISound;
@@ -1709,17 +1710,16 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
                         this.netManager.sendPacket(new CPacketCustomPayload("REGISTER", (new PacketBuffer(Unpooled.buffer().writeBytes(
                                 Joiner.on('\0').join(Iterables.concat(Arrays.asList("FML|HS", "FML", "FML|MP"), channels)).getBytes(StandardCharsets.UTF_8)
                         )))));
-                        //this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeByte(1).writeByte(2))));
-                        //this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeBytes(modList))));
+                        this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeByte(1).writeByte(2))));
+                        this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeBytes(modList))));
                     }
-                    case 2, 4, 5 -> {
-                        //this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeByte(-1).writeByte(phase))));
-                    }
+                    case 2, 4, 5 ->
+                            this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeByte(-1).writeByte(phase))));
                     case 3 -> {
-                        //PacketBuffer buffer = packetIn.getBufferData();
-                        //boolean hasMore = buffer.readBoolean();
-                        //if (hasMore) return;
-                        //this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeByte(-1).writeByte(3))));
+                        PacketBuffer buffer = packetIn.getBufferData();
+                        boolean hasMore = buffer.readBoolean();
+                        if (hasMore) return;
+                        this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeByte(-1).writeByte(3))));
                     }
                 }
                 phase++;
@@ -1738,6 +1738,11 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
         this.currentServerMaxPlayers = gameData.maxPlayers();
         this.client.player.setReducedDebug(gameData.reducedDebugInfo());
         this.client.playerController.setGameType(gameData.gameType());
+        this.client.gameSettings.sendSettingsToServer();
+        Managers.clientManager.clientMateUuids.clear();
+        Managers.clientManager.cooldown.clear();
+        Managers.clientManager.lock = false;
+        this.netManager.sendPacket(new CPacketCustomPayload("MC|Brand", (new PacketBuffer(Unpooled.buffer())).writeString(ClientBrandRetriever.getClientModName())));
     }
 
     /**

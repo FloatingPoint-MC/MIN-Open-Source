@@ -131,7 +131,9 @@ public class IRCClient extends WebSocketClient {
      **/
     @Override
     public void onMessage(String message) {
-        System.out.println(message);
+        if (Minecraft.DEBUG_MODE()) {
+            System.out.println(message);
+        }
     }
 
     @SuppressWarnings("all")

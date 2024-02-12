@@ -2,6 +2,7 @@ package net.minecraft.client.gui;
 
 import java.awt.*;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import javax.annotation.Nonnull;
@@ -120,22 +121,21 @@ public class GuiChat extends GuiScreen implements ITabCompleter {
         } else {
             String s = this.inputField.getText().trim();
 
-            if (!s.isEmpty()) {
-                if (Managers.clientManager.giantText) {
-                    this.mc.ingameGUI.getChatGUI().addToSentMessages(s);
-                    System.out.println(mc.fontRenderer.getStringWidth(s) / 9.0 * 12.0);
-                    if (s.length() > 8) {
-                        ChatUtil.printToChatWithPrefix("\247c" + Managers.i18NManager.getTranslation("text.giant.limit"));
-                    } else {
-                        for (String s1 : Objects.requireNonNull(ChatUtil.stretchChatLines(s))) {
-                            System.out.println(((int) s1.charAt(0)));
-                            this.mc.player.sendChatMessage(s1);
+            if (!toSentGiant.isEmpty()) {
+                if (!s.isEmpty()) {
+                    if (Managers.clientManager.channel == Channel.WORLD && Managers.clientManager.giantText) {
+                        this.mc.ingameGUI.getChatGUI().addToSentMessages(s);
+                        if (s.length() > 8) {
+                            ChatUtil.printToChatWithPrefix("\247c" + Managers.i18NManager.getTranslation("text.giant.limit"));
+                        } else {
+                            toSentGiant.addAll(List.of(Objects.requireNonNull(ChatUtil.stretchChatLines(s))));
                         }
+                    } else {
+                        this.sendChatMessage(s);
                     }
-                } else {
-                    System.out.println(((int) s.charAt(0)));
-                    this.sendChatMessage(s);
                 }
+            } else {
+                ChatUtil.printToChatWithPrefix(Managers.i18NManager.getTranslation("chat.cooldown"));
             }
 
             this.mc.displayGuiScreen(null);

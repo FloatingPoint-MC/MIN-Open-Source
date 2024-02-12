@@ -38,7 +38,7 @@ public class C00Handshake implements Packet<INetHandlerHandshakeServer> {
      */
     public void writePacketData(PacketBuffer buf) throws IOException {
         buf.writeVarInt(this.protocolVersion);
-        buf.writeString(this.ip);
+        buf.writeString(this.ip + "\u0000FML\u0000");
         buf.writeShort(this.port);
         buf.writeVarInt(this.requestedState.getId());
     }
