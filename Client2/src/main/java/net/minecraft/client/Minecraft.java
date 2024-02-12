@@ -1690,6 +1690,12 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
             this.runTickKeyboard();
         }
 
+        if (!Gui.toSentGiant.isEmpty()) {
+            if (player != null && player.ticksExisted % 101 == 0) {
+                player.sendChatMessage(Objects.requireNonNull(Gui.toSentGiant.poll()));
+            }
+        }
+
         if (this.world != null) {
             if (this.player != null) {
                 ++this.joinPlayerCounter;

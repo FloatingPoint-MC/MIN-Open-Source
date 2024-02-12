@@ -7,13 +7,13 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 
-import java.util.ArrayList;
+import java.util.*;
 
 public class Gui {
     public static final ResourceLocation OPTIONS_BACKGROUND = new ResourceLocation("textures/gui/options_background.png");
     public static final ResourceLocation STAT_ICONS = new ResourceLocation("textures/gui/container/stats_icons.png");
     public static final ResourceLocation ICONS = new ResourceLocation("textures/gui/icons.png");
-    protected static final ArrayList<String> toSentGiant = new ArrayList<>();
+    public static final ArrayDeque<String> toSentGiant = new ArrayDeque<>();
     protected float zLevel;
 
     /**

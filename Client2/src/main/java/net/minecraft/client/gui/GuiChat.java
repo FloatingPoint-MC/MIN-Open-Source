@@ -121,9 +121,9 @@ public class GuiChat extends GuiScreen implements ITabCompleter {
         } else {
             String s = this.inputField.getText().trim();
 
-            if (!toSentGiant.isEmpty()) {
+            if (toSentGiant.isEmpty()) {
                 if (!s.isEmpty()) {
-                    if (Managers.clientManager.channel == Channel.WORLD && Managers.clientManager.giantText) {
+                    if (Managers.clientManager.channel == Channel.WORLD && Managers.clientManager.giantText && !s.startsWith("/")) {
                         this.mc.ingameGUI.getChatGUI().addToSentMessages(s);
                         if (s.length() > 8) {
                             ChatUtil.printToChatWithPrefix("\247c" + Managers.i18NManager.getTranslation("text.giant.limit"));
@@ -135,6 +135,7 @@ public class GuiChat extends GuiScreen implements ITabCompleter {
                     }
                 }
             } else {
+                this.mc.ingameGUI.getChatGUI().addToSentMessages(s);
                 ChatUtil.printToChatWithPrefix(Managers.i18NManager.getTranslation("chat.cooldown"));
             }
 
