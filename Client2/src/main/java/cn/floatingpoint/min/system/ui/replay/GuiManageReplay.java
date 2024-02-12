@@ -1,4 +1,4 @@
-package net.minecraft.client.gui;
+package cn.floatingpoint.min.system.ui.replay;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -6,17 +6,17 @@ import com.google.common.collect.Lists;
 import java.io.IOException;
 import javax.annotation.Nullable;
 
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-public class GuiWorldSelection extends GuiScreen {
+public class GuiManageReplay extends GuiScreen {
 
     /**
      * The screen to return to when this closes (always Main Menu).
      */
     protected GuiScreen prevScreen;
-    protected String title = "Select world";
+    protected String title = "Select Replay";
 
     /**
      * Tooltip displayed a world whose version is different from this client's
@@ -25,10 +25,9 @@ public class GuiWorldSelection extends GuiScreen {
     private GuiButton deleteButton;
     private GuiButton selectButton;
     private GuiButton renameButton;
-    private GuiButton copyButton;
-    private GuiListWorldSelection selectionList;
+    private GuiListReplay selectionList;
 
-    public GuiWorldSelection(GuiScreen screenIn) {
+    public GuiManageReplay(GuiScreen screenIn) {
         this.prevScreen = screenIn;
     }
 
@@ -37,8 +36,8 @@ public class GuiWorldSelection extends GuiScreen {
      * window resizes, the buttonList is cleared beforehand.
      */
     public void initGui() {
-        this.title = I18n.format("selectWorld.title");
-        this.selectionList = new GuiListWorldSelection(this, this.mc, this.width, this.height, 32, this.height - 64, 36);
+        this.title = "Select Replay";
+        this.selectionList = new GuiListReplay(this, this.mc, this.width, this.height, 32, this.height - 64, 36);
         this.postInit();
     }
 
@@ -52,15 +51,12 @@ public class GuiWorldSelection extends GuiScreen {
 
     public void postInit() {
         this.selectButton = this.addButton(new GuiButton(1, this.width / 2 - 154, this.height - 52, 150, 20, I18n.format("selectWorld.select")));
-        this.addButton(new GuiButton(3, this.width / 2 + 4, this.height - 52, 150, 20, I18n.format("selectWorld.create")));
         this.renameButton = this.addButton(new GuiButton(4, this.width / 2 - 154, this.height - 28, 72, 20, I18n.format("selectWorld.edit")));
         this.deleteButton = this.addButton(new GuiButton(2, this.width / 2 - 76, this.height - 28, 72, 20, I18n.format("selectWorld.delete")));
-        this.copyButton = this.addButton(new GuiButton(5, this.width / 2 + 4, this.height - 28, 72, 20, I18n.format("selectWorld.recreate")));
         this.addButton(new GuiButton(0, this.width / 2 + 82, this.height - 28, 72, 20, I18n.format("gui.cancel")));
         this.selectButton.enabled = false;
         this.deleteButton.enabled = false;
         this.renameButton.enabled = false;
-        this.copyButton.enabled = false;
     }
 
     /**
@@ -68,26 +64,22 @@ public class GuiWorldSelection extends GuiScreen {
      */
     protected void actionPerformed(GuiButton button) throws IOException {
         if (button.enabled) {
-            GuiListWorldSelectionEntry guilistworldselectionentry = this.selectionList.getSelectedWorld();
+            GuiListReplayEntry replay = this.selectionList.getSelectedReplay();
 
             if (button.id == 2) {
-                if (guilistworldselectionentry != null) {
-                    guilistworldselectionentry.deleteWorld();
+                if (replay != null) {
+                    replay.deleteWorld();
                 }
             } else if (button.id == 1) {
-                if (guilistworldselectionentry != null) {
-                    guilistworldselectionentry.joinWorld();
+                if (replay != null) {
+                    replay.joinWorld();
                 }
-            } else if (button.id == 3) {
-                this.mc.displayGuiScreen(new GuiCreateWorld(this));
             } else if (button.id == 4) {
-                if (guilistworldselectionentry != null) {
-                    guilistworldselectionentry.editWorld();
+                if (replay != null) {
+                    replay.editWorld();
                 }
             } else if (button.id == 0) {
                 this.mc.displayGuiScreen(this.prevScreen);
-            } else if (button.id == 5 && guilistworldselectionentry != null) {
-                guilistworldselectionentry.recreateWorld();
             }
         }
     }
@@ -129,11 +121,10 @@ public class GuiWorldSelection extends GuiScreen {
         this.worldVersTooltip = p_184861_1_;
     }
 
-    public void selectWorld(@Nullable GuiListWorldSelectionEntry entry) {
+    public void selectReplay(@Nullable GuiListReplayEntry entry) {
         boolean flag = entry != null;
         this.selectButton.enabled = flag;
         this.deleteButton.enabled = flag;
         this.renameButton.enabled = flag;
-        this.copyButton.enabled = flag;
     }
 }

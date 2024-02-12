@@ -1515,6 +1515,10 @@ public abstract class EntityPlayer extends EntityLivingBase {
         }
     }
 
+    public BlockPos getSpawnPos() {
+        return spawnPos;
+    }
+
     /**
      * Add a stat once
      */

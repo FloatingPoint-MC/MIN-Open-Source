@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.exceptions.AuthenticationUnavailableException;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -16,6 +17,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
 import javax.crypto.SecretKey;
+
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.login.INetHandlerLoginServer;
@@ -34,8 +36,7 @@ import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class NetHandlerLoginServer implements INetHandlerLoginServer, ITickable
-{
+public class NetHandlerLoginServer implements INetHandlerLoginServer, ITickable {
     private static final AtomicInteger AUTHENTICATOR_THREAD_ID = new AtomicInteger(0);
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Random RANDOM = new Random();
@@ -44,15 +45,16 @@ public class NetHandlerLoginServer implements INetHandlerLoginServer, ITickable
     public final NetworkManager networkManager;
     private LoginState currentLoginState = LoginState.HELLO;
 
-    /** How long has player been trying to login into the server. */
+    /**
+     * How long has player been trying to login into the server.
+     */
     private int connectionTimer;
     private GameProfile loginGameProfile;
     private final String serverId = "";
     private SecretKey secretKey;
     private EntityPlayerMP player;
 
-    public NetHandlerLoginServer(MinecraftServer serverIn, NetworkManager networkManagerIn)
-    {
+    public NetHandlerLoginServer(MinecraftServer serverIn, NetworkManager networkManagerIn) {
         this.server = serverIn;
         this.networkManager = networkManagerIn;
         RANDOM.nextBytes(this.verifyToken);
@@ -61,67 +63,49 @@ public class NetHandlerLoginServer implements INetHandlerLoginServer, ITickable
     /**
      * Like the old updateEntity(), except more generic.
      */
-    public void update()
-    {
-        if (this.currentLoginState == LoginState.READY_TO_ACCEPT)
-        {
+    public void update() {
+        if (this.currentLoginState == LoginState.READY_TO_ACCEPT) {
             this.tryAcceptPlayer();
-        }
-        else if (this.currentLoginState == LoginState.DELAY_ACCEPT)
-        {
+        } else if (this.currentLoginState == LoginState.DELAY_ACCEPT) {
             EntityPlayerMP entityplayermp = this.server.getPlayerList().getPlayerByUUID(this.loginGameProfile.getId());
 
-            if (entityplayermp == null)
-            {
+            if (entityplayermp == null) {
                 this.currentLoginState = LoginState.READY_TO_ACCEPT;
                 this.server.getPlayerList().initializeConnectionToPlayer(this.networkManager, this.player);
                 this.player = null;
             }
         }
 
-        if (this.connectionTimer++ == 600)
-        {
+        if (this.connectionTimer++ == 600) {
             this.disconnect(new TextComponentTranslation("multiplayer.disconnect.slow_login"));
         }
     }
 
-    public void disconnect(ITextComponent reason)
-    {
-        try
-        {
+    public void disconnect(ITextComponent reason) {
+        try {
             LOGGER.info("Disconnecting {}: {}", this.getConnectionInfo(), reason.getUnformattedText());
             this.networkManager.sendPacket(new SPacketDisconnect(reason));
             this.networkManager.closeChannel(reason);
-        }
-        catch (Exception exception)
-        {
+        } catch (Exception exception) {
             LOGGER.error("Error whilst disconnecting player", exception);
         }
     }
 
-    public void tryAcceptPlayer()
-    {
-        if (!this.loginGameProfile.isComplete())
-        {
+    public void tryAcceptPlayer() {
+        if (!this.loginGameProfile.isComplete()) {
             this.loginGameProfile = this.getOfflineProfile(this.loginGameProfile);
         }
 
         String s = this.server.getPlayerList().allowUserToConnect(this.networkManager.getRemoteAddress(), this.loginGameProfile);
 
-        if (s != null)
-        {
+        if (s != null) {
             this.disconnect(new TextComponentTranslation(s));
-        }
-        else
-        {
+        } else {
             this.currentLoginState = LoginState.ACCEPTED;
 
-            if (this.server.getNetworkCompressionThreshold() >= 0 && !this.networkManager.isLocalChannel())
-            {
-                this.networkManager.sendPacket(new SPacketEnableCompression(this.server.getNetworkCompressionThreshold()), new ChannelFutureListener()
-                {
-                    public void operationComplete(ChannelFuture p_operationComplete_1_) throws Exception
-                    {
+            if (this.server.getNetworkCompressionThreshold() >= 0 && !this.networkManager.isLocalChannel()) {
+                this.networkManager.sendPacket(new SPacketEnableCompression(this.server.getNetworkCompressionThreshold()), new ChannelFutureListener() {
+                    public void operationComplete(ChannelFuture p_operationComplete_1_) throws Exception {
                         NetHandlerLoginServer.this.networkManager.setCompressionThreshold(NetHandlerLoginServer.this.server.getNetworkCompressionThreshold());
                     }
                 });
@@ -130,13 +114,10 @@ public class NetHandlerLoginServer implements INetHandlerLoginServer, ITickable
             this.networkManager.sendPacket(new SPacketLoginSuccess(this.loginGameProfile));
             EntityPlayerMP entityplayermp = this.server.getPlayerList().getPlayerByUUID(this.loginGameProfile.getId());
 
-            if (entityplayermp != null)
-            {
+            if (entityplayermp != null) {
                 this.currentLoginState = LoginState.DELAY_ACCEPT;
                 this.player = this.server.getPlayerList().createPlayerForUser(this.loginGameProfile);
-            }
-            else
-            {
+            } else {
                 this.server.getPlayerList().initializeConnectionToPlayer(this.networkManager, this.server.getPlayerList().createPlayerForUser(this.loginGameProfile));
             }
         }
@@ -145,107 +126,82 @@ public class NetHandlerLoginServer implements INetHandlerLoginServer, ITickable
     /**
      * Invoked when disconnecting, the parameter is a ChatComponent describing the reason for termination
      */
-    public void onDisconnect(ITextComponent reason)
-    {
+    public void onDisconnect(ITextComponent reason) {
         LOGGER.info("{} lost connection: {}", this.getConnectionInfo(), reason.getUnformattedText());
     }
 
-    public String getConnectionInfo()
-    {
+    public String getConnectionInfo() {
         return this.loginGameProfile != null ? this.loginGameProfile + " (" + this.networkManager.getRemoteAddress() + ")" : String.valueOf(this.networkManager.getRemoteAddress());
     }
 
-    public void processLoginStart(CPacketLoginStart packetIn)
-    {
+    public void processLoginStart(CPacketLoginStart packetIn) {
         Validate.validState(this.currentLoginState == LoginState.HELLO, "Unexpected hello packet");
         this.loginGameProfile = packetIn.getProfile();
 
-        if (this.server.isServerInOnlineMode() && !this.networkManager.isLocalChannel())
-        {
+        if (this.server.isServerInOnlineMode() && !this.networkManager.isLocalChannel()) {
             this.currentLoginState = LoginState.KEY;
             this.networkManager.sendPacket(new SPacketEncryptionRequest("", this.server.getKeyPair().getPublic(), this.verifyToken));
-        }
-        else
-        {
+        } else {
             this.currentLoginState = LoginState.READY_TO_ACCEPT;
         }
     }
 
-    public void processEncryptionResponse(CPacketEncryptionResponse packetIn)
-    {
+    public void processEncryptionResponse(CPacketEncryptionResponse packetIn) {
         Validate.validState(this.currentLoginState == LoginState.KEY, "Unexpected key packet");
         PrivateKey privatekey = this.server.getKeyPair().getPrivate();
 
-        if (!Arrays.equals(this.verifyToken, packetIn.getVerifyToken(privatekey)))
-        {
+        if (!Arrays.equals(this.verifyToken, packetIn.getVerifyToken(privatekey))) {
             throw new IllegalStateException("Invalid nonce!");
-        }
-        else
-        {
+        } else {
             this.secretKey = packetIn.getSecretKey(privatekey);
             this.currentLoginState = LoginState.AUTHENTICATING;
             this.networkManager.enableEncryption(this.secretKey);
-            (new Thread("User Authenticator #" + AUTHENTICATOR_THREAD_ID.incrementAndGet())
-            {
-                public void run()
-                {
+            (new Thread("User Authenticator #" + AUTHENTICATOR_THREAD_ID.incrementAndGet()) {
+                public void run() {
                     GameProfile gameprofile = NetHandlerLoginServer.this.loginGameProfile;
 
-                    try
-                    {
+                    try {
                         String s = (new BigInteger(CryptManager.getServerIdHash("", NetHandlerLoginServer.this.server.getKeyPair().getPublic(), NetHandlerLoginServer.this.secretKey))).toString(16);
                         NetHandlerLoginServer.this.loginGameProfile = NetHandlerLoginServer.this.server.getMinecraftSessionService().hasJoinedServer(new GameProfile(null, gameprofile.getName()), s, this.getAddress());
 
-                        if (NetHandlerLoginServer.this.loginGameProfile != null)
-                        {
+                        if (NetHandlerLoginServer.this.loginGameProfile != null) {
                             NetHandlerLoginServer.LOGGER.info("UUID of player {} is {}", NetHandlerLoginServer.this.loginGameProfile.getName(), NetHandlerLoginServer.this.loginGameProfile.getId());
                             NetHandlerLoginServer.this.currentLoginState = LoginState.READY_TO_ACCEPT;
-                        }
-                        else if (NetHandlerLoginServer.this.server.isSinglePlayer())
-                        {
+                        } else if (NetHandlerLoginServer.this.server.isSinglePlayer()) {
                             NetHandlerLoginServer.LOGGER.warn("Failed to verify username but will let them in anyway!");
                             NetHandlerLoginServer.this.loginGameProfile = NetHandlerLoginServer.this.getOfflineProfile(gameprofile);
                             NetHandlerLoginServer.this.currentLoginState = LoginState.READY_TO_ACCEPT;
-                        }
-                        else
-                        {
+                        } else {
                             NetHandlerLoginServer.this.disconnect(new TextComponentTranslation("multiplayer.disconnect.unverified_username"));
                             NetHandlerLoginServer.LOGGER.error("Username '{}' tried to join with an invalid session", gameprofile.getName());
                         }
-                    }
-                    catch (AuthenticationUnavailableException var3)
-                    {
-                        if (NetHandlerLoginServer.this.server.isSinglePlayer())
-                        {
+                    } catch (AuthenticationUnavailableException var3) {
+                        if (NetHandlerLoginServer.this.server.isSinglePlayer()) {
                             NetHandlerLoginServer.LOGGER.warn("Authentication servers are down but will let them in anyway!");
                             NetHandlerLoginServer.this.loginGameProfile = NetHandlerLoginServer.this.getOfflineProfile(gameprofile);
                             NetHandlerLoginServer.this.currentLoginState = LoginState.READY_TO_ACCEPT;
-                        }
-                        else
-                        {
+                        } else {
                             NetHandlerLoginServer.this.disconnect(new TextComponentTranslation("multiplayer.disconnect.authservers_down"));
                             NetHandlerLoginServer.LOGGER.error("Couldn't verify username because servers are unavailable");
                         }
                     }
                 }
+
                 @Nullable
-                private InetAddress getAddress()
-                {
+                private InetAddress getAddress() {
                     SocketAddress socketaddress = NetHandlerLoginServer.this.networkManager.getRemoteAddress();
-                    return NetHandlerLoginServer.this.server.getPreventProxyConnections() && socketaddress instanceof InetSocketAddress ? ((InetSocketAddress)socketaddress).getAddress() : null;
+                    return NetHandlerLoginServer.this.server.getPreventProxyConnections() && socketaddress instanceof InetSocketAddress ? ((InetSocketAddress) socketaddress).getAddress() : null;
                 }
             }).start();
         }
     }
 
-    protected GameProfile getOfflineProfile(GameProfile original)
-    {
+    protected GameProfile getOfflineProfile(GameProfile original) {
         UUID uuid = UUID.nameUUIDFromBytes(("OfflinePlayer:" + original.getName()).getBytes(StandardCharsets.UTF_8));
         return new GameProfile(uuid, original.getName());
     }
 
-    enum LoginState
-    {
+    enum LoginState {
         HELLO,
         KEY,
         AUTHENTICATING,

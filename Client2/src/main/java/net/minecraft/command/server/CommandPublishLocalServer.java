@@ -6,37 +6,30 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.GameType;
 
-public class CommandPublishLocalServer extends CommandBase
-{
+public class CommandPublishLocalServer extends CommandBase {
     /**
      * Gets the name of the command
      */
-    public String getName()
-    {
+    public String getName() {
         return "publish";
     }
 
     /**
      * Gets the usage string for the command.
      */
-    public String getUsage(ICommandSender sender)
-    {
+    public String getUsage(ICommandSender sender) {
         return "commands.publish.usage";
     }
 
     /**
      * Callback for when the command is executed
      */
-    public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
-    {
+    public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
         String s = server.shareToLAN(GameType.SURVIVAL, false);
 
-        if (s != null)
-        {
+        if (s != null) {
             notifyCommandListener(sender, this, "commands.publish.started", s);
-        }
-        else
-        {
+        } else {
             notifyCommandListener(sender, this, "commands.publish.failed");
         }
     }

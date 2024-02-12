@@ -1,4 +1,4 @@
-package net.minecraft.client.gui;
+package cn.floatingpoint.min.system.ui.replay;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -9,6 +9,7 @@ import javax.imageio.ImageIO;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
+import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.resources.I18n;
@@ -24,23 +25,23 @@ import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class GuiListWorldSelectionEntry implements GuiListExtended.IGuiListEntry {
+public class GuiListReplayEntry implements GuiListExtended.IGuiListEntry {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat();
     private static final ResourceLocation ICON_MISSING = new ResourceLocation("textures/misc/unknown_server.png");
     private static final ResourceLocation ICON_OVERLAY_LOCATION = new ResourceLocation("textures/gui/world_selection.png");
     private final Minecraft client;
-    private final GuiWorldSelection worldSelScreen;
+    private final GuiManageReplay worldSelScreen;
     private final WorldSummary worldSummary;
     private final ResourceLocation iconLocation;
-    private final GuiListWorldSelection containingListSel;
+    private final GuiListReplay containingListSel;
     private File iconFile;
     private DynamicTexture icon;
     private long lastClickTime;
 
-    public GuiListWorldSelectionEntry(GuiListWorldSelection listWorldSelIn, WorldSummary worldSummaryIn, ISaveFormat saveFormat) {
+    public GuiListReplayEntry(GuiListReplay listWorldSelIn, WorldSummary worldSummaryIn, ISaveFormat saveFormat) {
         this.containingListSel = listWorldSelIn;
-        this.worldSelScreen = listWorldSelIn.getGuiWorldSelection();
+        this.worldSelScreen = listWorldSelIn.getGuiReplaySelection();
         this.worldSummary = worldSummaryIn;
         this.client = Minecraft.getMinecraft();
         this.iconLocation = new ResourceLocation("worlds/" + worldSummaryIn.getFileName() + "/icon");
@@ -56,41 +57,13 @@ public class GuiListWorldSelectionEntry implements GuiListExtended.IGuiListEntry
     public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float partialTicks) {
         String s = this.worldSummary.getDisplayName();
         String s1 = this.worldSummary.getFileName() + " (" + DATE_FORMAT.format(new Date(this.worldSummary.getLastTimePlayed())) + ")";
-        String s2 = "";
 
         if (StringUtils.isEmpty(s)) {
             s = I18n.format("selectWorld.world") + " " + (slotIndex + 1);
         }
 
-        if (this.worldSummary.requiresConversion()) {
-            s2 = I18n.format("selectWorld.conversion") + " " + s2;
-        } else {
-            s2 = I18n.format("gameMode." + this.worldSummary.getEnumGameType().getName());
-
-            if (this.worldSummary.isHardcoreModeEnabled()) {
-                s2 = TextFormatting.DARK_RED + I18n.format("gameMode.hardcore") + TextFormatting.RESET;
-            }
-
-            if (this.worldSummary.getCheatsEnabled()) {
-                s2 = s2 + ", " + I18n.format("selectWorld.cheats");
-            }
-
-            String s3 = this.worldSummary.getVersionName();
-
-            if (this.worldSummary.markVersionInList()) {
-                if (this.worldSummary.askToOpenWorld()) {
-                    s2 = s2 + ", " + I18n.format("selectWorld.version") + " " + TextFormatting.RED + s3 + TextFormatting.RESET;
-                } else {
-                    s2 = s2 + ", " + I18n.format("selectWorld.version") + " " + TextFormatting.ITALIC + s3 + TextFormatting.RESET;
-                }
-            } else {
-                s2 = s2 + ", " + I18n.format("selectWorld.version") + " " + s3;
-            }
-        }
-
         this.client.fontRenderer.drawString(s, x + 32 + 3, y + 1, 16777215);
         this.client.fontRenderer.drawString(s1, x + 32 + 3, y + this.client.fontRenderer.FONT_HEIGHT + 3, 8421504);
-        this.client.fontRenderer.drawString(s2, x + 32 + 3, y + this.client.fontRenderer.FONT_HEIGHT + this.client.fontRenderer.FONT_HEIGHT + 3, 8421504);
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         this.client.getTextureManager().bindTexture(this.icon != null ? this.iconLocation : ICON_MISSING);
         GlStateManager.enableBlend();
@@ -149,9 +122,9 @@ public class GuiListWorldSelectionEntry implements GuiListExtended.IGuiListEntry
         if (this.worldSummary.askToOpenWorld()) {
             this.client.displayGuiScreen(new GuiYesNo((result, id) -> {
                 if (result) {
-                    GuiListWorldSelectionEntry.this.loadWorld();
+                    GuiListReplayEntry.this.loadWorld();
                 } else {
-                    GuiListWorldSelectionEntry.this.client.displayGuiScreen(GuiListWorldSelectionEntry.this.worldSelScreen);
+                    GuiListReplayEntry.this.client.displayGuiScreen(GuiListReplayEntry.this.worldSelScreen);
                 }
             }, I18n.format("selectWorld.versionQuestion"), I18n.format("selectWorld.versionWarning", this.worldSummary.getVersionName()), I18n.format("selectWorld.versionJoinButton"), I18n.format("gui.cancel"), 0));
         } else {
@@ -162,32 +135,19 @@ public class GuiListWorldSelectionEntry implements GuiListExtended.IGuiListEntry
     public void deleteWorld() {
         this.client.displayGuiScreen(new GuiYesNo((result, id) -> {
             if (result) {
-                GuiListWorldSelectionEntry.this.client.displayGuiScreen(new GuiScreenWorking());
-                ISaveFormat isaveformat = GuiListWorldSelectionEntry.this.client.getSaveLoader();
+                GuiListReplayEntry.this.client.displayGuiScreen(new GuiScreenWorking());
+                ISaveFormat isaveformat = GuiListReplayEntry.this.client.getSaveLoader();
                 isaveformat.flushCache();
-                isaveformat.deleteWorldDirectory(GuiListWorldSelectionEntry.this.worldSummary.getFileName());
-                GuiListWorldSelectionEntry.this.containingListSel.refreshList();
+                isaveformat.deleteWorldDirectory(GuiListReplayEntry.this.worldSummary.getFileName());
+                GuiListReplayEntry.this.containingListSel.refreshList();
             }
 
-            GuiListWorldSelectionEntry.this.client.displayGuiScreen(GuiListWorldSelectionEntry.this.worldSelScreen);
+            GuiListReplayEntry.this.client.displayGuiScreen(GuiListReplayEntry.this.worldSelScreen);
         }, I18n.format("selectWorld.deleteQuestion"), "'" + this.worldSummary.getDisplayName() + "' " + I18n.format("selectWorld.deleteWarning"), I18n.format("selectWorld.deleteButton"), I18n.format("gui.cancel"), 0));
     }
 
     public void editWorld() {
         this.client.displayGuiScreen(new GuiWorldEdit(this.worldSelScreen, this.worldSummary.getFileName()));
-    }
-
-    public void recreateWorld() {
-        this.client.displayGuiScreen(new GuiScreenWorking());
-        GuiCreateWorld guicreateworld = new GuiCreateWorld(this.worldSelScreen);
-        ISaveHandler isavehandler = this.client.getSaveLoader().getSaveLoader(this.worldSummary.getFileName(), false);
-        WorldInfo worldinfo = isavehandler.loadWorldInfo();
-        isavehandler.flush();
-
-        if (worldinfo != null) {
-            guicreateworld.recreateFromExistingWorld(worldinfo);
-            this.client.displayGuiScreen(guicreateworld);
-        }
     }
 
     private void loadWorld() {

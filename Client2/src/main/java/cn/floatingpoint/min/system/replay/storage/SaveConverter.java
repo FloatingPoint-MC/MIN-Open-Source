@@ -1,11 +1,10 @@
-package net.minecraft.world.chunk.storage;
+package cn.floatingpoint.min.system.replay.storage;
 
 import com.google.common.collect.Lists;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,6 +20,10 @@ import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.BiomeProvider;
 import net.minecraft.world.biome.BiomeProviderSingle;
+import net.minecraft.world.chunk.storage.AnvilSaveHandler;
+import net.minecraft.world.chunk.storage.ChunkLoader;
+import net.minecraft.world.chunk.storage.RegionFile;
+import net.minecraft.world.chunk.storage.RegionFileCache;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.SaveFormatOld;
 import net.minecraft.world.storage.WorldInfo;
@@ -29,10 +32,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class AnvilSaveConverter extends SaveFormatOld {
+import javax.annotation.Nullable;
+
+public class SaveConverter extends SaveFormatOld {
     private static final Logger LOGGER = LogManager.getLogger();
 
-    public AnvilSaveConverter(File dir, DataFixer dataFixerIn) {
+    public SaveConverter(File dir, DataFixer dataFixerIn) {
         super(dir, dataFixerIn);
     }
 
@@ -40,7 +45,7 @@ public class AnvilSaveConverter extends SaveFormatOld {
      * Returns the name of the save format.
      */
     public String getName() {
-        return "Anvil";
+        return "Replay";
     }
 
     public List<WorldSummary> getSaveList() throws AnvilConverterException {
@@ -61,7 +66,6 @@ public class AnvilSaveConverter extends SaveFormatOld {
                             s1 = s;
                         }
 
-                        long i = 0L;
                         list.add(new WorldSummary(worldinfo, s, s1, 0L, flag));
                     }
                 }
@@ -70,6 +74,29 @@ public class AnvilSaveConverter extends SaveFormatOld {
             return list;
         } else {
             throw new AnvilConverterException(I18n.translateToLocal("selectWorld.load_folder_access"));
+        }
+    }
+
+    @Nullable
+    @Override
+    public WorldInfo getWorldInfo(String saveName) {
+        File file1 = new File(this.savesDirectory, saveName + "/save");
+
+        if (!file1.exists()) {
+            return null;
+        } else {
+            File file2 = new File(file1, "level.dat");
+
+            if (file2.exists()) {
+                WorldInfo worldinfo = getWorldData(file2, this.dataFixer);
+
+                if (worldinfo != null) {
+                    return worldinfo;
+                }
+            }
+
+            file2 = new File(file1, "level.dat_old");
+            return file2.exists() ? getWorldData(file2, this.dataFixer) : null;
         }
     }
 
@@ -85,7 +112,7 @@ public class AnvilSaveConverter extends SaveFormatOld {
      * Returns back a loader for the specified save directory
      */
     public ISaveHandler getSaveLoader(String saveName, boolean storePlayerdata) {
-        return new AnvilSaveHandler(this.savesDirectory, saveName, storePlayerdata, this.dataFixer);
+        return new AnvilSaveHandler(this.savesDirectory, saveName + "/save", storePlayerdata, this.dataFixer);
     }
 
     public boolean isConvertible(String saveName) {
@@ -104,12 +131,12 @@ public class AnvilSaveConverter extends SaveFormatOld {
     /**
      * converts the map to mcRegion
      */
-    public boolean convertMapFormat(String filename, IProgressUpdate progressCallback) {
+    public void convertMapFormat(String filename, WorldInfo worldinfo, IProgressUpdate progressCallback) {
         progressCallback.setLoadingProgress(0);
         List<File> list = Lists.newArrayList();
         List<File> list1 = Lists.newArrayList();
         List<File> list2 = Lists.newArrayList();
-        File file1 = new File(this.savesDirectory, filename);
+        File file1 = new File(this.savesDirectory, filename + "/save");
         File file2 = new File(file1, "DIM-1");
         File file3 = new File(file1, "DIM1");
         LOGGER.info("Scanning folders...");
@@ -125,18 +152,9 @@ public class AnvilSaveConverter extends SaveFormatOld {
 
         int i = list.size() + list1.size() + list2.size();
         LOGGER.info("Total conversion count is {}", i);
-        WorldInfo worldinfo = this.getWorldInfo(filename);
-        BiomeProvider biomeprovider;
-
-        if (worldinfo != null && worldinfo.getTerrainType() == WorldType.FLAT) {
-            biomeprovider = new BiomeProviderSingle(Biomes.PLAINS);
-        } else {
-            biomeprovider = new BiomeProvider(worldinfo);
-        }
+        BiomeProvider biomeprovider = new BiomeProviderSingle(Biomes.PLAINS);
 
         this.convertFile(new File(file1, "region"), list, biomeprovider, 0, i, progressCallback);
-        this.convertFile(new File(file2, "region"), list1, new BiomeProviderSingle(Biomes.HELL), list.size(), i, progressCallback);
-        this.convertFile(new File(file3, "region"), list2, new BiomeProviderSingle(Biomes.SKY), list.size() + list1.size(), i, progressCallback);
         worldinfo.setSaveVersion(19133);
 
         if (worldinfo.getTerrainType() == WorldType.DEFAULT_1_1) {
@@ -146,14 +164,13 @@ public class AnvilSaveConverter extends SaveFormatOld {
         this.createFile(filename);
         ISaveHandler isavehandler = this.getSaveLoader(filename, false);
         isavehandler.saveWorldInfo(worldinfo);
-        return true;
     }
 
     /**
      * par: filename for the level.dat_mcr backup
      */
     private void createFile(String filename) {
-        File file1 = new File(this.savesDirectory, filename);
+        File file1 = new File(this.savesDirectory, filename + "/save");
 
         if (!file1.exists()) {
             LOGGER.warn("Unable to create level.dat_mcr backup");
