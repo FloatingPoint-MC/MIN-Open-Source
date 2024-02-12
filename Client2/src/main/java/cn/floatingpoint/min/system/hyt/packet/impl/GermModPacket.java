@@ -433,7 +433,6 @@ public class GermModPacket implements CustomPacket {
         }
     }
 
-    @Native
     private void updateScreen(String content) {
         ArrayList<GermComponent> buttons = getButtons(content);
         if (!buttons.isEmpty()) {
