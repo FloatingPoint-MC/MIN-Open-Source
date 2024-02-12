@@ -1709,16 +1709,17 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
                         this.netManager.sendPacket(new CPacketCustomPayload("REGISTER", (new PacketBuffer(Unpooled.buffer().writeBytes(
                                 Joiner.on('\0').join(Iterables.concat(Arrays.asList("FML|HS", "FML", "FML|MP"), channels)).getBytes(StandardCharsets.UTF_8)
                         )))));
-                        this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeByte(1).writeByte(2))));
-                        this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeBytes(modList))));
+                        //this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeByte(1).writeByte(2))));
+                        //this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeBytes(modList))));
                     }
-                    case 2, 4, 5 ->
-                            this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeByte(-1).writeByte(phase))));
+                    case 2, 4, 5 -> {
+                        //this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeByte(-1).writeByte(phase))));
+                    }
                     case 3 -> {
-                        PacketBuffer buffer = packetIn.getBufferData();
-                        boolean hasMore = buffer.readBoolean();
-                        if (hasMore) return;
-                        this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeByte(-1).writeByte(3))));
+                        //PacketBuffer buffer = packetIn.getBufferData();
+                        //boolean hasMore = buffer.readBoolean();
+                        //if (hasMore) return;
+                        //this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeByte(-1).writeByte(3))));
                     }
                 }
                 phase++;
