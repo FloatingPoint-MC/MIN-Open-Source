@@ -1,5 +1,7 @@
 package org.lwjglx.util;
 
+import java.awt.Dimension;
+
 /**
  * Readonly interface for Dimensions
  * 
@@ -7,6 +9,29 @@ package org.lwjglx.util;
  * @version $Revision$ $Id$
  */
 public interface ReadableDimension {
+
+    static ReadableDimension of(int width, int height) {
+        return new ReadableDimension() {
+            @Override
+            public int getWidth() {
+                return width;
+            }
+
+            @Override
+            public int getHeight() {
+                return height;
+            }
+
+            @Override
+            public void getSize(WritableDimension dest) {
+                dest.setSize(width, height);
+            }
+        };
+    }
+
+    static ReadableDimension of(Dimension minSize) {
+        return of(minSize.width, minSize.height);
+    }
 
     /**
      * Get the width

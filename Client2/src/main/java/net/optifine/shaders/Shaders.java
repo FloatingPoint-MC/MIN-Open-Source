@@ -167,7 +167,7 @@ public class Shaders {
     static long diffSystemTime = 0L;
     static int frameCounter = 0;
     static float frameTime = 0.0F;
-    static float frameTimeCounter = 0.0F;
+    public static float frameTimeCounter = 0.0F;
     static int systemTimeInt32 = 0;
     static float rainStrength = 0.0F;
     static float wetness = 0.0F;

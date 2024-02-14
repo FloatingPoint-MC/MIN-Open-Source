@@ -369,14 +369,8 @@ public class GuiIngame extends Gui {
         if (!mc.debugRenderer.shouldRender()){
             if (mc.currentScreen instanceof GuiChat) {
                 int outlineColor = new Color(206, 206, 206).getRGB();
-                //int outlineColor = new Color(85, 255, 255).getRGB();
                 Managers.draggableGameViewManager.draggableMap.forEach((draggableGameView, vec2i) -> {
                     if (draggableGameView.isDrawable()) {
-                        //drawRect(scaledresolution.getScaledWidth() / 2 + vec2i.x + draggableGameView.xOffset(),
-                        //        vec2i.y + draggableGameView.yOffset(),
-                        //        scaledresolution.getScaledWidth() / 2 + vec2i.x + draggableGameView.getWidth() + draggableGameView.xOffset(),
-                        //        vec2i.y + draggableGameView.getHeight() + draggableGameView.yOffset(),
-                        //        outlineColor);
                         String text = Managers.i18NManager.getTranslation("module.implement." + draggableGameView.getIdentity());
                         int width = Managers.fontManager.sourceHansSansCN_Regular_18.getStringWidth(text);
                         int left = scaledresolution.getScaledWidth() / 2 + vec2i.x + draggableGameView.xOffset();
@@ -469,11 +463,6 @@ public class GuiIngame extends Gui {
                                     top,
                                     outlineColor);
 
-                            //drawRect(scaledresolution.getScaledWidth() / 2 + vec2i.x + draggableGameView.xOffset(),
-                            //        vec2i.y - 11 + draggableGameView.yOffset(),
-                            //        scaledresolution.getScaledWidth() / 2 + vec2i.x + width + 4 + draggableGameView.xOffset(),
-                            //        vec2i.y + draggableGameView.yOffset(),
-                            //        outlineColor);
                             Managers.fontManager.sourceHansSansCN_Regular_18.drawString(text,
                                     left,
                                     top - 9,

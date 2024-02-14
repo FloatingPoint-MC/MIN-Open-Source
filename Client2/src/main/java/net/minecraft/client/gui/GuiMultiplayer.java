@@ -1,6 +1,5 @@
 package net.minecraft.client.gui;
 
-import cn.floatingpoint.min.system.ui.replay.GuiManageReplay;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 
@@ -91,7 +90,7 @@ public class GuiMultiplayer extends GuiScreen {
         this.buttonList.add(new GuiButton(3, this.width / 2 + 4 + 50, this.height - 52, 100, 20, I18n.format("selectServer.add")));
         this.buttonList.add(new GuiButton(8, this.width / 2 + 4, this.height - 28, 70, 20, I18n.format("selectServer.refresh")));
         this.buttonList.add(new GuiButton(0, this.width / 2 + 4 + 76, this.height - 28, 75, 20, I18n.format("gui.cancel")));
-        this.buttonList.add(new GuiButton(666, 4, 4, 75, 20, "Replay"));
+        //this.buttonList.add(new GuiButton(666, 4, 4, 75, 20, "Replay"));
         this.selectServer(this.serverListSelector.getSelected());
     }
 
@@ -163,8 +162,6 @@ public class GuiMultiplayer extends GuiScreen {
                 this.mc.displayGuiScreen(this.parentScreen);
             } else if (button.id == 8) {
                 this.refreshServerList();
-            } else if (button.id == 666) {
-                mc.displayGuiScreen(new GuiManageReplay(this));
             }
         }
     }

@@ -22,6 +22,7 @@ import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.crash.ICrashReportDetail;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.math.Vec3d;
 import net.optifine.Config;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;

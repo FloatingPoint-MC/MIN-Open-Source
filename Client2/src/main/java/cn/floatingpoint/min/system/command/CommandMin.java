@@ -1,18 +1,11 @@
 package cn.floatingpoint.min.system.command;
 
-import cn.floatingpoint.min.system.replay.storage.SaveConverter;
+import cn.floatingpoint.min.management.Managers;
 import cn.floatingpoint.min.utils.client.ChatUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.IProgressUpdate;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraft.world.MinecraftException;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.storage.IChunkLoader;
-import net.minecraft.world.storage.WorldInfo;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Map;
 
 /**
  * @projectName: MIN
@@ -44,41 +37,7 @@ public class CommandMin {
                             ChatUtil.printToChatWithPrefix("\247cReplay existed!");
                             return true;
                         }
-                        WorldInfo worldInfo = mc.world.getWorldInfo();
-                        worldInfo.setWorldName(replayName);
-                        worldInfo.setSpawn(mc.player.getPosition());
-                        SaveConverter saveConverter = new SaveConverter(new File(mc.gameDir, "MIN2/replay"), mc.getDataFixer());
-                        saveConverter.convertMapFormat(replayName, worldInfo, new IProgressUpdate() {
-                            @Override
-                            public void displaySavingString(String message) {
-                            }
-
-                            @Override
-                            public void resetProgressAndMessage(String message) {
-
-                            }
-
-                            @Override
-                            public void displayLoadingString(String message) {
-                            }
-
-                            @Override
-                            public void setLoadingProgress(int progress) {
-                            }
-
-                            @Override
-                            public void setDoneWorking() {
-                            }
-                        });
-                        IChunkLoader iChunkLoader = saveConverter.getSaveLoader(replayName, false).getChunkLoader(mc.world.provider);
-                        for (Map.Entry<Long, Chunk> entry : mc.world.getChunkProvider().loadedChunks.entrySet()) {
-                            Chunk value = entry.getValue();
-                            try {
-                                iChunkLoader.saveChunk(mc.world, value);
-                            } catch (MinecraftException | IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
+                        Managers.replayManager.startRecording(replayName);
                     }
                 }
             }

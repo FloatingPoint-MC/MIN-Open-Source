@@ -14,6 +14,7 @@ public class Managers {
     public static HYTPacketManager hytPacketManager = new HYTPacketManager();
     public static I18NManager i18NManager = new I18NManager();
     public static ModuleManager moduleManager = new ModuleManager();
+    public static ReplayManager replayManager = new ReplayManager();
 
     static {
         managers.add(fileManager);
@@ -24,6 +25,7 @@ public class Managers {
         managers.add(moduleManager);
         managers.add(draggableGameViewManager);
         managers.add(clientManager);
+        managers.add(replayManager);
     }
 
     public static void init() {

@@ -8,6 +8,25 @@ package org.lwjglx.util;
  */
 public interface ReadablePoint {
 
+    static ReadablePoint of(int x, int y) {
+        return new ReadablePoint() {
+            @Override
+            public int getX() {
+                return x;
+            }
+
+            @Override
+            public int getY() {
+                return y;
+            }
+
+            @Override
+            public void getLocation(WritablePoint dest) {
+                dest.setLocation(x, y);
+            }
+        };
+    }
+
     /**
      * @return int
      */

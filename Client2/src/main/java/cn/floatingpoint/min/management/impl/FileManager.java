@@ -21,8 +21,8 @@ import java.util.Map;
 
 public class FileManager implements Manager {
     public static final int VERSION = 210;
-    public File dir = null;
     public boolean shouldSave = false;
+    private File dir;
 
     public File getConfigFile(String name) {
         File file = new File(this.dir, name);

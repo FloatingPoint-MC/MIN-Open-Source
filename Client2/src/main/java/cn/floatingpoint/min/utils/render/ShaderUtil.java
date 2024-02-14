@@ -1,6 +1,6 @@
 package cn.floatingpoint.min.utils.render;
 
-import cn.floatingpoint.min.utils.math.IOUtil;
+import cn.floatingpoint.min.utils.client.IOUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;

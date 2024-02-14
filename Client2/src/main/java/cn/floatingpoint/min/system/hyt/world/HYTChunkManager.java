@@ -39,7 +39,7 @@ public class HYTChunkManager {
     }
 
     public static synchronized RegionFile loadChunkFile(String worldName, int n, int n2) {
-        File saves = new File(Managers.fileManager.dir, "hyt/saves/" + worldName);
+        File saves = Managers.fileManager.getConfigFile("hyt/saves/" + worldName);
         File region = new File(saves, "region");
         if (!region.exists()) {
             if (region.mkdirs()) {

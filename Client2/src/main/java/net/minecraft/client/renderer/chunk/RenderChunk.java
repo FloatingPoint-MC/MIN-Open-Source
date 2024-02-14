@@ -368,11 +368,9 @@ public class RenderChunk {
 
         if (Config.isRenderRegions()) {
             int i = 8;
-            int j = pos.getX() >> i << i;
             int k = pos.getY() >> i << i;
-            int l = pos.getZ() >> i << i;
-            j = this.regionX;
-            l = this.regionZ;
+            int j = this.regionX;
+            int l = this.regionZ;
             bufferBuilderIn.setTranslation(-j, -k, -l);
         } else {
             bufferBuilderIn.setTranslation(-pos.getX(), -pos.getY(), -pos.getZ());
@@ -391,7 +389,6 @@ public class RenderChunk {
     private void initModelviewMatrix() {
         GlStateManager.pushMatrix();
         GlStateManager.loadIdentity();
-        float f = 1.000001F;
         GlStateManager.translate(-8.0F, -8.0F, -8.0F);
         GlStateManager.scale(1.000001F, 1.000001F, 1.000001F);
         GlStateManager.translate(8.0F, 8.0F, 8.0F);
@@ -472,16 +469,11 @@ public class RenderChunk {
     }
 
     private boolean isWorldPlayerUpdate() {
-        if (this.world instanceof WorldClient) {
-            WorldClient worldclient = (WorldClient) this.world;
+        if (this.world instanceof WorldClient worldclient) {
             return worldclient.isPlayerUpdate();
         } else {
             return false;
         }
-    }
-
-    public boolean isPlayerUpdate() {
-        return this.playerUpdate;
     }
 
     private BlockRenderLayer fixBlockLayer(IBlockState p_fixBlockLayer_1_, BlockRenderLayer p_fixBlockLayer_2_) {
@@ -493,30 +485,25 @@ public class RenderChunk {
             }
         }
 
-        boolean fixBlockLayer = true;
-        if (!fixBlockLayer) {
-            return p_fixBlockLayer_2_;
-        } else {
-            if (this.isMipmaps) {
-                if (p_fixBlockLayer_2_ == BlockRenderLayer.CUTOUT) {
-                    Block block = p_fixBlockLayer_1_.getBlock();
+        if (this.isMipmaps) {
+            if (p_fixBlockLayer_2_ == BlockRenderLayer.CUTOUT) {
+                Block block = p_fixBlockLayer_1_.getBlock();
 
-                    if (block instanceof BlockRedstoneWire) {
-                        return p_fixBlockLayer_2_;
-                    }
-
-                    if (block instanceof BlockCactus) {
-                        return p_fixBlockLayer_2_;
-                    }
-
-                    return BlockRenderLayer.CUTOUT_MIPPED;
+                if (block instanceof BlockRedstoneWire) {
+                    return p_fixBlockLayer_2_;
                 }
-            } else if (p_fixBlockLayer_2_ == BlockRenderLayer.CUTOUT_MIPPED) {
-                return BlockRenderLayer.CUTOUT;
-            }
 
-            return p_fixBlockLayer_2_;
+                if (block instanceof BlockCactus) {
+                    return p_fixBlockLayer_2_;
+                }
+
+                return BlockRenderLayer.CUTOUT_MIPPED;
+            }
+        } else if (p_fixBlockLayer_2_ == BlockRenderLayer.CUTOUT_MIPPED) {
+            return BlockRenderLayer.CUTOUT;
         }
+
+        return p_fixBlockLayer_2_;
     }
 
     private void postRenderOverlays(RegionRenderCacheBuilder p_postRenderOverlays_1_, CompiledChunk p_postRenderOverlays_2_, boolean[] p_postRenderOverlays_3_) {

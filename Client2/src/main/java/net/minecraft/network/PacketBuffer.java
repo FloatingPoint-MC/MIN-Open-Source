@@ -267,11 +267,11 @@ public class PacketBuffer extends ByteBuf {
         return this;
     }
 
-    @Nullable
 
     /**
      * Reads a compressed NBTTagCompound from this buffer
      */
+    @Nullable
     public NBTTagCompound readCompoundTag() throws IOException {
         int i = this.readerIndex();
         byte b0 = this.readByte();

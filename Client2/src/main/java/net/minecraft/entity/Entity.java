@@ -147,6 +147,10 @@ public abstract class Entity implements ICommandSender {
     public float prevRotationYaw;
     public float prevRotationPitch;
 
+
+    private float trackedYaw = Float.NaN;
+    private float trackedPitch = Float.NaN;
+
     /**
      * Axis aligned bounding box.
      */
@@ -3112,5 +3116,21 @@ public abstract class Entity implements ICommandSender {
 
     protected int getFireImmuneTicks() {
         return 1;
+    }
+
+    public float getTrackedYaw() {
+        return trackedYaw;
+    }
+
+    public void setTrackedYaw(float trackedYaw) {
+        this.trackedYaw = trackedYaw;
+    }
+
+    public float getTrackedPitch() {
+        return trackedPitch;
+    }
+
+    public void setTrackedPitch(float trackedPitch) {
+        this.trackedPitch = trackedPitch;
     }
 }

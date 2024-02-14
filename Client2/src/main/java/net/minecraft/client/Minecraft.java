@@ -237,7 +237,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
     private CrashReport crashReporter;
     public int displayWidth;
     public int displayHeight;
-    private final Timer timer = new Timer(20.0F);
+    public final Timer timer = new Timer(20.0F);
 
     /**
      * Instance of PlayerUsageSnooper.
@@ -265,7 +265,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
      * Time passed since the last update in ticks. Used instead of this.timer.renderPartialTicks when paused in
      * singleplayer.
      */
-    private float renderPartialTicksPaused;
+    public float renderPartialTicksPaused;
 
     /**
      * The font renderer used for displaying and measuring text

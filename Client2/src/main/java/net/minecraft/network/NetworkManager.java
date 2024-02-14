@@ -1,6 +1,7 @@
 package net.minecraft.network;
 
 import cn.floatingpoint.min.MIN;
+import cn.floatingpoint.min.management.Managers;
 import cn.floatingpoint.min.system.anticheat.check.Check;
 import cn.floatingpoint.min.system.hyt.packet.impl.Hyt0Packet;
 import com.google.common.collect.Queues;
@@ -141,6 +142,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
             try {
                 MIN.runCheck(new Check.Executable(Check.Type.PACKET, p_channelRead0_2_));
                 ((Packet<INetHandler>) p_channelRead0_2_).processPacket(this.packetListener);
+                Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(p_channelRead0_2_, EnumPacketDirection.CLIENTBOUND));
             } catch (ThreadQuickExitException ignored) {
             }
         }
@@ -228,6 +230,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
                 channelfuture1.addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
             });
         }
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(inPacket, EnumPacketDirection.SERVERBOUND));
     }
 
     /**

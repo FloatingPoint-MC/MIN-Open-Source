@@ -818,12 +818,12 @@ public class EntityRenderer implements IResourceManagerReloadListener {
         this.renderHand(partialTicks, pass, true, true, false);
     }
 
-    public void renderHand(float p_renderHand_1_, int p_renderHand_2_, boolean p_renderHand_3_, boolean p_renderHand_4_, boolean p_renderHand_5_) {
+    public void renderHand(float p_renderHand_1_, int renderPass, boolean p_renderHand_3_, boolean p_renderHand_4_, boolean p_renderHand_5_) {
         GlStateManager.matrixMode(5889);
         GlStateManager.loadIdentity();
 
         if (this.mc.gameSettings.anaglyph) {
-            GlStateManager.translate((float) (-(p_renderHand_2_ * 2 - 1)) * 0.07F, 0.0F, 0.0F);
+            GlStateManager.translate((float) (-(renderPass * 2 - 1)) * 0.07F, 0.0F, 0.0F);
         }
 
         if (Config.isShaders()) {
@@ -835,7 +835,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
         GlStateManager.loadIdentity();
 
         if (this.mc.gameSettings.anaglyph) {
-            GlStateManager.translate((float) (p_renderHand_2_ * 2 - 1) * 0.1F, 0.0F, 0.0F);
+            GlStateManager.translate((float) (renderPass * 2 - 1) * 0.1F, 0.0F, 0.0F);
         }
 
         boolean flag = false;
