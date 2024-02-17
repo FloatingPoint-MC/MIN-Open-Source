@@ -260,8 +260,7 @@ public class ReplayServer {
                             }
                             replaceReplayItems();
                         }
-                        case 9 ->
-                                mc.displayGuiScreen(new GuiManageTick(new InventoryPlayer(mc.player), new InventoryBasic(new TextComponentString("时间管理"), 9)));
+                        case 8 -> mc.displayGuiScreen(new GuiManageTick(new InventoryPlayer(mc.player), new InventoryBasic(new TextComponentString("时间管理"), 9)));
                     }
                 } else if (inPacket instanceof CPacketClickWindow packet) {
                     if (mc.currentScreen instanceof GuiTeleport) {

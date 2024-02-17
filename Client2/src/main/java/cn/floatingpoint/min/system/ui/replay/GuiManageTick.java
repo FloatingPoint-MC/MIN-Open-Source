@@ -13,7 +13,7 @@ public class GuiManageTick extends GuiChest {
         inventorySlots.getSlot(0).putStack(head);
         ItemStack back = new ItemStack(Items.SUGAR);
         back.setStackDisplayName("\247a往前10s");
-        inventorySlots.getSlot(4).putStack(back);
+        //inventorySlots.getSlot(4).putStack(back);
         ItemStack go = new ItemStack(Items.GLOWSTONE_DUST);
         go.setStackDisplayName("\247a往后10s");
         inventorySlots.getSlot(8).putStack(go);

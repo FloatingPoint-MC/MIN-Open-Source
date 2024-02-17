@@ -1045,6 +1045,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
 
     public void handleRespawn(SPacketRespawn packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
 
         if (!Managers.replayManager.isPlaying()) {
             if (packetIn.getDimensionID() != this.client.player.dimension) {
@@ -1063,6 +1064,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
             if (packetIn.getDimensionID() != Managers.replayManager.getReplayServer().self.dimension) {
                 Managers.replayManager.getReplayServer().self.dimension = packetIn.getDimensionID();
             }
+            Managers.replayManager.getReplayServer().self.setHealth(Managers.replayManager.getReplayServer().self.getMaxHealth());
         }
     }
 
