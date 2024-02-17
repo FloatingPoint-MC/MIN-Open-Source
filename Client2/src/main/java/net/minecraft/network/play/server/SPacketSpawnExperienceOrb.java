@@ -1,25 +1,23 @@
 package net.minecraft.network.play.server;
 
 import java.io.IOException;
+
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.INetHandlerPlayClient;
 
-public class SPacketSpawnExperienceOrb implements Packet<INetHandlerPlayClient>
-{
+public class SPacketSpawnExperienceOrb implements Packet<INetHandlerPlayClient> {
     private int entityID;
     private double posX;
     private double posY;
     private double posZ;
     private int xpValue;
 
-    public SPacketSpawnExperienceOrb()
-    {
+    public SPacketSpawnExperienceOrb() {
     }
 
-    public SPacketSpawnExperienceOrb(EntityXPOrb orb)
-    {
+    public SPacketSpawnExperienceOrb(EntityXPOrb orb) {
         this.entityID = orb.getEntityId();
         this.posX = orb.posX;
         this.posY = orb.posY;
@@ -30,8 +28,7 @@ public class SPacketSpawnExperienceOrb implements Packet<INetHandlerPlayClient>
     /**
      * Reads the raw packet data from the data stream.
      */
-    public void readPacketData(PacketBuffer buf) throws IOException
-    {
+    public void readPacketData(PacketBuffer buf) throws IOException {
         this.entityID = buf.readVarInt();
         this.posX = buf.readDouble();
         this.posY = buf.readDouble();
@@ -42,8 +39,7 @@ public class SPacketSpawnExperienceOrb implements Packet<INetHandlerPlayClient>
     /**
      * Writes the raw packet data to the data stream.
      */
-    public void writePacketData(PacketBuffer buf) throws IOException
-    {
+    public void writePacketData(PacketBuffer buf) throws IOException {
         buf.writeVarInt(this.entityID);
         buf.writeDouble(this.posX);
         buf.writeDouble(this.posY);
@@ -54,33 +50,27 @@ public class SPacketSpawnExperienceOrb implements Packet<INetHandlerPlayClient>
     /**
      * Passes this Packet on to the NetHandler for processing.
      */
-    public void processPacket(INetHandlerPlayClient handler)
-    {
+    public void processPacket(INetHandlerPlayClient handler) {
         handler.handleSpawnExperienceOrb(this);
     }
 
-    public int getEntityID()
-    {
+    public int getEntityID() {
         return this.entityID;
     }
 
-    public double getX()
-    {
+    public double getX() {
         return this.posX;
     }
 
-    public double getY()
-    {
+    public double getY() {
         return this.posY;
     }
 
-    public double getZ()
-    {
+    public double getZ() {
         return this.posZ;
     }
 
-    public int getXPValue()
-    {
+    public int getXPValue() {
         return this.xpValue;
     }
 }

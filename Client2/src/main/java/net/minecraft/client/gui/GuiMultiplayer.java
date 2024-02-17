@@ -1,5 +1,6 @@
 package net.minecraft.client.gui;
 
+import cn.floatingpoint.min.system.ui.replay.GuiManageReplay;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 
@@ -90,7 +91,7 @@ public class GuiMultiplayer extends GuiScreen {
         this.buttonList.add(new GuiButton(3, this.width / 2 + 4 + 50, this.height - 52, 100, 20, I18n.format("selectServer.add")));
         this.buttonList.add(new GuiButton(8, this.width / 2 + 4, this.height - 28, 70, 20, I18n.format("selectServer.refresh")));
         this.buttonList.add(new GuiButton(0, this.width / 2 + 4 + 76, this.height - 28, 75, 20, I18n.format("gui.cancel")));
-        //this.buttonList.add(new GuiButton(666, 4, 4, 75, 20, "Replay"));
+        this.buttonList.add(new GuiButton(666, 4, 4, 75, 20, "Replay"));
         this.selectServer(this.serverListSelector.getSelected());
     }
 
@@ -162,6 +163,8 @@ public class GuiMultiplayer extends GuiScreen {
                 this.mc.displayGuiScreen(this.parentScreen);
             } else if (button.id == 8) {
                 this.refreshServerList();
+            } else if (button.id == 666) {
+                mc.displayGuiScreen(new GuiManageReplay(this));
             }
         }
     }
@@ -363,15 +366,15 @@ public class GuiMultiplayer extends GuiScreen {
         return this.savedServerList;
     }
 
-    public boolean canMoveUp(ServerListEntryNormal p_175392_1_, int p_175392_2_) {
+    public boolean canMoveUp(int p_175392_2_) {
         return p_175392_2_ > 0;
     }
 
-    public boolean canMoveDown(ServerListEntryNormal p_175394_1_, int p_175394_2_) {
+    public boolean canMoveDown(int p_175394_2_) {
         return p_175394_2_ < this.savedServerList.countServers() - 1;
     }
 
-    public void moveServerUp(ServerListEntryNormal p_175391_1_, int p_175391_2_, boolean p_175391_3_) {
+    public void moveServerUp(int p_175391_2_, boolean p_175391_3_) {
         int i = p_175391_3_ ? 0 : p_175391_2_ - 1;
         this.savedServerList.swapServers(p_175391_2_, i);
 
@@ -382,7 +385,7 @@ public class GuiMultiplayer extends GuiScreen {
         this.serverListSelector.updateOnlineServers(this.savedServerList);
     }
 
-    public void moveServerDown(ServerListEntryNormal p_175393_1_, int p_175393_2_, boolean p_175393_3_) {
+    public void moveServerDown(int p_175393_2_, boolean p_175393_3_) {
         int i = p_175393_3_ ? this.savedServerList.countServers() - 1 : p_175393_2_ + 1;
         this.savedServerList.swapServers(p_175393_2_, i);
 

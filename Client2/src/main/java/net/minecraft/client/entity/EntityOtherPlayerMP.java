@@ -1,5 +1,6 @@
 package net.minecraft.client.entity;
 
+import cn.floatingpoint.min.management.Managers;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.DamageSource;
@@ -99,6 +100,9 @@ public class EntityOtherPlayerMP extends AbstractClientPlayer {
             --this.otherPlayerMPPosRotationIncrements;
             this.setPosition(d0, d1, d2);
             this.setRotation(this.rotationYaw, this.rotationPitch);
+            if (Managers.replayManager.isPlaying() && this.getEntityId() == Managers.replayManager.getReplayServer().self.getEntityId()) {
+                this.setRotationYawHead(this.rotationYaw);
+            }
         }
 
         this.prevCameraYaw = this.cameraYaw;

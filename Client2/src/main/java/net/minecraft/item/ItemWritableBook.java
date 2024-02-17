@@ -9,6 +9,8 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
+
 public class ItemWritableBook extends Item
 {
     public ItemWritableBook()
@@ -27,7 +29,7 @@ public class ItemWritableBook extends Item
     /**
      * this method returns true if the book's NBT Tag List "pages" is valid
      */
-    public static boolean isNBTValid(NBTTagCompound nbt)
+    public static boolean isNBTValid(@Nullable NBTTagCompound nbt)
     {
         if (nbt == null)
         {

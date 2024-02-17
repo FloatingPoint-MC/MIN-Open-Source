@@ -38,7 +38,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.annotation.Nullable;
 import javax.crypto.SecretKey;
 
-import net.minecraft.network.play.client.CPacketCustomPayload;
+import net.minecraft.network.play.server.SPacketBlockChange;
+import net.minecraft.network.play.server.SPacketEntityHeadLook;
+import net.minecraft.network.play.server.SPacketMultiBlockChange;
+import net.minecraft.network.play.server.SPacketTimeUpdate;
 import net.minecraft.util.CryptManager;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.LazyLoadBase;
@@ -142,7 +145,6 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
             try {
                 MIN.runCheck(new Check.Executable(Check.Type.PACKET, p_channelRead0_2_));
                 ((Packet<INetHandler>) p_channelRead0_2_).processPacket(this.packetListener);
-                Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(p_channelRead0_2_, EnumPacketDirection.CLIENTBOUND));
             } catch (ThreadQuickExitException ignored) {
             }
         }
@@ -193,7 +195,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet<?>> {
      * Will commit the packet to the channel. If the current thread 'owns' the channel it will write and flush the
      * packet, otherwise it will add a task for the channel eventloop thread to do that.
      */
-    private void dispatchPacket(final Packet<?> inPacket, @Nullable final GenericFutureListener<? extends Future<? super Void>>[] futureListeners) {
+    public void dispatchPacket(final Packet<?> inPacket, @Nullable final GenericFutureListener<? extends Future<? super Void>>[] futureListeners) {
         MIN.runCheck(new Check.Executable(Check.Type.PACKET, inPacket));
         final EnumConnectionState enumconnectionstate = EnumConnectionState.getFromPacket(inPacket);
         final EnumConnectionState enumconnectionstate1 = this.channel.attr(PROTOCOL_ATTRIBUTE_KEY).get();

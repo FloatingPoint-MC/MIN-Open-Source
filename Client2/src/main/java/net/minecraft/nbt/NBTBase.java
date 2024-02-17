@@ -4,9 +4,8 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public abstract class NBTBase
-{
-    public static final String[] NBT_TYPES = new String[] {"END", "BYTE", "SHORT", "INT", "LONG", "FLOAT", "DOUBLE", "BYTE[]", "STRING", "LIST", "COMPOUND", "INT[]", "LONG[]"};
+public abstract class NBTBase {
+    public static final String[] NBT_TYPES = new String[]{"END", "BYTE", "SHORT", "INT", "LONG", "FLOAT", "DOUBLE", "BYTE[]", "STRING", "LIST", "COMPOUND", "INT[]", "LONG[]"};
 
     /**
      * Write the actual data contents of the tag, implemented in NBT extension classes
@@ -25,58 +24,27 @@ public abstract class NBTBase
     /**
      * Creates a new NBTBase object that corresponds with the passed in id.
      */
-    protected static NBTBase create(byte id)
-    {
-        switch (id)
-        {
-            case 0:
-                return new NBTTagEnd();
-
-            case 1:
-                return new NBTTagByte();
-
-            case 2:
-                return new NBTTagShort();
-
-            case 3:
-                return new NBTTagInt();
-
-            case 4:
-                return new NBTTagLong();
-
-            case 5:
-                return new NBTTagFloat();
-
-            case 6:
-                return new NBTTagDouble();
-
-            case 7:
-                return new NBTTagByteArray();
-
-            case 8:
-                return new NBTTagString();
-
-            case 9:
-                return new NBTTagList();
-
-            case 10:
-                return new NBTTagCompound();
-
-            case 11:
-                return new NBTTagIntArray();
-
-            case 12:
-                return new NBTTagLongArray();
-
-            default:
-                return null;
-        }
+    protected static NBTBase create(byte id) {
+        return switch (id) {
+            case 0 -> new NBTTagEnd();
+            case 1 -> new NBTTagByte();
+            case 2 -> new NBTTagShort();
+            case 3 -> new NBTTagInt();
+            case 4 -> new NBTTagLong();
+            case 5 -> new NBTTagFloat();
+            case 6 -> new NBTTagDouble();
+            case 7 -> new NBTTagByteArray();
+            case 8 -> new NBTTagString();
+            case 9 -> new NBTTagList();
+            case 10 -> new NBTTagCompound();
+            case 11 -> new NBTTagIntArray();
+            case 12 -> new NBTTagLongArray();
+            default -> null;
+        };
     }
 
-    public static String getTypeName(int id)
-    {
-        switch (id)
-        {
+    public static String getTypeName(int id) {
+        switch (id) {
             case 0:
                 return "TAG_End";
 
@@ -132,23 +100,19 @@ public abstract class NBTBase
     /**
      * Return whether this compound has no tags.
      */
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return false;
     }
 
-    public boolean equals(Object p_equals_1_)
-    {
-        return p_equals_1_ instanceof NBTBase && this.getId() == ((NBTBase)p_equals_1_).getId();
+    public boolean equals(Object p_equals_1_) {
+        return p_equals_1_ instanceof NBTBase && this.getId() == ((NBTBase) p_equals_1_).getId();
     }
 
-    public int hashCode()
-    {
+    public int hashCode() {
         return this.getId();
     }
 
-    protected String getString()
-    {
+    protected String getString() {
         return this.toString();
     }
 }

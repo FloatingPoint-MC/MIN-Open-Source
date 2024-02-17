@@ -15,6 +15,7 @@ import cn.floatingpoint.min.system.module.impl.misc.MiscModule;
 import cn.floatingpoint.min.system.module.impl.render.impl.Animation;
 import cn.floatingpoint.min.system.module.impl.render.impl.KeyStrokes;
 import cn.floatingpoint.min.system.module.impl.render.impl.Spinning;
+import cn.floatingpoint.min.system.replay.recording.State;
 import cn.floatingpoint.min.system.shortcut.Shortcut;
 import cn.floatingpoint.min.system.ui.loading.GuiEula;
 import cn.floatingpoint.min.system.ui.loading.GuiLoading;
@@ -1628,6 +1629,16 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
             this.ingameGUI.updateTick();
         }
 
+        Managers.replayManager.getRecordings().values().forEach(recording -> {
+            if (recording.getState() == State.PLAYING) {
+                ++recording.tick;
+            }
+        });
+        if (Managers.replayManager.isPlaying()) {
+            Managers.replayManager.getReplayServer().readTick();
+            ++Managers.replayManager.getReplayServer().getReplay().tick;
+        }
+
         this.profiler.endSection();
         this.entityRenderer.getMouseOver(1.0F);
         this.profiler.startSection("gameMode");
@@ -1737,7 +1748,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
         }
 
         if (!DEBUG_MODE() && player != null && player.ticksExisted > 10) {
-            if (!Hyt0Packet.loadChunk) {
+            if (!Hyt0Packet.loadChunk && !Managers.replayManager.isPlaying()) {
                 world.sendQuittingDisconnectingPacket();
                 player.connection.onDisconnect(new TextComponentString("\247c请进入花雨庭服务器!"));
             }

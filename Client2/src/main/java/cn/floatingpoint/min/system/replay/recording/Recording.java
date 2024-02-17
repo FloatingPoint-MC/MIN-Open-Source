@@ -4,20 +4,31 @@ import cn.floatingpoint.min.system.replay.packet.RecordedPacket;
 import cn.floatingpoint.min.threads.ReplayRecordingThread;
 import net.minecraft.network.EnumPacketDirection;
 import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.SPacketChunkData;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 
+import java.util.ArrayDeque;
 import java.util.LinkedHashSet;
 
 public class Recording {
+    public final ArrayDeque<RecordedPacket> packets;
+    public int tick;
     private final ReplayRecordingThread recordingThread;
-    public LinkedHashSet<RecordedPacket> packets;
+    private LinkedHashSet<Long> chunkLoaded;
+    private final String name;
     private BlockPos spawnPos;
+    private String entityName, uuid;
+    private int entityId;
     private State state;
 
-    public Recording() {
+    public Recording(String name) {
         recordingThread = new ReplayRecordingThread(this);
-        packets = new LinkedHashSet<>();
+        chunkLoaded = new LinkedHashSet<>();
+        packets = new ArrayDeque<>();
+        this.name = name;
         state = State.IDLE;
+        tick = 0;
     }
 
     public BlockPos getSpawnPos() {
@@ -28,18 +39,53 @@ public class Recording {
         this.spawnPos = spawnPos;
     }
 
+    public String getEntityName() {
+        return entityName;
+    }
+
+    public void setEntityName(String entityName) {
+        this.entityName = entityName;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    public int getEntityId() {
+        return entityId;
+    }
+
+    public void setEntityId(int entityId) {
+        this.entityId = entityId;
+    }
+
     public State getState() {
         return state;
     }
 
     public void setState(State state) {
-        if (this.state != State.PLAY && state == State.PLAY) {
+        if (this.state != State.PLAYING && state == State.PLAYING) {
             recordingThread.start();
         }
         this.state = state;
     }
 
     public void addPacket(Packet<?> packet, EnumPacketDirection side) {
+        if (packet instanceof SPacketChunkData data) {
+            Long l = ChunkPos.asLong(data.getChunkX(), data.getChunkZ());
+            if (chunkLoaded.contains(l)) {
+                return;
+            }
+            chunkLoaded.add(l);
+        }
         recordingThread.addPacket(packet, side);
+    }
+
+    public String getName() {
+        return name;
     }
 }

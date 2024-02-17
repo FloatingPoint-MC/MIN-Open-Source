@@ -104,11 +104,7 @@ public class NetHandlerLoginServer implements INetHandlerLoginServer, ITickable 
             this.currentLoginState = LoginState.ACCEPTED;
 
             if (this.server.getNetworkCompressionThreshold() >= 0 && !this.networkManager.isLocalChannel()) {
-                this.networkManager.sendPacket(new SPacketEnableCompression(this.server.getNetworkCompressionThreshold()), new ChannelFutureListener() {
-                    public void operationComplete(ChannelFuture p_operationComplete_1_) throws Exception {
-                        NetHandlerLoginServer.this.networkManager.setCompressionThreshold(NetHandlerLoginServer.this.server.getNetworkCompressionThreshold());
-                    }
-                });
+                this.networkManager.sendPacket(new SPacketEnableCompression(this.server.getNetworkCompressionThreshold()), (ChannelFutureListener) p_operationComplete_1_ -> NetHandlerLoginServer.this.networkManager.setCompressionThreshold(NetHandlerLoginServer.this.server.getNetworkCompressionThreshold()));
             }
 
             this.networkManager.sendPacket(new SPacketLoginSuccess(this.loginGameProfile));

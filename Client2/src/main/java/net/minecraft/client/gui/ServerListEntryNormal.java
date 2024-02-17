@@ -203,7 +203,7 @@ public class ServerListEntryNormal implements GuiListExtended.IGuiListEntry
                 }
             }
 
-            if (this.owner.canMoveUp(this, slotIndex))
+            if (this.owner.canMoveUp(slotIndex))
             {
                 if (k1 < 16 && l1 < 16)
                 {
@@ -215,7 +215,7 @@ public class ServerListEntryNormal implements GuiListExtended.IGuiListEntry
                 }
             }
 
-            if (this.owner.canMoveDown(this, slotIndex))
+            if (this.owner.canMoveDown(slotIndex))
             {
                 if (k1 < 16 && l1 > 16)
                 {
@@ -308,15 +308,15 @@ public class ServerListEntryNormal implements GuiListExtended.IGuiListEntry
                 return true;
             }
 
-            if (relativeX < 16 && relativeY < 16 && this.owner.canMoveUp(this, slotIndex))
+            if (relativeX < 16 && relativeY < 16 && this.owner.canMoveUp(slotIndex))
             {
-                this.owner.moveServerUp(this, slotIndex, GuiScreen.isShiftKeyDown());
+                this.owner.moveServerUp(slotIndex, GuiScreen.isShiftKeyDown());
                 return true;
             }
 
-            if (relativeX < 16 && relativeY > 16 && this.owner.canMoveDown(this, slotIndex))
+            if (relativeX < 16 && relativeY > 16 && this.owner.canMoveDown(slotIndex))
             {
-                this.owner.moveServerDown(this, slotIndex, GuiScreen.isShiftKeyDown());
+                this.owner.moveServerDown(slotIndex, GuiScreen.isShiftKeyDown());
                 return true;
             }
         }

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nullable;
+
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.network.Packet;
@@ -11,8 +12,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.network.play.INetHandlerPlayClient;
 
-public class SPacketSpawnMob implements Packet<INetHandlerPlayClient>
-{
+public class SPacketSpawnMob implements Packet<INetHandlerPlayClient> {
     private int entityId;
     private UUID uniqueId;
     private int type;
@@ -26,69 +26,59 @@ public class SPacketSpawnMob implements Packet<INetHandlerPlayClient>
     private byte pitch;
     private byte headPitch;
     private EntityDataManager dataManager;
-    private List < EntityDataManager.DataEntry<? >> dataManagerEntries;
+    private List<EntityDataManager.DataEntry<?>> dataManagerEntries;
 
-    public SPacketSpawnMob()
-    {
+    public SPacketSpawnMob() {
     }
 
-    public SPacketSpawnMob(EntityLivingBase entityIn)
-    {
+    public SPacketSpawnMob(EntityLivingBase entityIn) {
         this.entityId = entityIn.getEntityId();
         this.uniqueId = entityIn.getUniqueID();
         this.type = EntityList.REGISTRY.getIDForObject(entityIn.getClass());
         this.x = entityIn.posX;
         this.y = entityIn.posY;
         this.z = entityIn.posZ;
-        this.yaw = (byte)((int)(entityIn.rotationYaw * 256.0F / 360.0F));
-        this.pitch = (byte)((int)(entityIn.rotationPitch * 256.0F / 360.0F));
-        this.headPitch = (byte)((int)(entityIn.rotationYawHead * 256.0F / 360.0F));
-        double d0 = 3.9D;
+        this.yaw = (byte) ((int) (entityIn.rotationYaw * 256.0F / 360.0F));
+        this.pitch = (byte) ((int) (entityIn.rotationPitch * 256.0F / 360.0F));
+        this.headPitch = (byte) ((int) (entityIn.rotationYawHead * 256.0F / 360.0F));
         double d1 = entityIn.motionX;
         double d2 = entityIn.motionY;
         double d3 = entityIn.motionZ;
 
-        if (d1 < -3.9D)
-        {
+        if (d1 < -3.9D) {
             d1 = -3.9D;
         }
 
-        if (d2 < -3.9D)
-        {
+        if (d2 < -3.9D) {
             d2 = -3.9D;
         }
 
-        if (d3 < -3.9D)
-        {
+        if (d3 < -3.9D) {
             d3 = -3.9D;
         }
 
-        if (d1 > 3.9D)
-        {
+        if (d1 > 3.9D) {
             d1 = 3.9D;
         }
 
-        if (d2 > 3.9D)
-        {
+        if (d2 > 3.9D) {
             d2 = 3.9D;
         }
 
-        if (d3 > 3.9D)
-        {
+        if (d3 > 3.9D) {
             d3 = 3.9D;
         }
 
-        this.velocityX = (int)(d1 * 8000.0D);
-        this.velocityY = (int)(d2 * 8000.0D);
-        this.velocityZ = (int)(d3 * 8000.0D);
+        this.velocityX = (int) (d1 * 8000.0D);
+        this.velocityY = (int) (d2 * 8000.0D);
+        this.velocityZ = (int) (d3 * 8000.0D);
         this.dataManager = entityIn.getDataManager();
     }
 
     /**
      * Reads the raw packet data from the data stream.
      */
-    public void readPacketData(PacketBuffer buf) throws IOException
-    {
+    public void readPacketData(PacketBuffer buf) throws IOException {
         this.entityId = buf.readVarInt();
         this.uniqueId = buf.readUniqueId();
         this.type = buf.readVarInt();
@@ -107,8 +97,7 @@ public class SPacketSpawnMob implements Packet<INetHandlerPlayClient>
     /**
      * Writes the raw packet data to the data stream.
      */
-    public void writePacketData(PacketBuffer buf) throws IOException
-    {
+    public void writePacketData(PacketBuffer buf) throws IOException {
         buf.writeVarInt(this.entityId);
         buf.writeUniqueId(this.uniqueId);
         buf.writeVarInt(this.type);
@@ -121,80 +110,70 @@ public class SPacketSpawnMob implements Packet<INetHandlerPlayClient>
         buf.writeShort(this.velocityX);
         buf.writeShort(this.velocityY);
         buf.writeShort(this.velocityZ);
-        this.dataManager.writeEntries(buf);
+        if (this.dataManager == null) {
+            EntityDataManager.writeEntries(this.dataManagerEntries, buf);
+        } else {
+            this.dataManager.writeEntries(buf);
+        }
     }
 
     /**
      * Passes this Packet on to the NetHandler for processing.
      */
-    public void processPacket(INetHandlerPlayClient handler)
-    {
+    public void processPacket(INetHandlerPlayClient handler) {
         handler.handleSpawnMob(this);
     }
 
     @Nullable
-    public List < EntityDataManager.DataEntry<? >> getDataManagerEntries()
-    {
+    public List<EntityDataManager.DataEntry<?>> getDataManagerEntries() {
         return this.dataManagerEntries;
     }
 
-    public int getEntityID()
-    {
+    public int getEntityID() {
         return this.entityId;
     }
 
-    public UUID getUniqueId()
-    {
+    public UUID getUniqueId() {
         return this.uniqueId;
     }
 
-    public int getEntityType()
-    {
+    public int getEntityType() {
         return this.type;
     }
 
-    public double getX()
-    {
+    public double getX() {
         return this.x;
     }
 
-    public double getY()
-    {
+    public double getY() {
         return this.y;
     }
 
-    public double getZ()
-    {
+    public double getZ() {
         return this.z;
     }
 
-    public int getVelocityX()
-    {
+    public int getVelocityX() {
         return this.velocityX;
     }
 
-    public int getVelocityY()
-    {
+    public int getVelocityY() {
         return this.velocityY;
     }
 
-    public int getVelocityZ()
-    {
+    public int getVelocityZ() {
         return this.velocityZ;
     }
 
-    public byte getYaw()
-    {
+    public byte getYaw() {
         return this.yaw;
     }
 
-    public byte getPitch()
-    {
+    public byte getPitch() {
         return this.pitch;
     }
 
-    public byte getHeadPitch()
-    {
+    public byte getHeadPitch() {
         return this.headPitch;
     }
 }

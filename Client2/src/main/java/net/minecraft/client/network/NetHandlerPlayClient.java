@@ -1,6 +1,7 @@
 package net.minecraft.client.network;
 
 import cn.floatingpoint.min.management.Managers;
+import cn.floatingpoint.min.system.anticheat.check.impl.update.UpdateWalkingCheck;
 import cn.floatingpoint.min.system.hyt.packet.CustomPacket;
 import cn.floatingpoint.min.system.hyt.packet.impl.Hyt0Packet;
 import cn.floatingpoint.min.system.irc.Client;
@@ -121,10 +122,7 @@ import net.minecraft.item.ItemMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.PacketThreadUtil;
+import net.minecraft.network.*;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraft.network.play.client.*;
@@ -331,8 +329,16 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
         this.client.playerController.setGameType(gameData.gameType());
 
         Managers.replayManager.getRecordings().forEach((name, recording) -> {
-            ChatUtil.printToChatWithPrefix("Start recording '" + name + "'");
-            recording.setState(State.PLAY);
+            if (recording.getState() == State.IDLE) {
+                recording.setEntityId(packetIn.getPlayerId());
+                recording.setUuid(this.client.player.getUniqueID().toString());
+                recording.setEntityName(this.client.player.getName());
+                ChatUtil.printToChatWithPrefix("Start recording '" + name + "'");
+                recording.setState(State.PLAYING);
+            } else if (recording.getState() == State.PLAYING) {
+                ChatUtil.printToChatWithPrefix("Stopped recording '" + name + "'");
+                recording.setState(State.END);
+            }
         });
 
         this.client.gameSettings.sendSettingsToServer();
@@ -347,6 +353,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleSpawnObject(SPacketSpawnObject packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         double d0 = packetIn.getX();
         double d1 = packetIn.getY();
         double d2 = packetIn.getZ();
@@ -461,6 +468,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleSpawnExperienceOrb(SPacketSpawnExperienceOrb packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         double d0 = packetIn.getX();
         double d1 = packetIn.getY();
         double d2 = packetIn.getZ();
@@ -477,6 +485,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleSpawnGlobalEntity(SPacketSpawnGlobalEntity packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         double d0 = packetIn.getX();
         double d1 = packetIn.getY();
         double d2 = packetIn.getZ();
@@ -500,6 +509,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleSpawnPainting(SPacketSpawnPainting packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         EntityPainting entitypainting = new EntityPainting(this.world, packetIn.getPosition(), packetIn.getFacing(), packetIn.getTitle());
         entitypainting.setUniqueId(packetIn.getUniqueId());
         this.world.addEntityToWorld(packetIn.getEntityID(), entitypainting);
@@ -510,6 +520,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleEntityVelocity(SPacketEntityVelocity packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         Entity entity = this.world.getEntityByID(packetIn.getEntityID());
 
         if (entity != null) {
@@ -523,6 +534,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleEntityMetadata(SPacketEntityMetadata packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         Entity entity = this.world.getEntityByID(packetIn.getEntityId());
 
         if (entity != null) {
@@ -535,6 +547,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleSpawnPlayer(SPacketSpawnPlayer packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         double d0 = packetIn.getX();
         double d1 = packetIn.getY();
         double d2 = packetIn.getZ();
@@ -562,6 +575,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleEntityTeleport(SPacketEntityTeleport packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         Entity entity = this.world.getEntityByID(packetIn.getEntityId());
 
         if (entity != null) {
@@ -590,9 +604,14 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleHeldItemChange(SPacketHeldItemChange packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
 
         if (InventoryPlayer.isHotbar(packetIn.getHeldItemHotbarIndex())) {
-            this.client.player.inventory.currentItem = packetIn.getHeldItemHotbarIndex();
+            if (Managers.replayManager.isPlaying()) {
+                Managers.replayManager.getReplayServer().self.inventory.currentItem = packetIn.getHeldItemHotbarIndex();
+            } else {
+                this.client.player.inventory.currentItem = packetIn.getHeldItemHotbarIndex();
+            }
         }
     }
 
@@ -603,6 +622,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleEntityMovement(SPacketEntity packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         Entity entity = packetIn.getEntity(this.world);
 
         if (entity != null) {
@@ -628,6 +648,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleEntityHeadLook(SPacketEntityHeadLook packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         Entity entity = packetIn.getEntity(this.world);
 
         if (entity != null) {
@@ -643,6 +664,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleDestroyEntities(SPacketDestroyEntities packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
 
         for (int i = 0; i < packetIn.getEntityIDs().length; ++i) {
             this.world.removeEntityFromWorld(packetIn.getEntityIDs()[i]);
@@ -651,7 +673,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
 
     public void handlePlayerPosLook(SPacketPlayerPosLook packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
-        EntityPlayer entityplayer = this.client.player;
+        EntityPlayer entityplayer = Managers.replayManager.isPlaying() ? Managers.replayManager.getReplayServer().self : this.client.player;
         double d0 = packetIn.getX();
         double d1 = packetIn.getY();
         double d2 = packetIn.getZ();
@@ -694,6 +716,14 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
             this.client.player.prevPosZ = this.client.player.posZ;
             this.doneLoadingTerrain = true;
             this.client.displayGuiScreen(null);
+            double finalD = d0;
+            double finalD1 = d1;
+            double finalD2 = d2;
+            Managers.replayManager.getRecordings().values().forEach(recording -> {
+                if (recording.getSpawnPos() == null) {
+                    recording.setSpawnPos(new BlockPos(finalD, finalD1, finalD2));
+                }
+            });
         }
     }
 
@@ -704,6 +734,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleMultiBlockChange(SPacketMultiBlockChange packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
 
         for (SPacketMultiBlockChange.BlockUpdateData blockUpdateData : packetIn.getChangedBlocks()) {
             this.world.setBlockState(blockUpdateData.getPos(), blockUpdateData.getBlockState(), 3);
@@ -715,6 +746,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleChunkData(SPacketChunkData packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
 
         if (packetIn.isFullChunk()) {
             this.world.doPreChunk(packetIn.getChunkX(), packetIn.getChunkZ(), true);
@@ -739,6 +771,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
 
     public void processChunkUnload(SPacketUnloadChunk packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         this.world.doPreChunk(packetIn.getX(), packetIn.getZ(), false);
     }
 
@@ -747,6 +780,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleBlockChange(SPacketBlockChange packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         this.world.setBlockState(packetIn.getBlockPosition(), packetIn.getBlockState(), 3);
     }
 
@@ -773,11 +807,12 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
 
     public void handleCollectItem(SPacketCollectItem packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         Entity entity = this.world.getEntityByID(packetIn.getCollectedItemEntityID());
         EntityLivingBase entitylivingbase = (EntityLivingBase) this.world.getEntityByID(packetIn.getEntityID());
 
         if (entitylivingbase == null) {
-            entitylivingbase = this.client.player;
+            entitylivingbase = Managers.replayManager.isPlaying() ? Managers.replayManager.getReplayServer().self : this.client.player;
         }
 
         if (entity != null) {
@@ -801,6 +836,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleChat(SPacketChat packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         String text = packetIn.getChatComponent().getUnformattedText();
         // AutoText
         if (Managers.moduleManager.miscModules.get("AutoText").isEnabled()) {
@@ -815,9 +851,10 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
                 AutoText.timeToSendGG = true;
             }
         }
+        EntityPlayer player = Managers.replayManager.isPlaying() ? Managers.replayManager.getReplayServer().self : this.client.player;
         // Kill Effect
-        if (this.client.player != null && Managers.moduleManager.renderModules.get("KillEffect").isEnabled()) {
-            KillEffect.makeEffect(Pattern.compile("(.*?)" + this.client.player.getName() + "\\[❤.*] \\(.?之队\\)杀死了 (.*?)\\(").matcher(text));
+        if (player != null && Managers.moduleManager.renderModules.get("KillEffect").isEnabled()) {
+            KillEffect.makeEffect(Pattern.compile("(.*?)" + player.getName() + "\\[❤.*] \\(.?之队\\)杀死了 (.*?)\\(").matcher(text));
         }
         this.client.ingameGUI.addChatMessage(packetIn.getType(), packetIn.getChatComponent());
     }
@@ -828,6 +865,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleAnimation(SPacketAnimation packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         Entity entity = this.world.getEntityByID(packetIn.getEntityID());
 
         if (entity != null) {
@@ -856,6 +894,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleUseBed(SPacketUseBed packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         packetIn.getPlayer(this.world).trySleep(packetIn.getBedPosition());
     }
 
@@ -865,6 +904,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleSpawnMob(SPacketSpawnMob packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         double d0 = packetIn.getX();
         double d1 = packetIn.getY();
         double d2 = packetIn.getZ();
@@ -905,18 +945,21 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
 
     public void handleTimeUpdate(SPacketTimeUpdate packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         this.client.world.setTotalWorldTime(packetIn.getTotalWorldTime());
         this.client.world.setWorldTime(packetIn.getWorldTime());
     }
 
     public void handleSpawnPosition(SPacketSpawnPosition packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         this.client.player.setSpawnPoint(packetIn.getSpawnPos(), true);
         this.client.world.getWorldInfo().setSpawn(packetIn.getSpawnPos());
     }
 
     public void handleSetPassengers(SPacketSetPassengers packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         Entity entity = this.world.getEntityByID(packetIn.getEntityId());
 
         if (entity == null) {
@@ -941,6 +984,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
 
     public void handleEntityAttach(SPacketEntityAttach packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         Entity entity = this.world.getEntityByID(packetIn.getEntityId());
         Entity entity1 = this.world.getEntityByID(packetIn.getVehicleEntityId());
 
@@ -961,6 +1005,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleEntityStatus(SPacketEntityStatus packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         Entity entity = packetIn.getEntity(this.world);
 
         if (packetIn.getOpCode() == 21) {
@@ -979,31 +1024,46 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
 
     public void handleUpdateHealth(SPacketUpdateHealth packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
-        this.client.player.setPlayerSPHealth(packetIn.getHealth());
-        this.client.player.getFoodStats().setFoodLevel(packetIn.getFoodLevel());
-        this.client.player.getFoodStats().setFoodSaturationLevel(packetIn.getSaturationLevel());
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
+        if (Managers.replayManager.isPlaying()) {
+            Managers.replayManager.getReplayServer().self.setHealth(packetIn.getHealth());
+            Managers.replayManager.getReplayServer().self.getFoodStats().setFoodLevel(packetIn.getFoodLevel());
+            Managers.replayManager.getReplayServer().self.getFoodStats().setFoodSaturationLevel(packetIn.getSaturationLevel());
+        } else {
+            this.client.player.setPlayerSPHealth(packetIn.getHealth());
+            this.client.player.getFoodStats().setFoodLevel(packetIn.getFoodLevel());
+            this.client.player.getFoodStats().setFoodSaturationLevel(packetIn.getSaturationLevel());
+        }
     }
 
     public void handleSetExperience(SPacketSetExperience packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
-        this.client.player.setXPStats(packetIn.getExperienceBar(), packetIn.getTotalExperience(), packetIn.getLevel());
+        if (!Managers.replayManager.isPlaying()) {
+            this.client.player.setXPStats(packetIn.getExperienceBar(), packetIn.getTotalExperience(), packetIn.getLevel());
+        }
     }
 
     public void handleRespawn(SPacketRespawn packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
 
-        if (packetIn.getDimensionID() != this.client.player.dimension) {
-            this.doneLoadingTerrain = false;
-            Scoreboard scoreboard = this.world.getScoreboard();
-            this.world = new WorldClient(this, new WorldSettings(0L, packetIn.getGameType(), false, this.client.world.getWorldInfo().isHardcoreModeEnabled(), packetIn.getWorldType()), packetIn.getDimensionID(), packetIn.getDifficulty(), this.client.profiler);
-            this.world.setWorldScoreboard(scoreboard);
-            this.client.loadWorld(this.world);
-            this.client.player.dimension = packetIn.getDimensionID();
-            this.client.displayGuiScreen(new GuiDownloadTerrain());
-        }
+        if (!Managers.replayManager.isPlaying()) {
+            if (packetIn.getDimensionID() != this.client.player.dimension) {
+                this.doneLoadingTerrain = false;
+                Scoreboard scoreboard = this.world.getScoreboard();
+                this.world = new WorldClient(this, new WorldSettings(0L, packetIn.getGameType(), false, this.client.world.getWorldInfo().isHardcoreModeEnabled(), packetIn.getWorldType()), packetIn.getDimensionID(), packetIn.getDifficulty(), this.client.profiler);
+                this.world.setWorldScoreboard(scoreboard);
+                this.client.loadWorld(this.world);
+                this.client.player.dimension = packetIn.getDimensionID();
+                this.client.displayGuiScreen(new GuiDownloadTerrain());
+            }
 
-        this.client.setDimensionAndSpawnPlayer(packetIn.getDimensionID());
-        this.client.playerController.setGameType(packetIn.getGameType());
+            this.client.setDimensionAndSpawnPlayer(packetIn.getDimensionID());
+            this.client.playerController.setGameType(packetIn.getGameType());
+        } else {
+            if (packetIn.getDimensionID() != Managers.replayManager.getReplayServer().self.dimension) {
+                Managers.replayManager.getReplayServer().self.dimension = packetIn.getDimensionID();
+            }
+        }
     }
 
     /**
@@ -1011,6 +1071,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleExplosion(SPacketExplosion packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         Explosion explosion = new Explosion(this.client.world, null, packetIn.getX(), packetIn.getY(), packetIn.getZ(), packetIn.getStrength(), packetIn.getAffectedBlockPositions());
         explosion.doExplosionB(true);
         this.client.player.motionX += packetIn.getMotionX();
@@ -1024,6 +1085,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleOpenWindow(SPacketOpenWindow packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        if (Managers.replayManager.isPlaying()) return;
         EntityPlayerSP entityplayersp = this.client.player;
 
         if ("minecraft:container".equals(packetIn.getGuiId())) {
@@ -1054,7 +1116,8 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleSetSlot(SPacketSetSlot packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
-        EntityPlayer entityplayer = this.client.player;
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
+        EntityPlayer entityplayer = Managers.replayManager.isPlaying() ? Managers.replayManager.getReplayServer().self : this.client.player;
         ItemStack itemstack = packetIn.getStack();
         int i = packetIn.getSlot();
 
@@ -1110,7 +1173,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleWindowItems(SPacketWindowItems packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
-        EntityPlayer entityplayer = this.client.player;
+        EntityPlayer entityplayer = Managers.replayManager.isPlaying() ? Managers.replayManager.getReplayServer().self : this.client.player;
 
         if (packetIn.getWindowId() == 0) {
             entityplayer.inventoryContainer.setAll(packetIn.getItemStacks());
@@ -1141,6 +1204,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleUpdateTileEntity(SPacketUpdateTileEntity packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
 
         if (this.client.world.isBlockLoaded(packetIn.getPos())) {
             TileEntity tileentity = this.client.world.getTileEntity(packetIn.getPos());
@@ -1171,6 +1235,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
 
     public void handleEntityEquipment(SPacketEntityEquipment packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         Entity entity = this.world.getEntityByID(packetIn.getEntityID());
 
         if (entity != null) {
@@ -1193,6 +1258,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleBlockAction(SPacketBlockAction packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         this.client.world.addBlockEvent(packetIn.getBlockPosition(), packetIn.getBlockType(), packetIn.getData1(), packetIn.getData2());
     }
 
@@ -1201,12 +1267,14 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleBlockBreakAnim(SPacketBlockBreakAnim packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         this.client.world.sendBlockBreakProgress(packetIn.getBreakerId(), packetIn.getPosition(), packetIn.getProgress());
     }
 
     public void handleChangeGameState(SPacketChangeGameState packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
-        EntityPlayer entityplayer = this.client.player;
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
+        EntityPlayer entityplayer = Managers.replayManager.isPlaying() ? Managers.replayManager.getReplayServer().self : this.client.player;
         int i = packetIn.getGameState();
         float f = packetIn.getValue();
         int j = MathHelper.floor(f + 0.5F);
@@ -1222,14 +1290,18 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
             this.world.getWorldInfo().setRaining(false);
             this.world.setRainStrength(1.0F);
         } else if (i == 3) {
-            this.client.playerController.setGameType(GameType.getByID(j));
+            if (!Managers.replayManager.isPlaying()) {
+                this.client.playerController.setGameType(GameType.getByID(j));
+            }
         } else if (i == 4) {
-            if (j == 0) {
-                this.client.player.connection.sendPacket(new CPacketClientStatus(CPacketClientStatus.State.PERFORM_RESPAWN));
-                this.client.displayGuiScreen(new GuiDownloadTerrain());
-            } else if (j == 1) {
-                this.client.displayGuiScreen(new GuiWinGame(true, () ->
-                        this.client.player.connection.sendPacket(new CPacketClientStatus(CPacketClientStatus.State.PERFORM_RESPAWN))));
+            if (!Managers.replayManager.isPlaying()) {
+                if (j == 0) {
+                    this.client.player.connection.sendPacket(new CPacketClientStatus(CPacketClientStatus.State.PERFORM_RESPAWN));
+                    this.client.displayGuiScreen(new GuiDownloadTerrain());
+                } else if (j == 1) {
+                    this.client.displayGuiScreen(new GuiWinGame(true, () ->
+                            this.client.player.connection.sendPacket(new CPacketClientStatus(CPacketClientStatus.State.PERFORM_RESPAWN))));
+                }
             }
         } else if (i == 5) {
             GameSettings gamesettings = this.client.gameSettings;
@@ -1285,6 +1357,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
 
     public void handleEffect(SPacketEffect packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
 
         if (packetIn.isSoundServerwide()) {
             this.client.world.playBroadcastSound(packetIn.getSoundType(), packetIn.getSoundPos(), packetIn.getSoundData());
@@ -1328,9 +1401,8 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
     }
 
     public void handleRecipeBook(SPacketRecipeBook packetIn) {
-        RecipeBook recipebook;
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
-        recipebook = this.client.player.getRecipeBook();
+        RecipeBook recipebook = this.client.player.getRecipeBook();
         recipebook.setGuiOpen(packetIn.isGuiOpen());
         recipebook.setFilteringCraftable(packetIn.isFilteringCraftable());
         SPacketRecipeBook.State state = packetIn.getState();
@@ -1362,6 +1434,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
 
     public void handleEntityEffect(SPacketEntityEffect packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         Entity entity = this.world.getEntityByID(packetIn.getEntityId());
 
         if (entity instanceof EntityLivingBase) {
@@ -1389,6 +1462,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
 
     public void handleServerDifficulty(SPacketServerDifficulty packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         this.client.world.getWorldInfo().setDifficulty(packetIn.getDifficulty());
         this.client.world.getWorldInfo().setDifficultyLocked(packetIn.isDifficultyLocked());
     }
@@ -1404,12 +1478,14 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
 
     public void handleWorldBorder(SPacketWorldBorder packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         packetIn.apply(this.world.getWorldBorder());
     }
 
     @SuppressWarnings("incomplete-switch")
     public void handleTitle(SPacketTitle packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         SPacketTitle.Type spackettitle$type = packetIn.getType();
         String s = null;
         String s1 = null;
@@ -1449,12 +1525,14 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
     }
 
     public void handlePlayerListHeaderFooter(SPacketPlayerListHeaderFooter packetIn) {
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         this.client.ingameGUI.getTabList().setHeader(packetIn.getHeader().getFormattedText().isEmpty() ? null : packetIn.getHeader());
         this.client.ingameGUI.getTabList().setFooter(packetIn.getFooter().getFormattedText().isEmpty() ? null : packetIn.getFooter());
     }
 
     public void handleRemoveEntityEffect(SPacketRemoveEntityEffect packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         Entity entity = packetIn.getEntity(this.world);
 
         if (entity instanceof EntityLivingBase) {
@@ -1465,35 +1543,36 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
     @SuppressWarnings("incomplete-switch")
     public void handlePlayerListItem(SPacketPlayerListItem packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
 
-        for (SPacketPlayerListItem.AddPlayerData spacketplayerlistitem$addplayerdata : packetIn.getEntries()) {
+        for (SPacketPlayerListItem.AddPlayerData gameMode : packetIn.getEntries()) {
             if (packetIn.getAction() == SPacketPlayerListItem.Action.REMOVE_PLAYER) {
-                this.playerInfoMap.remove(spacketplayerlistitem$addplayerdata.getProfile().getId());
+                this.playerInfoMap.remove(gameMode.getProfile().getId());
             } else {
-                NetworkPlayerInfo networkplayerinfo = this.playerInfoMap.get(spacketplayerlistitem$addplayerdata.getProfile().getId());
+                NetworkPlayerInfo networkplayerinfo = this.playerInfoMap.get(gameMode.getProfile().getId());
 
                 if (packetIn.getAction() == SPacketPlayerListItem.Action.ADD_PLAYER) {
-                    networkplayerinfo = new NetworkPlayerInfo(spacketplayerlistitem$addplayerdata);
+                    networkplayerinfo = new NetworkPlayerInfo(gameMode);
                     this.playerInfoMap.put(networkplayerinfo.getGameProfile().getId(), networkplayerinfo);
                 }
 
                 if (networkplayerinfo != null) {
                     switch (packetIn.getAction()) {
                         case ADD_PLAYER:
-                            networkplayerinfo.setGameType(spacketplayerlistitem$addplayerdata.getGameMode());
-                            networkplayerinfo.setResponseTime(spacketplayerlistitem$addplayerdata.getPing());
+                            networkplayerinfo.setGameType(gameMode.getGameMode());
+                            networkplayerinfo.setResponseTime(gameMode.getPing());
                             break;
 
                         case UPDATE_GAME_MODE:
-                            networkplayerinfo.setGameType(spacketplayerlistitem$addplayerdata.getGameMode());
+                            networkplayerinfo.setGameType(gameMode.getGameMode());
                             break;
 
                         case UPDATE_LATENCY:
-                            networkplayerinfo.setResponseTime(spacketplayerlistitem$addplayerdata.getPing());
+                            networkplayerinfo.setResponseTime(gameMode.getPing());
                             break;
 
                         case UPDATE_DISPLAY_NAME:
-                            networkplayerinfo.setDisplayName(spacketplayerlistitem$addplayerdata.getDisplayName());
+                            networkplayerinfo.setDisplayName(gameMode.getDisplayName());
                     }
                 }
             }
@@ -1506,13 +1585,16 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
 
     public void handlePlayerAbilities(SPacketPlayerAbilities packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
-        EntityPlayer entityplayer1 = this.client.player;
-        entityplayer1.capabilities.isFlying = packetIn.isFlying();
-        entityplayer1.capabilities.isCreativeMode = packetIn.isCreativeMode();
-        entityplayer1.capabilities.disableDamage = packetIn.isInvulnerable();
-        entityplayer1.capabilities.allowFlying = packetIn.isAllowFlying();
-        entityplayer1.capabilities.setFlySpeed(packetIn.getFlySpeed());
-        entityplayer1.capabilities.setPlayerWalkSpeed(packetIn.getWalkSpeed());
+        if (!Managers.replayManager.isPlaying()) {
+            EntityPlayer player = this.client.player;
+            UpdateWalkingCheck.lastReceivedCapabilityPacket = packetIn;
+            player.capabilities.isFlying = packetIn.isFlying();
+            player.capabilities.isCreativeMode = packetIn.isCreativeMode();
+            player.capabilities.disableDamage = packetIn.isInvulnerable();
+            player.capabilities.allowFlying = packetIn.isAllowFlying();
+            player.capabilities.setFlySpeed(packetIn.getFlySpeed());
+            player.capabilities.setPlayerWalkSpeed(packetIn.getWalkSpeed());
+        }
     }
 
     /**
@@ -1530,11 +1612,13 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
 
     public void handleSoundEffect(SPacketSoundEffect packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         this.client.world.playSound(this.client.player, packetIn.getX(), packetIn.getY(), packetIn.getZ(), packetIn.getSound(), packetIn.getCategory(), packetIn.getVolume(), packetIn.getPitch());
     }
 
     public void handleCustomSound(SPacketCustomSound packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
+        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
         this.client.getSoundHandler().playSound(new PositionedSoundRecord(new ResourceLocation(packetIn.getSoundName()), packetIn.getCategory(), packetIn.getVolume(), packetIn.getPitch(), false, 0, ISound.AttenuationType.LINEAR, (float) packetIn.getX(), (float) packetIn.getY(), (float) packetIn.getZ()));
     }
 

@@ -61,7 +61,7 @@ public class ChatUtil {
             isNextColor = false;
             stringBuilder.append(c);
         }
-        return stringBuilder.toString();
+        return stringBuilder.toString().trim();
     }
 
     public static String removeColor(String original) {

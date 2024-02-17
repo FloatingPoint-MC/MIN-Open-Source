@@ -1,13 +1,13 @@
 package net.minecraft.network.play.server;
 
 import java.io.IOException;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.INetHandlerPlayClient;
 
-public class SPacketEntityTeleport implements Packet<INetHandlerPlayClient>
-{
+public class SPacketEntityTeleport implements Packet<INetHandlerPlayClient> {
     private int entityId;
     private double posX;
     private double posY;
@@ -16,26 +16,23 @@ public class SPacketEntityTeleport implements Packet<INetHandlerPlayClient>
     private byte pitch;
     private boolean onGround;
 
-    public SPacketEntityTeleport()
-    {
+    public SPacketEntityTeleport() {
     }
 
-    public SPacketEntityTeleport(Entity entityIn)
-    {
+    public SPacketEntityTeleport(Entity entityIn) {
         this.entityId = entityIn.getEntityId();
         this.posX = entityIn.posX;
         this.posY = entityIn.posY;
         this.posZ = entityIn.posZ;
-        this.yaw = (byte)((int)(entityIn.rotationYaw * 256.0F / 360.0F));
-        this.pitch = (byte)((int)(entityIn.rotationPitch * 256.0F / 360.0F));
+        this.yaw = (byte) ((int) (entityIn.rotationYaw * 256.0F / 360.0F));
+        this.pitch = (byte) ((int) (entityIn.rotationPitch * 256.0F / 360.0F));
         this.onGround = entityIn.onGround;
     }
 
     /**
      * Reads the raw packet data from the data stream.
      */
-    public void readPacketData(PacketBuffer buf) throws IOException
-    {
+    public void readPacketData(PacketBuffer buf) throws IOException {
         this.entityId = buf.readVarInt();
         this.posX = buf.readDouble();
         this.posY = buf.readDouble();
@@ -48,8 +45,7 @@ public class SPacketEntityTeleport implements Packet<INetHandlerPlayClient>
     /**
      * Writes the raw packet data to the data stream.
      */
-    public void writePacketData(PacketBuffer buf) throws IOException
-    {
+    public void writePacketData(PacketBuffer buf) throws IOException {
         buf.writeVarInt(this.entityId);
         buf.writeDouble(this.posX);
         buf.writeDouble(this.posY);
@@ -62,43 +58,35 @@ public class SPacketEntityTeleport implements Packet<INetHandlerPlayClient>
     /**
      * Passes this Packet on to the NetHandler for processing.
      */
-    public void processPacket(INetHandlerPlayClient handler)
-    {
+    public void processPacket(INetHandlerPlayClient handler) {
         handler.handleEntityTeleport(this);
     }
 
-    public int getEntityId()
-    {
+    public int getEntityId() {
         return this.entityId;
     }
 
-    public double getX()
-    {
+    public double getX() {
         return this.posX;
     }
 
-    public double getY()
-    {
+    public double getY() {
         return this.posY;
     }
 
-    public double getZ()
-    {
+    public double getZ() {
         return this.posZ;
     }
 
-    public byte getYaw()
-    {
+    public byte getYaw() {
         return this.yaw;
     }
 
-    public byte getPitch()
-    {
+    public byte getPitch() {
         return this.pitch;
     }
 
-    public boolean getOnGround()
-    {
+    public boolean getOnGround() {
         return this.onGround;
     }
 }

@@ -75,16 +75,18 @@ public class StatusDisplay extends RenderModule implements DraggableGameView {
         }
         if (ping.getValue()) {
             drawable = true;
-            if (mc.player.connection != null) {
-                NetworkPlayerInfo info = mc.player.connection.getPlayerInfo(mc.player.getUniqueID());
-                if (info != null) {
-                    int ping = info.getResponseTime();
-                    drawButton(x, height + y, "Ping: " + ping + "ms");
-                    height += 12;
+            if (mc.player != null) {
+                if (mc.player.connection != null) {
+                    NetworkPlayerInfo info = mc.player.connection.getPlayerInfo(mc.player.getUniqueID());
+                    if (info != null) {
+                        int ping = info.getResponseTime();
+                        drawButton(x, height + y, "Ping: " + ping + "ms");
+                        height += 12;
+                        if (background.getValue()) {
+                            height += 12;
+                        }
+                    }
                 }
-            }
-            if (background.getValue()) {
-                height += 12;
             }
         }
         if (time.getValue()) {

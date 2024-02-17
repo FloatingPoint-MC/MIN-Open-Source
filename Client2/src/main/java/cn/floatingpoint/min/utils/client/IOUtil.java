@@ -1,8 +1,12 @@
 package cn.floatingpoint.min.utils.client;
 
+import org.json.JSONObject;
+
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
 public class IOUtil {
     public static String readInputStream(InputStream inputStream) {
@@ -30,6 +34,15 @@ public class IOUtil {
             return out.toByteArray();
         } catch (IOException e) {
             return new byte[0];
+        }
+    }
+
+    public static void writeToZip(ZipEntry entry, ZipOutputStream out, JSONObject json) {
+        try {
+            out.putNextEntry(entry);
+            out.write(json.toString().getBytes(StandardCharsets.UTF_8));
+            out.closeEntry();
+        } catch (IOException ignored) {
         }
     }
 }

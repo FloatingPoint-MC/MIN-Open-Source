@@ -4,12 +4,11 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Floats;
 import com.google.common.util.concurrent.Futures;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import net.minecraft.advancements.Advancement;
@@ -19,7 +18,6 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
-import net.minecraft.crash.ICrashReportDetail;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.IJumpingMount;
 import net.minecraft.entity.MoverType;
@@ -139,7 +137,7 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable {
      */
     private int chatSpamThresholdCount;
     private int itemDropThreshold;
-    private final IntHashMap<Short> pendingTransactions = new IntHashMap<Short>();
+    private final IntHashMap<Short> pendingTransactions = new IntHashMap<>();
     private double firstGoodX;
     private double firstGoodY;
     private double firstGoodZ;
@@ -198,7 +196,6 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable {
                 return;
             }
         } else {
-            this.floating = false;
             this.floatingTickCount = 0;
         }
 
@@ -274,17 +271,9 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable {
      * Disconnect the player with a specified reason
      */
     public void disconnect(final ITextComponent textComponent) {
-        this.netManager.sendPacket(new SPacketDisconnect(textComponent), new GenericFutureListener<Future<? super Void>>() {
-            public void operationComplete(Future<? super Void> p_operationComplete_1_) throws Exception {
-                NetHandlerPlayServer.this.netManager.closeChannel(textComponent);
-            }
-        });
+        this.netManager.sendPacket(new SPacketDisconnect(textComponent), p_operationComplete_1_ -> NetHandlerPlayServer.this.netManager.closeChannel(textComponent));
         this.netManager.disableAutoRead();
-        Futures.getUnchecked(this.server.addScheduledTask(new Runnable() {
-            public void run() {
-                NetHandlerPlayServer.this.netManager.handleDisconnection();
-            }
-        }));
+        Futures.getUnchecked(this.server.addScheduledTask(NetHandlerPlayServer.this.netManager::handleDisconnection));
     }
 
     /**
@@ -333,7 +322,7 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable {
                 double d10 = d6 * d6 + d7 * d7 + d8 * d8;
 
                 if (d10 - d9 > 100.0D && (!this.server.isSinglePlayer() || !this.server.getServerOwner().equals(entity.getName()))) {
-                    LOGGER.warn("{} (vehicle of {}) moved too quickly! {},{},{}", entity.getName(), this.player.getName(), Double.valueOf(d6), Double.valueOf(d7), Double.valueOf(d8));
+                    LOGGER.warn("{} (vehicle of {}) moved too quickly! {},{},{}", entity.getName(), this.player.getName(), d6, d7, d8);
                     this.netManager.sendPacket(new SPacketMoveVehicle(entity));
                     return;
                 }
@@ -472,7 +461,7 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable {
                             int i = this.movePacketCounter - this.lastMovePacketCounter;
 
                             if (i > 5) {
-                                LOGGER.debug("{} is sending move packets too frequently ({} packets since last tick)", this.player.getName(), Integer.valueOf(i));
+                                LOGGER.debug("{} is sending move packets too frequently ({} packets since last tick)", this.player.getName(), i);
                                 i = 1;
                             }
 
@@ -480,7 +469,7 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable {
                                 float f2 = this.player.isElytraFlying() ? 300.0F : 100.0F;
 
                                 if (d11 - d10 > (double) (f2 * (float) i) && (!this.server.isSinglePlayer() || !this.server.getServerOwner().equals(this.player.getName()))) {
-                                    LOGGER.warn("{} moved too quickly! {},{},{}", this.player.getName(), Double.valueOf(d7), Double.valueOf(d8), Double.valueOf(d9));
+                                    LOGGER.warn("{} moved too quickly! {},{},{}", this.player.getName(), d7, d8, d9);
                                     this.setPlayerLocation(this.player.posX, this.player.posY, this.player.posZ, this.player.rotationYaw, this.player.rotationPitch);
                                     return;
                                 }
@@ -888,8 +877,7 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable {
                 break;
 
             case START_RIDING_JUMP:
-                if (this.player.getRidingEntity() instanceof IJumpingMount) {
-                    IJumpingMount ijumpingmount1 = (IJumpingMount) this.player.getRidingEntity();
+                if (this.player.getRidingEntity() instanceof IJumpingMount ijumpingmount1) {
                     int i = packetIn.getAuxData();
 
                     if (ijumpingmount1.canJump() && i > 0) {
@@ -900,8 +888,7 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable {
                 break;
 
             case STOP_RIDING_JUMP:
-                if (this.player.getRidingEntity() instanceof IJumpingMount) {
-                    IJumpingMount ijumpingmount = (IJumpingMount) this.player.getRidingEntity();
+                if (this.player.getRidingEntity() instanceof IJumpingMount ijumpingmount) {
                     ijumpingmount.handleStopJump();
                 }
 
@@ -1040,7 +1027,7 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable {
                     this.player.updateHeldItem();
                     this.player.isChangingQuantityOnly = false;
                 } else {
-                    this.pendingTransactions.addKey(this.player.openContainer.windowId, Short.valueOf(packetIn.getActionNumber()));
+                    this.pendingTransactions.addKey(this.player.openContainer.windowId, packetIn.getActionNumber());
                     this.player.connection.sendPacket(new SPacketConfirmTransaction(packetIn.getWindowId(), packetIn.getActionNumber(), false));
                     this.player.openContainer.setCanCraft(this.player, false);
                     NonNullList<ItemStack> nonnulllist1 = NonNullList.create();
@@ -1090,7 +1077,7 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable {
             boolean flag = packetIn.getSlotId() < 0;
             ItemStack itemstack = packetIn.getStack();
 
-            if (!itemstack.isEmpty() && itemstack.hasTagCompound() && itemstack.getTagCompound().hasKey("BlockEntityTag", 10)) {
+            if (!itemstack.isEmpty() && itemstack.hasTagCompound() && Objects.requireNonNull(itemstack.getTagCompound()).hasKey("BlockEntityTag", 10)) {
                 NBTTagCompound nbttagcompound = itemstack.getTagCompound().getCompoundTag("BlockEntityTag");
 
                 if (nbttagcompound.hasKey("x") && nbttagcompound.hasKey("y") && nbttagcompound.hasKey("z")) {
@@ -1138,7 +1125,7 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.player.getServerWorld());
         Short oshort = this.pendingTransactions.lookup(this.player.openContainer.windowId);
 
-        if (oshort != null && packetIn.getUid() == oshort.shortValue() && this.player.openContainer.windowId == packetIn.getWindowId() && !this.player.openContainer.getCanCraft(this.player) && !this.player.isSpectator()) {
+        if (oshort != null && packetIn.getUid() == oshort && this.player.openContainer.windowId == packetIn.getWindowId() && !this.player.openContainer.getCanCraft(this.player) && !this.player.isSpectator()) {
             this.player.openContainer.setCanCraft(this.player, true);
         }
     }
@@ -1153,11 +1140,9 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable {
             IBlockState iblockstate = worldserver.getBlockState(blockpos);
             TileEntity tileentity = worldserver.getTileEntity(blockpos);
 
-            if (!(tileentity instanceof TileEntitySign)) {
+            if (!(tileentity instanceof TileEntitySign tileentitysign)) {
                 return;
             }
-
-            TileEntitySign tileentitysign = (TileEntitySign) tileentity;
 
             if (!tileentitysign.getIsEditable() || tileentitysign.getPlayer() != this.player) {
                 this.server.logWarning("Player " + this.player.getName() + " just tried to change non-editable sign");
@@ -1167,7 +1152,7 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable {
             String[] astring = packetIn.getLines();
 
             for (int i = 0; i < astring.length; ++i) {
-                tileentitysign.signText[i] = new TextComponentString(TextFormatting.getTextWithoutFormattingCodes(astring[i]));
+                tileentitysign.signText[i] = new TextComponentString(Objects.requireNonNull(TextFormatting.getTextWithoutFormattingCodes(astring[i])));
             }
 
             tileentitysign.markDirty();
@@ -1207,11 +1192,9 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.player.getServerWorld());
         List<String> list = Lists.newArrayList();
 
-        for (String s : this.server.getTabCompletions(this.player, packetIn.getMessage(), packetIn.getTargetBlock(), packetIn.hasTargetBlock())) {
-            list.add(s);
-        }
+        list.addAll(this.server.getTabCompletions(this.player, packetIn.getMessage(), packetIn.getTargetBlock(), packetIn.hasTargetBlock()));
 
-        this.player.connection.sendPacket(new SPacketTabComplete(list.toArray(new String[list.size()])));
+        this.player.connection.sendPacket(new SPacketTabComplete(list.toArray(new String[0])));
     }
 
     /**
@@ -1230,309 +1213,317 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.player.getServerWorld());
         String s = packetIn.getChannelName();
 
-        if ("MC|BEdit".equals(s)) {
-            PacketBuffer packetbuffer = packetIn.getBufferData();
+        switch (s) {
+            case "MC|BEdit" -> {
+                PacketBuffer packetbuffer = packetIn.getBufferData();
 
-            try {
-                ItemStack itemstack = packetbuffer.readItemStack();
-
-                if (itemstack.isEmpty()) {
-                    return;
-                }
-
-                if (!ItemWritableBook.isNBTValid(itemstack.getTagCompound())) {
-                    throw new IOException("Invalid book tag!");
-                }
-
-                ItemStack itemstack1 = this.player.getHeldItemMainhand();
-
-                if (itemstack1.isEmpty()) {
-                    return;
-                }
-
-                if (itemstack.getItem() == Items.WRITABLE_BOOK && itemstack.getItem() == itemstack1.getItem()) {
-                    itemstack1.setTagInfo("pages", itemstack.getTagCompound().getTagList("pages", 8));
-                }
-            } catch (Exception exception6) {
-                LOGGER.error("Couldn't handle book info", exception6);
-            }
-        } else if ("MC|BSign".equals(s)) {
-            PacketBuffer packetbuffer1 = packetIn.getBufferData();
-
-            try {
-                ItemStack itemstack3 = packetbuffer1.readItemStack();
-
-                if (itemstack3.isEmpty()) {
-                    return;
-                }
-
-                if (!ItemWrittenBook.validBookTagContents(itemstack3.getTagCompound())) {
-                    throw new IOException("Invalid book tag!");
-                }
-
-                ItemStack itemstack4 = this.player.getHeldItemMainhand();
-
-                if (itemstack4.isEmpty()) {
-                    return;
-                }
-
-                if (itemstack3.getItem() == Items.WRITABLE_BOOK && itemstack4.getItem() == Items.WRITABLE_BOOK) {
-                    ItemStack itemstack2 = new ItemStack(Items.WRITTEN_BOOK);
-                    itemstack2.setTagInfo("author", new NBTTagString(this.player.getName()));
-                    itemstack2.setTagInfo("title", new NBTTagString(itemstack3.getTagCompound().getString("title")));
-                    NBTTagList nbttaglist = itemstack3.getTagCompound().getTagList("pages", 8);
-
-                    for (int i = 0; i < nbttaglist.tagCount(); ++i) {
-                        String s1 = nbttaglist.getStringTagAt(i);
-                        ITextComponent itextcomponent = new TextComponentString(s1);
-                        s1 = ITextComponent.Serializer.componentToJson(itextcomponent);
-                        nbttaglist.set(i, new NBTTagString(s1));
-                    }
-
-                    itemstack2.setTagInfo("pages", nbttaglist);
-                    this.player.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, itemstack2);
-                }
-            } catch (Exception exception7) {
-                LOGGER.error("Couldn't sign book", exception7);
-            }
-        } else if ("MC|TrSel".equals(s)) {
-            try {
-                int k = packetIn.getBufferData().readInt();
-                Container container = this.player.openContainer;
-
-                if (container instanceof ContainerMerchant) {
-                    ((ContainerMerchant) container).setCurrentRecipeIndex(k);
-                }
-            } catch (Exception exception5) {
-                LOGGER.error("Couldn't select trade", exception5);
-            }
-        } else if ("MC|AdvCmd".equals(s)) {
-            if (!this.server.isCommandBlockEnabled()) {
-                this.player.sendMessage(new TextComponentTranslation("advMode.notEnabled"));
-                return;
-            }
-
-            if (!this.player.canUseCommandBlock()) {
-                this.player.sendMessage(new TextComponentTranslation("advMode.notAllowed"));
-                return;
-            }
-
-            PacketBuffer packetbuffer2 = packetIn.getBufferData();
-
-            try {
-                int l = packetbuffer2.readByte();
-                CommandBlockBaseLogic commandblockbaselogic1 = null;
-
-                if (l == 0) {
-                    TileEntity tileentity = this.player.world.getTileEntity(new BlockPos(packetbuffer2.readInt(), packetbuffer2.readInt(), packetbuffer2.readInt()));
-
-                    if (tileentity instanceof TileEntityCommandBlock) {
-                        commandblockbaselogic1 = ((TileEntityCommandBlock) tileentity).getCommandBlockLogic();
-                    }
-                } else if (l == 1) {
-                    Entity entity = this.player.world.getEntityByID(packetbuffer2.readInt());
-
-                    if (entity instanceof EntityMinecartCommandBlock) {
-                        commandblockbaselogic1 = ((EntityMinecartCommandBlock) entity).getCommandBlockLogic();
-                    }
-                }
-
-                String s6 = packetbuffer2.readString(packetbuffer2.readableBytes());
-                boolean flag2 = packetbuffer2.readBoolean();
-
-                if (commandblockbaselogic1 != null) {
-                    commandblockbaselogic1.setCommand(s6);
-                    commandblockbaselogic1.setTrackOutput(flag2);
-
-                    if (!flag2) {
-                        commandblockbaselogic1.setLastOutput(null);
-                    }
-
-                    commandblockbaselogic1.updateCommand();
-                    this.player.sendMessage(new TextComponentTranslation("advMode.setCommand.success", s6));
-                }
-            } catch (Exception exception4) {
-                LOGGER.error("Couldn't set command block", exception4);
-            }
-        } else if ("MC|AutoCmd".equals(s)) {
-            if (!this.server.isCommandBlockEnabled()) {
-                this.player.sendMessage(new TextComponentTranslation("advMode.notEnabled"));
-                return;
-            }
-
-            if (!this.player.canUseCommandBlock()) {
-                this.player.sendMessage(new TextComponentTranslation("advMode.notAllowed"));
-                return;
-            }
-
-            PacketBuffer packetbuffer3 = packetIn.getBufferData();
-
-            try {
-                CommandBlockBaseLogic commandblockbaselogic = null;
-                TileEntityCommandBlock tileentitycommandblock = null;
-                BlockPos blockpos1 = new BlockPos(packetbuffer3.readInt(), packetbuffer3.readInt(), packetbuffer3.readInt());
-                TileEntity tileentity2 = this.player.world.getTileEntity(blockpos1);
-
-                if (tileentity2 instanceof TileEntityCommandBlock) {
-                    tileentitycommandblock = (TileEntityCommandBlock) tileentity2;
-                    commandblockbaselogic = tileentitycommandblock.getCommandBlockLogic();
-                }
-
-                String s7 = packetbuffer3.readString(packetbuffer3.readableBytes());
-                boolean flag3 = packetbuffer3.readBoolean();
-                TileEntityCommandBlock.Mode tileentitycommandblock$mode = TileEntityCommandBlock.Mode.valueOf(packetbuffer3.readString(16));
-                boolean flag = packetbuffer3.readBoolean();
-                boolean flag1 = packetbuffer3.readBoolean();
-
-                if (commandblockbaselogic != null) {
-                    EnumFacing enumfacing = this.player.world.getBlockState(blockpos1).getValue(BlockCommandBlock.FACING);
-
-                    switch (tileentitycommandblock$mode) {
-                        case SEQUENCE:
-                            IBlockState iblockstate3 = Blocks.CHAIN_COMMAND_BLOCK.getDefaultState();
-                            this.player.world.setBlockState(blockpos1, iblockstate3.withProperty(BlockCommandBlock.FACING, enumfacing).withProperty(BlockCommandBlock.CONDITIONAL, Boolean.valueOf(flag)), 2);
-                            break;
-
-                        case AUTO:
-                            IBlockState iblockstate2 = Blocks.REPEATING_COMMAND_BLOCK.getDefaultState();
-                            this.player.world.setBlockState(blockpos1, iblockstate2.withProperty(BlockCommandBlock.FACING, enumfacing).withProperty(BlockCommandBlock.CONDITIONAL, Boolean.valueOf(flag)), 2);
-                            break;
-
-                        case REDSTONE:
-                            IBlockState iblockstate = Blocks.COMMAND_BLOCK.getDefaultState();
-                            this.player.world.setBlockState(blockpos1, iblockstate.withProperty(BlockCommandBlock.FACING, enumfacing).withProperty(BlockCommandBlock.CONDITIONAL, Boolean.valueOf(flag)), 2);
-                    }
-
-                    tileentity2.validate();
-                    this.player.world.setTileEntity(blockpos1, tileentity2);
-                    commandblockbaselogic.setCommand(s7);
-                    commandblockbaselogic.setTrackOutput(flag3);
-
-                    if (!flag3) {
-                        commandblockbaselogic.setLastOutput(null);
-                    }
-
-                    tileentitycommandblock.setAuto(flag1);
-                    commandblockbaselogic.updateCommand();
-
-                    if (!net.minecraft.util.StringUtils.isNullOrEmpty(s7)) {
-                        this.player.sendMessage(new TextComponentTranslation("advMode.setCommand.success", s7));
-                    }
-                }
-            } catch (Exception exception3) {
-                LOGGER.error("Couldn't set command block", exception3);
-            }
-        } else if ("MC|Beacon".equals(s)) {
-            if (this.player.openContainer instanceof ContainerBeacon) {
                 try {
-                    PacketBuffer packetbuffer4 = packetIn.getBufferData();
-                    int i1 = packetbuffer4.readInt();
-                    int k1 = packetbuffer4.readInt();
-                    ContainerBeacon containerbeacon = (ContainerBeacon) this.player.openContainer;
-                    Slot slot = containerbeacon.getSlot(0);
+                    ItemStack itemstack = packetbuffer.readItemStack();
 
-                    if (slot.getHasStack()) {
-                        slot.decrStackSize(1);
-                        IInventory iinventory = containerbeacon.getTileEntity();
-                        iinventory.setField(1, i1);
-                        iinventory.setField(2, k1);
-                        iinventory.markDirty();
-                    }
-                } catch (Exception exception2) {
-                    LOGGER.error("Couldn't set beacon", exception2);
-                }
-            }
-        } else if ("MC|ItemName".equals(s)) {
-            if (this.player.openContainer instanceof ContainerRepair) {
-                ContainerRepair containerrepair = (ContainerRepair) this.player.openContainer;
-
-                if (packetIn.getBufferData() != null && packetIn.getBufferData().readableBytes() >= 1) {
-                    String s5 = ChatAllowedCharacters.filterAllowedCharacters(packetIn.getBufferData().readString(32767));
-
-                    if (s5.length() <= 35) {
-                        containerrepair.updateItemName(s5);
-                    }
-                } else {
-                    containerrepair.updateItemName("");
-                }
-            }
-        } else if ("MC|Struct".equals(s)) {
-            if (!this.player.canUseCommandBlock()) {
-                return;
-            }
-
-            PacketBuffer packetbuffer5 = packetIn.getBufferData();
-
-            try {
-                BlockPos blockpos = new BlockPos(packetbuffer5.readInt(), packetbuffer5.readInt(), packetbuffer5.readInt());
-                IBlockState iblockstate1 = this.player.world.getBlockState(blockpos);
-                TileEntity tileentity1 = this.player.world.getTileEntity(blockpos);
-
-                if (tileentity1 instanceof TileEntityStructure) {
-                    TileEntityStructure tileentitystructure = (TileEntityStructure) tileentity1;
-                    int l1 = packetbuffer5.readByte();
-                    String s8 = packetbuffer5.readString(32);
-                    tileentitystructure.setMode(TileEntityStructure.Mode.valueOf(s8));
-                    tileentitystructure.setName(packetbuffer5.readString(64));
-                    int i2 = MathHelper.clamp(packetbuffer5.readInt(), -32, 32);
-                    int j2 = MathHelper.clamp(packetbuffer5.readInt(), -32, 32);
-                    int k2 = MathHelper.clamp(packetbuffer5.readInt(), -32, 32);
-                    tileentitystructure.setPosition(new BlockPos(i2, j2, k2));
-                    int l2 = MathHelper.clamp(packetbuffer5.readInt(), 0, 32);
-                    int i3 = MathHelper.clamp(packetbuffer5.readInt(), 0, 32);
-                    int j = MathHelper.clamp(packetbuffer5.readInt(), 0, 32);
-                    tileentitystructure.setSize(new BlockPos(l2, i3, j));
-                    String s2 = packetbuffer5.readString(32);
-                    tileentitystructure.setMirror(Mirror.valueOf(s2));
-                    String s3 = packetbuffer5.readString(32);
-                    tileentitystructure.setRotation(Rotation.valueOf(s3));
-                    tileentitystructure.setMetadata(packetbuffer5.readString(128));
-                    tileentitystructure.setIgnoresEntities(packetbuffer5.readBoolean());
-                    tileentitystructure.setShowAir(packetbuffer5.readBoolean());
-                    tileentitystructure.setShowBoundingBox(packetbuffer5.readBoolean());
-                    tileentitystructure.setIntegrity(MathHelper.clamp(packetbuffer5.readFloat(), 0.0F, 1.0F));
-                    tileentitystructure.setSeed(packetbuffer5.readVarLong());
-                    String s4 = tileentitystructure.getName();
-
-                    if (l1 == 2) {
-                        if (tileentitystructure.save()) {
-                            this.player.sendStatusMessage(new TextComponentTranslation("structure_block.save_success", s4), false);
-                        } else {
-                            this.player.sendStatusMessage(new TextComponentTranslation("structure_block.save_failure", s4), false);
-                        }
-                    } else if (l1 == 3) {
-                        if (!tileentitystructure.isStructureLoadable()) {
-                            this.player.sendStatusMessage(new TextComponentTranslation("structure_block.load_not_found", s4), false);
-                        } else if (tileentitystructure.load()) {
-                            this.player.sendStatusMessage(new TextComponentTranslation("structure_block.load_success", s4), false);
-                        } else {
-                            this.player.sendStatusMessage(new TextComponentTranslation("structure_block.load_prepare", s4), false);
-                        }
-                    } else if (l1 == 4) {
-                        if (tileentitystructure.detectSize()) {
-                            this.player.sendStatusMessage(new TextComponentTranslation("structure_block.size_success", s4), false);
-                        } else {
-                            this.player.sendStatusMessage(new TextComponentTranslation("structure_block.size_failure"), false);
-                        }
+                    if (itemstack.isEmpty()) {
+                        return;
                     }
 
-                    tileentitystructure.markDirty();
-                    this.player.world.notifyBlockUpdate(blockpos, iblockstate1, iblockstate1, 3);
-                }
-            } catch (Exception exception1) {
-                LOGGER.error("Couldn't set structure block", exception1);
-            }
-        } else if ("MC|PickItem".equals(s)) {
-            PacketBuffer packetbuffer6 = packetIn.getBufferData();
+                    if (!ItemWritableBook.isNBTValid(itemstack.getTagCompound())) {
+                        throw new IOException("Invalid book tag!");
+                    }
 
-            try {
-                int j1 = packetbuffer6.readVarInt();
-                this.player.inventory.pickItem(j1);
-                this.player.connection.sendPacket(new SPacketSetSlot(-2, this.player.inventory.currentItem, this.player.inventory.getStackInSlot(this.player.inventory.currentItem)));
-                this.player.connection.sendPacket(new SPacketSetSlot(-2, j1, this.player.inventory.getStackInSlot(j1)));
-                this.player.connection.sendPacket(new SPacketHeldItemChange(this.player.inventory.currentItem));
-            } catch (Exception exception) {
-                LOGGER.error("Couldn't pick item", exception);
+                    ItemStack itemstack1 = this.player.getHeldItemMainhand();
+
+                    if (itemstack1.isEmpty()) {
+                        return;
+                    }
+
+                    if (itemstack.getItem() == Items.WRITABLE_BOOK && itemstack.getItem() == itemstack1.getItem()) {
+                        itemstack1.setTagInfo("pages", itemstack.getTagCompound().getTagList("pages", 8));
+                    }
+                } catch (Exception exception6) {
+                    LOGGER.error("Couldn't handle book info", exception6);
+                }
+            }
+            case "MC|BSign" -> {
+                PacketBuffer packetbuffer1 = packetIn.getBufferData();
+
+                try {
+                    ItemStack itemstack3 = packetbuffer1.readItemStack();
+
+                    if (itemstack3.isEmpty()) {
+                        return;
+                    }
+
+                    if (!ItemWrittenBook.validBookTagContents(itemstack3.getTagCompound())) {
+                        throw new IOException("Invalid book tag!");
+                    }
+
+                    ItemStack itemstack4 = this.player.getHeldItemMainhand();
+
+                    if (itemstack4.isEmpty()) {
+                        return;
+                    }
+
+                    if (itemstack3.getItem() == Items.WRITABLE_BOOK && itemstack4.getItem() == Items.WRITABLE_BOOK) {
+                        ItemStack itemstack2 = new ItemStack(Items.WRITTEN_BOOK);
+                        itemstack2.setTagInfo("author", new NBTTagString(this.player.getName()));
+                        itemstack2.setTagInfo("title", new NBTTagString(itemstack3.getTagCompound().getString("title")));
+                        NBTTagList nbttaglist = itemstack3.getTagCompound().getTagList("pages", 8);
+
+                        for (int i = 0; i < nbttaglist.tagCount(); ++i) {
+                            String s1 = nbttaglist.getStringTagAt(i);
+                            ITextComponent itextcomponent = new TextComponentString(s1);
+                            s1 = ITextComponent.Serializer.componentToJson(itextcomponent);
+                            nbttaglist.set(i, new NBTTagString(s1));
+                        }
+
+                        itemstack2.setTagInfo("pages", nbttaglist);
+                        this.player.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, itemstack2);
+                    }
+                } catch (Exception exception7) {
+                    LOGGER.error("Couldn't sign book", exception7);
+                }
+            }
+            case "MC|TrSel" -> {
+                try {
+                    int k = packetIn.getBufferData().readInt();
+                    Container container = this.player.openContainer;
+
+                    if (container instanceof ContainerMerchant) {
+                        ((ContainerMerchant) container).setCurrentRecipeIndex(k);
+                    }
+                } catch (Exception exception5) {
+                    LOGGER.error("Couldn't select trade", exception5);
+                }
+            }
+            case "MC|AdvCmd" -> {
+                if (!this.server.isCommandBlockEnabled()) {
+                    this.player.sendMessage(new TextComponentTranslation("advMode.notEnabled"));
+                    return;
+                }
+
+                if (!this.player.canUseCommandBlock()) {
+                    this.player.sendMessage(new TextComponentTranslation("advMode.notAllowed"));
+                    return;
+                }
+
+                PacketBuffer packetbuffer2 = packetIn.getBufferData();
+
+                try {
+                    int l = packetbuffer2.readByte();
+                    CommandBlockBaseLogic commandblockbaselogic1 = null;
+
+                    if (l == 0) {
+                        TileEntity tileentity = this.player.world.getTileEntity(new BlockPos(packetbuffer2.readInt(), packetbuffer2.readInt(), packetbuffer2.readInt()));
+
+                        if (tileentity instanceof TileEntityCommandBlock) {
+                            commandblockbaselogic1 = ((TileEntityCommandBlock) tileentity).getCommandBlockLogic();
+                        }
+                    } else if (l == 1) {
+                        Entity entity = this.player.world.getEntityByID(packetbuffer2.readInt());
+
+                        if (entity instanceof EntityMinecartCommandBlock) {
+                            commandblockbaselogic1 = ((EntityMinecartCommandBlock) entity).getCommandBlockLogic();
+                        }
+                    }
+
+                    String s6 = packetbuffer2.readString(packetbuffer2.readableBytes());
+                    boolean flag2 = packetbuffer2.readBoolean();
+
+                    if (commandblockbaselogic1 != null) {
+                        commandblockbaselogic1.setCommand(s6);
+                        commandblockbaselogic1.setTrackOutput(flag2);
+
+                        if (!flag2) {
+                            commandblockbaselogic1.setLastOutput(null);
+                        }
+
+                        commandblockbaselogic1.updateCommand();
+                        this.player.sendMessage(new TextComponentTranslation("advMode.setCommand.success", s6));
+                    }
+                } catch (Exception exception4) {
+                    LOGGER.error("Couldn't set command block", exception4);
+                }
+            }
+            case "MC|AutoCmd" -> {
+                if (!this.server.isCommandBlockEnabled()) {
+                    this.player.sendMessage(new TextComponentTranslation("advMode.notEnabled"));
+                    return;
+                }
+
+                if (!this.player.canUseCommandBlock()) {
+                    this.player.sendMessage(new TextComponentTranslation("advMode.notAllowed"));
+                    return;
+                }
+
+                PacketBuffer packetbuffer3 = packetIn.getBufferData();
+
+                try {
+                    CommandBlockBaseLogic commandblockbaselogic = null;
+                    TileEntityCommandBlock tileentitycommandblock = null;
+                    BlockPos blockpos1 = new BlockPos(packetbuffer3.readInt(), packetbuffer3.readInt(), packetbuffer3.readInt());
+                    TileEntity tileentity2 = this.player.world.getTileEntity(blockpos1);
+
+                    if (tileentity2 instanceof TileEntityCommandBlock) {
+                        tileentitycommandblock = (TileEntityCommandBlock) tileentity2;
+                        commandblockbaselogic = tileentitycommandblock.getCommandBlockLogic();
+                    }
+
+                    String s7 = packetbuffer3.readString(packetbuffer3.readableBytes());
+                    boolean flag3 = packetbuffer3.readBoolean();
+                    TileEntityCommandBlock.Mode tileentitycommandblock$mode = TileEntityCommandBlock.Mode.valueOf(packetbuffer3.readString(16));
+                    boolean flag = packetbuffer3.readBoolean();
+                    boolean flag1 = packetbuffer3.readBoolean();
+
+                    if (commandblockbaselogic != null) {
+                        EnumFacing enumfacing = this.player.world.getBlockState(blockpos1).getValue(BlockCommandBlock.FACING);
+
+                        switch (tileentitycommandblock$mode) {
+                            case SEQUENCE:
+                                IBlockState iblockstate3 = Blocks.CHAIN_COMMAND_BLOCK.getDefaultState();
+                                this.player.world.setBlockState(blockpos1, iblockstate3.withProperty(BlockCommandBlock.FACING, enumfacing).withProperty(BlockCommandBlock.CONDITIONAL, flag), 2);
+                                break;
+
+                            case AUTO:
+                                IBlockState iblockstate2 = Blocks.REPEATING_COMMAND_BLOCK.getDefaultState();
+                                this.player.world.setBlockState(blockpos1, iblockstate2.withProperty(BlockCommandBlock.FACING, enumfacing).withProperty(BlockCommandBlock.CONDITIONAL, flag), 2);
+                                break;
+
+                            case REDSTONE:
+                                IBlockState iblockstate = Blocks.COMMAND_BLOCK.getDefaultState();
+                                this.player.world.setBlockState(blockpos1, iblockstate.withProperty(BlockCommandBlock.FACING, enumfacing).withProperty(BlockCommandBlock.CONDITIONAL, flag), 2);
+                        }
+
+                        tileentity2.validate();
+                        this.player.world.setTileEntity(blockpos1, tileentity2);
+                        commandblockbaselogic.setCommand(s7);
+                        commandblockbaselogic.setTrackOutput(flag3);
+
+                        if (!flag3) {
+                            commandblockbaselogic.setLastOutput(null);
+                        }
+
+                        tileentitycommandblock.setAuto(flag1);
+                        commandblockbaselogic.updateCommand();
+
+                        if (!net.minecraft.util.StringUtils.isNullOrEmpty(s7)) {
+                            this.player.sendMessage(new TextComponentTranslation("advMode.setCommand.success", s7));
+                        }
+                    }
+                } catch (Exception exception3) {
+                    LOGGER.error("Couldn't set command block", exception3);
+                }
+            }
+            case "MC|Beacon" -> {
+                if (this.player.openContainer instanceof ContainerBeacon) {
+                    try {
+                        PacketBuffer packetbuffer4 = packetIn.getBufferData();
+                        int i1 = packetbuffer4.readInt();
+                        int k1 = packetbuffer4.readInt();
+                        ContainerBeacon containerbeacon = (ContainerBeacon) this.player.openContainer;
+                        Slot slot = containerbeacon.getSlot(0);
+
+                        if (slot.getHasStack()) {
+                            slot.decrStackSize(1);
+                            IInventory iinventory = containerbeacon.getTileEntity();
+                            iinventory.setField(1, i1);
+                            iinventory.setField(2, k1);
+                            iinventory.markDirty();
+                        }
+                    } catch (Exception exception2) {
+                        LOGGER.error("Couldn't set beacon", exception2);
+                    }
+                }
+            }
+            case "MC|ItemName" -> {
+                if (this.player.openContainer instanceof ContainerRepair containerrepair) {
+
+                    if (packetIn.getBufferData() != null && packetIn.getBufferData().readableBytes() >= 1) {
+                        String s5 = ChatAllowedCharacters.filterAllowedCharacters(packetIn.getBufferData().readString(32767));
+
+                        if (s5.length() <= 35) {
+                            containerrepair.updateItemName(s5);
+                        }
+                    } else {
+                        containerrepair.updateItemName("");
+                    }
+                }
+            }
+            case "MC|Struct" -> {
+                if (!this.player.canUseCommandBlock()) {
+                    return;
+                }
+
+                PacketBuffer packetbuffer5 = packetIn.getBufferData();
+
+                try {
+                    BlockPos blockpos = new BlockPos(packetbuffer5.readInt(), packetbuffer5.readInt(), packetbuffer5.readInt());
+                    IBlockState iblockstate1 = this.player.world.getBlockState(blockpos);
+                    TileEntity tileentity1 = this.player.world.getTileEntity(blockpos);
+
+                    if (tileentity1 instanceof TileEntityStructure tileentitystructure) {
+                        int l1 = packetbuffer5.readByte();
+                        String s8 = packetbuffer5.readString(32);
+                        tileentitystructure.setMode(TileEntityStructure.Mode.valueOf(s8));
+                        tileentitystructure.setName(packetbuffer5.readString(64));
+                        int i2 = MathHelper.clamp(packetbuffer5.readInt(), -32, 32);
+                        int j2 = MathHelper.clamp(packetbuffer5.readInt(), -32, 32);
+                        int k2 = MathHelper.clamp(packetbuffer5.readInt(), -32, 32);
+                        tileentitystructure.setPosition(new BlockPos(i2, j2, k2));
+                        int l2 = MathHelper.clamp(packetbuffer5.readInt(), 0, 32);
+                        int i3 = MathHelper.clamp(packetbuffer5.readInt(), 0, 32);
+                        int j = MathHelper.clamp(packetbuffer5.readInt(), 0, 32);
+                        tileentitystructure.setSize(new BlockPos(l2, i3, j));
+                        String s2 = packetbuffer5.readString(32);
+                        tileentitystructure.setMirror(Mirror.valueOf(s2));
+                        String s3 = packetbuffer5.readString(32);
+                        tileentitystructure.setRotation(Rotation.valueOf(s3));
+                        tileentitystructure.setMetadata(packetbuffer5.readString(128));
+                        tileentitystructure.setIgnoresEntities(packetbuffer5.readBoolean());
+                        tileentitystructure.setShowAir(packetbuffer5.readBoolean());
+                        tileentitystructure.setShowBoundingBox(packetbuffer5.readBoolean());
+                        tileentitystructure.setIntegrity(MathHelper.clamp(packetbuffer5.readFloat(), 0.0F, 1.0F));
+                        tileentitystructure.setSeed(packetbuffer5.readVarLong());
+                        String s4 = tileentitystructure.getName();
+
+                        if (l1 == 2) {
+                            if (tileentitystructure.save()) {
+                                this.player.sendStatusMessage(new TextComponentTranslation("structure_block.save_success", s4), false);
+                            } else {
+                                this.player.sendStatusMessage(new TextComponentTranslation("structure_block.save_failure", s4), false);
+                            }
+                        } else if (l1 == 3) {
+                            if (!tileentitystructure.isStructureLoadable()) {
+                                this.player.sendStatusMessage(new TextComponentTranslation("structure_block.load_not_found", s4), false);
+                            } else if (tileentitystructure.load()) {
+                                this.player.sendStatusMessage(new TextComponentTranslation("structure_block.load_success", s4), false);
+                            } else {
+                                this.player.sendStatusMessage(new TextComponentTranslation("structure_block.load_prepare", s4), false);
+                            }
+                        } else if (l1 == 4) {
+                            if (tileentitystructure.detectSize()) {
+                                this.player.sendStatusMessage(new TextComponentTranslation("structure_block.size_success", s4), false);
+                            } else {
+                                this.player.sendStatusMessage(new TextComponentTranslation("structure_block.size_failure"), false);
+                            }
+                        }
+
+                        tileentitystructure.markDirty();
+                        this.player.world.notifyBlockUpdate(blockpos, iblockstate1, iblockstate1, 3);
+                    }
+                } catch (Exception exception1) {
+                    LOGGER.error("Couldn't set structure block", exception1);
+                }
+            }
+            case "MC|PickItem" -> {
+                PacketBuffer packetbuffer6 = packetIn.getBufferData();
+
+                try {
+                    int j1 = packetbuffer6.readVarInt();
+                    this.player.inventory.pickItem(j1);
+                    this.player.connection.sendPacket(new SPacketSetSlot(-2, this.player.inventory.currentItem, this.player.inventory.getStackInSlot(this.player.inventory.currentItem)));
+                    this.player.connection.sendPacket(new SPacketSetSlot(-2, j1, this.player.inventory.getStackInSlot(j1)));
+                    this.player.connection.sendPacket(new SPacketHeldItemChange(this.player.inventory.currentItem));
+                } catch (Exception exception) {
+                    LOGGER.error("Couldn't pick item", exception);
+                }
             }
         }
     }

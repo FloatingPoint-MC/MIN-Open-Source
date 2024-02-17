@@ -155,7 +155,7 @@ public abstract class PlayerList {
             s1 = netManager.getRemoteAddress().toString();
         }
 
-        LOGGER.info("{}[{}] logged in with entity id {} at ({}, {}, {})", playerIn.getName(), s1, Integer.valueOf(playerIn.getEntityId()), Double.valueOf(playerIn.posX), Double.valueOf(playerIn.posY), Double.valueOf(playerIn.posZ));
+        LOGGER.info("{}[{}] logged in with entity id {} at ({}, {}, {})", playerIn.getName(), s1, playerIn.getEntityId(), playerIn.posX, playerIn.posY, playerIn.posZ);
         WorldServer worldserver = this.server.getWorld(playerIn.dimension);
         WorldInfo worldinfo = worldserver.getWorldInfo();
         this.setPlayerGameTypeBasedOnOther(playerIn, null, worldserver);
@@ -304,11 +304,11 @@ public abstract class PlayerList {
         return PlayerChunkMap.getFurthestViewableBlock(this.getViewDistance());
     }
 
-    @Nullable
 
     /**
      * called during player login. reads the player information from disk.
      */
+    @Nullable
     public NBTTagCompound readPlayerDataFromFile(EntityPlayerMP playerIn) {
         NBTTagCompound nbttagcompound = this.server.worlds[0].getWorldInfo().getPlayerNBTTagCompound();
         NBTTagCompound nbttagcompound1;
@@ -351,8 +351,8 @@ public abstract class PlayerList {
         this.sendPacketToAllPlayers(new SPacketPlayerListItem(SPacketPlayerListItem.Action.ADD_PLAYER, playerIn));
         WorldServer worldserver = this.server.getWorld(playerIn.dimension);
 
-        for (int i = 0; i < this.playerEntityList.size(); ++i) {
-            playerIn.connection.sendPacket(new SPacketPlayerListItem(SPacketPlayerListItem.Action.ADD_PLAYER, this.playerEntityList.get(i)));
+        for (EntityPlayerMP entityPlayerMP : this.playerEntityList) {
+            playerIn.connection.sendPacket(new SPacketPlayerListItem(SPacketPlayerListItem.Action.ADD_PLAYER, entityPlayerMP));
         }
 
         worldserver.spawnEntity(playerIn);
@@ -442,9 +442,7 @@ public abstract class PlayerList {
         UUID uuid = EntityPlayer.getUUID(profile);
         List<EntityPlayerMP> list = Lists.newArrayList();
 
-        for (int i = 0; i < this.playerEntityList.size(); ++i) {
-            EntityPlayerMP entityplayermp = this.playerEntityList.get(i);
-
+        for (EntityPlayerMP entityplayermp : this.playerEntityList) {
             if (entityplayermp.getUniqueID().equals(uuid)) {
                 list.add(entityplayermp);
             }
@@ -645,8 +643,8 @@ public abstract class PlayerList {
     }
 
     public void sendPacketToAllPlayers(Packet<?> packetIn) {
-        for (int i = 0; i < this.playerEntityList.size(); ++i) {
-            (this.playerEntityList.get(i)).connection.sendPacket(packetIn);
+        for (EntityPlayerMP entityPlayerMP : this.playerEntityList) {
+            entityPlayerMP.connection.sendPacket(packetIn);
         }
     }
 

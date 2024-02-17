@@ -2,6 +2,7 @@ package net.minecraft.network.play.server;
 
 import java.io.IOException;
 import java.util.UUID;
+
 import net.minecraft.entity.item.EntityPainting;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
@@ -9,20 +10,17 @@ import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 
-public class SPacketSpawnPainting implements Packet<INetHandlerPlayClient>
-{
+public class SPacketSpawnPainting implements Packet<INetHandlerPlayClient> {
     private int entityID;
     private UUID uniqueId;
     private BlockPos position;
     private EnumFacing facing;
     private String title;
 
-    public SPacketSpawnPainting()
-    {
+    public SPacketSpawnPainting() {
     }
 
-    public SPacketSpawnPainting(EntityPainting painting)
-    {
+    public SPacketSpawnPainting(EntityPainting painting) {
         this.entityID = painting.getEntityId();
         this.uniqueId = painting.getUniqueID();
         this.position = painting.getHangingPosition();
@@ -33,8 +31,7 @@ public class SPacketSpawnPainting implements Packet<INetHandlerPlayClient>
     /**
      * Reads the raw packet data from the data stream.
      */
-    public void readPacketData(PacketBuffer buf) throws IOException
-    {
+    public void readPacketData(PacketBuffer buf) throws IOException {
         this.entityID = buf.readVarInt();
         this.uniqueId = buf.readUniqueId();
         this.title = buf.readString(EntityPainting.EnumArt.MAX_NAME_LENGTH);
@@ -45,8 +42,7 @@ public class SPacketSpawnPainting implements Packet<INetHandlerPlayClient>
     /**
      * Writes the raw packet data to the data stream.
      */
-    public void writePacketData(PacketBuffer buf) throws IOException
-    {
+    public void writePacketData(PacketBuffer buf) throws IOException {
         buf.writeVarInt(this.entityID);
         buf.writeUniqueId(this.uniqueId);
         buf.writeString(this.title);
@@ -57,33 +53,27 @@ public class SPacketSpawnPainting implements Packet<INetHandlerPlayClient>
     /**
      * Passes this Packet on to the NetHandler for processing.
      */
-    public void processPacket(INetHandlerPlayClient handler)
-    {
+    public void processPacket(INetHandlerPlayClient handler) {
         handler.handleSpawnPainting(this);
     }
 
-    public int getEntityID()
-    {
+    public int getEntityID() {
         return this.entityID;
     }
 
-    public UUID getUniqueId()
-    {
+    public UUID getUniqueId() {
         return this.uniqueId;
     }
 
-    public BlockPos getPosition()
-    {
+    public BlockPos getPosition() {
         return this.position;
     }
 
-    public EnumFacing getFacing()
-    {
+    public EnumFacing getFacing() {
         return this.facing;
     }
 
-    public String getTitle()
-    {
+    public String getTitle() {
         return this.title;
     }
 }

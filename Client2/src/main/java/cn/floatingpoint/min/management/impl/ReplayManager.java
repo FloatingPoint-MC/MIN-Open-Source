@@ -6,22 +6,29 @@ import cn.floatingpoint.min.system.replay.Replay;
 import cn.floatingpoint.min.system.replay.packet.C2SPacket;
 import cn.floatingpoint.min.system.replay.packet.S2CPacket;
 import cn.floatingpoint.min.system.replay.recording.Recording;
+import cn.floatingpoint.min.system.replay.recording.State;
+import cn.floatingpoint.min.system.replay.server.ReplayServer;
+import cn.floatingpoint.min.system.ui.replay.GuiLoadingReplay;
+import cn.floatingpoint.min.system.replay.packet.ChunkPacket;
 import cn.floatingpoint.min.utils.client.ChatUtil;
 import cn.floatingpoint.min.utils.client.IOUtil;
 import io.netty.buffer.Unpooled;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.math.BlockPos;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.StringTokenizer;
 import java.util.zip.ZipFile;
 
 public class ReplayManager implements Manager {
-    private LinkedHashSet<String> replays;
     private LinkedHashMap<String, Recording> recordings;
+    private ReplayServer replayServer;
+    private boolean playing;
 
     @Override
     public String getName() {
@@ -30,12 +37,7 @@ public class ReplayManager implements Manager {
 
     @Override
     public void init() {
-        replays = new LinkedHashSet<>();
         recordings = new LinkedHashMap<>();
-    }
-
-    public LinkedHashSet<String> getReplays() {
-        return replays;
     }
 
     public LinkedHashMap<String, Recording> getRecordings() {
@@ -44,43 +46,71 @@ public class ReplayManager implements Manager {
 
     public void startRecording(String name) {
         if (recordings.containsKey(name)) {
+            Recording recording = recordings.get(name);
+            if (recording.getState() == State.PAUSED) {
+                ChatUtil.printToChatWithPrefix("\247aResumed Recording '" + name + "'!");
+                recording.setState(State.PLAYING);
+                return;
+            }
             ChatUtil.printToChatWithPrefix("\247cRecording '" + name + "' is already started!");
             return;
         }
         ChatUtil.printToChatWithPrefix("\247aRecording will start after you join the game!");
-        recordings.put(name, new Recording());
+        recordings.put(name, new Recording(name));
+    }
+
+    public void stopRecording(String name) {
+        if (!recordings.containsKey(name)) {
+            ChatUtil.printToChatWithPrefix("\247cRecording '" + name + "' is not started!");
+            return;
+        }
+        Recording recording = recordings.get(name);
+        if (recording.getState() == State.IDLE) {
+            ChatUtil.printToChatWithPrefix("\247eRecording '" + name + "' is stopped, but there is nothing recorded!");
+            recordings.remove(name);
+        } else if (recording.getState() == State.PLAYING || recording.getState() == State.PAUSED) {
+            ChatUtil.printToChatWithPrefix("\247aRecording '" + name + "' stopped!");
+            recording.setState(State.END);
+        } else {
+            ChatUtil.printToChatWithPrefix("\247cRecording '" + name + "' is already stopped!");
+        }
     }
 
     @SuppressWarnings("all")
     public void loadReplays() {
-        File replayFolder = Managers.fileManager.getConfigFile("replays");
+        File replayFolder = Managers.fileManager.getConfigFile("replay");
         if (!replayFolder.exists() || !replayFolder.isDirectory()) {
             replayFolder.delete();
             replayFolder.mkdir();
         }
-        replays.clear();
-        for (File file : replayFolder.listFiles(file -> file.getName().toLowerCase().endsWith(".replay"))) {
-            replays.add(file.getName().substring(0, file.getName().length() - 7));
-        }
     }
 
-    public Replay loadReplay(String name) {
-        File replayFile = Managers.fileManager.getConfigFile("replays/" + name + ".replay");
-        if (!replayFile.exists()) {
+    public void loadReplay(ReplayServer replayServer) {
+        this.replayServer = replayServer;
+        Replay replay = replayServer.getReplay();
+        if (!replay.getFile().exists()) {
             loadReplays();
-            return null;
+            return;
         }
-        try {
-            ZipFile zip = new ZipFile(replayFile);
+        try (ZipFile zip = new ZipFile(replay.getFile())) {
             JSONObject data = new JSONObject(new String(IOUtil.readZipEntry(zip.getEntry("data"), zip), StandardCharsets.UTF_8));
-            Replay replay = new Replay();
-            for (int i = 0; i < data.getInt("packet_num"); i++) {
+            int length = data.getInt("packet_num");
+            JSONArray spawnPos = data.getJSONArray("spawn_loc");
+            replay.setSpawnPos(new BlockPos(spawnPos.getInt(0), spawnPos.getInt(1), spawnPos.getInt(2)));
+            replay.setEntityId(data.getInt("entity_id"));
+            replay.setEntityName(data.getString("entity_name"));
+            replay.setUuid(data.getString("entity_uuid"));
+            for (int i = 0; i < length; i++) {
+                if (mc.currentScreen instanceof GuiLoadingReplay guiLoadingReplay) {
+                    guiLoadingReplay.title = "Loading Replay '" + replay.getName() + "'";
+                    guiLoadingReplay.percentage = (double) i / (double) length;
+                }
                 JSONObject packet = new JSONObject(new String(IOUtil.readZipEntry(zip.getEntry("Packet" + i), zip), StandardCharsets.UTF_8));
                 String type = packet.getString("type");
-                int id = packet.getInt("id");
                 PacketBuffer packetBuffer = new PacketBuffer(Unpooled.buffer());
-                packetBuffer.writeVarInt(id);
-                for (Object o : packet.getJSONArray("data")) {
+                JSONArray dataArray = packet.getJSONArray("data");
+                if (dataArray.isEmpty()) continue;
+                for (Object o : dataArray) {
                     String packetData = (String) o;
                     String toWrite = packetData.substring(1);
                     switch (packetData.charAt(0)) {
@@ -143,19 +173,50 @@ public class ReplayManager implements Manager {
                                 throw new IllegalStateException("Unexpected value: Lnet/minecraft/nbt/NBTTagCompound;");
                             }
                         }
+                        case 'O' -> {
+                            StringTokenizer tokenizer = new StringTokenizer(toWrite.replace("[", "").replace("]", ""), ", ");
+                            int size = tokenizer.countTokens();
+                            byte[] bytes = new byte[size];
+                            for (int j = 0; j < size; j++) {
+                                bytes[j] = Byte.parseByte(tokenizer.nextToken());
+                            }
+                            packetBuffer.writeBytes(bytes);
+                        }
                         default -> throw new IllegalStateException("Unexpected value: " + packetData.charAt(0));
                     }
                 }
                 switch (type) {
-                    case "C2S" -> replay.addPacket(new C2SPacket(packetBuffer));
-                    case "S2C" -> replay.addPacket(new S2CPacket(packetBuffer));
+                    case "C2S" -> {
+                        int id = packet.getInt("id");
+                        int tick = packet.getInt("tick");
+                        replay.addPacket(new C2SPacket(tick, id, packetBuffer));
+                    }
+                    case "S2C" -> {
+                        int id = packet.getInt("id");
+                        int tick = packet.getInt("tick");
+                        replay.addPacket(new S2CPacket(tick, id, packetBuffer));
+                    }
+                    case "Chunk" -> replay.addPacket(new ChunkPacket(packetBuffer));
                     default -> throw new IllegalStateException("Unexpected value: " + type);
                 }
             }
-            return replay;
         } catch (Exception e) {
             loadReplays();
-            return null;
+            if (Minecraft.DEBUG_MODE()) {
+                e.printStackTrace();
+            }
         }
+    }
+
+    public boolean isPlaying() {
+        return playing;
+    }
+
+    public void setPlaying(boolean playing) {
+        this.playing = playing;
+    }
+
+    public ReplayServer getReplayServer() {
+        return replayServer;
     }
 }

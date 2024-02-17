@@ -25,8 +25,12 @@ public class FileManager implements Manager {
     private File dir;
 
     public File getConfigFile(String name) {
+        return getConfigFile(name, true);
+    }
+
+    public File getConfigFile(String name, boolean autoCreate) {
         File file = new File(this.dir, name);
-        if (!file.exists()) {
+        if (!file.exists() && autoCreate) {
             try {
                 if (!file.createNewFile()) {
                     throw new IOException();

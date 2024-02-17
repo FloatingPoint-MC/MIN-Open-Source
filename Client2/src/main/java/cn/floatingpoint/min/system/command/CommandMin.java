@@ -2,10 +2,9 @@ package cn.floatingpoint.min.system.command;
 
 import cn.floatingpoint.min.management.Managers;
 import cn.floatingpoint.min.utils.client.ChatUtil;
-import net.minecraft.client.Minecraft;
 import net.minecraft.util.text.TextComponentString;
 
-import java.io.File;
+import java.util.Arrays;
 
 /**
  * @projectName: MIN
@@ -13,8 +12,6 @@ import java.io.File;
  * @date: 2023-07-20 11:55:51
  */
 public class CommandMin {
-    private static final Minecraft mc = Minecraft.getMinecraft();
-
     public static boolean execute(String[] args) {
         if (args[0].equalsIgnoreCase("help")) {
             ChatUtil.printToChatWithPrefix("/min replay \2477 - Replay System");
@@ -28,17 +25,25 @@ public class CommandMin {
                 return true;
             } else {
                 if (args[1].equalsIgnoreCase("record")) {
-                    if (args.length != 3) {
+                    if (args.length < 3) {
                         ChatUtil.printToChatWithPrefix("\247cCorrect Usage: /min replay record <Name>");
-                        return true;
                     } else {
-                        String replayName = args[2];
-                        if (new File(mc.gameDir, "MIN2/replay/" + replayName).exists()) {
+                        String replayName = ChatUtil.buildMessage(Arrays.copyOfRange(args, 2, args.length));
+                        if (Managers.fileManager.getConfigFile("replay/" + replayName + ".replay", false).exists()) {
                             ChatUtil.printToChatWithPrefix("\247cReplay existed!");
-                            return true;
+                        } else {
+                            Managers.replayManager.startRecording(replayName);
                         }
-                        Managers.replayManager.startRecording(replayName);
                     }
+                    return true;
+                } else if (args[1].equalsIgnoreCase("stop")) {
+                    if (args.length < 3) {
+                        ChatUtil.printToChatWithPrefix("\247cCorrect Usage: /min replay stop <Name>");
+                    } else {
+                        String replayName = ChatUtil.buildMessage(Arrays.copyOfRange(args, 2, args.length));
+                        Managers.replayManager.stopRecording(replayName);
+                    }
+                    return true;
                 }
             }
         }
