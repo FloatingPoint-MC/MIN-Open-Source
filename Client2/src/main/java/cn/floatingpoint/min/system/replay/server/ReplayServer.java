@@ -1,6 +1,7 @@
 package cn.floatingpoint.min.system.replay.server;
 
 import cn.floatingpoint.min.management.Managers;
+import cn.floatingpoint.min.system.hyt.packet.impl.Hyt0Packet;
 import cn.floatingpoint.min.system.replay.Replay;
 import cn.floatingpoint.min.system.replay.packet.C2SPacket;
 import cn.floatingpoint.min.system.replay.packet.ChunkPacket;
@@ -75,6 +76,7 @@ public class ReplayServer {
         running = true;
         state = State.PAUSED;
         Managers.replayManager.setPlaying(false);
+        Hyt0Packet.loadChunk = true;
         Thread replayServerThread = new Thread("Replay Server Thread") {
             @Override
             public void run() {

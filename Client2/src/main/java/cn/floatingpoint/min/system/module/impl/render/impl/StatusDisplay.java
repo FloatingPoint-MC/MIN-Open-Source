@@ -91,13 +91,8 @@ public class StatusDisplay extends RenderModule implements DraggableGameView {
         }
         if (time.getValue()) {
             drawable = true;
-            if (mc.player.connection != null) {
-                NetworkPlayerInfo info = mc.player.connection.getPlayerInfo(mc.player.getUniqueID());
-                if (info != null) {
-                    drawButton(x, height + y, format.format(new Date(System.currentTimeMillis())));
-                    height += 20;
-                }
-            }
+            drawButton(x, height + y, format.format(new Date(System.currentTimeMillis())));
+            height += 20;
         } else {
             height -= 2;
             if (!background.getValue()) {
@@ -136,7 +131,6 @@ public class StatusDisplay extends RenderModule implements DraggableGameView {
             }
         }
     }
-
 
 
     @Override

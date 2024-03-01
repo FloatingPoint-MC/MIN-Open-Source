@@ -12,7 +12,7 @@ public class MotionBlur extends RenderModule {
         public void setValue(Integer value) {
             if (value.intValue() != this.getValue().intValue()){
                 if (MotionBlur.this.isEnabled()) {
-                    Minecraft.getMinecraft().entityRenderer.getShaderGroup().deleteShaderGroup();
+                    Minecraft.getMinecraft().entityRenderer.stopUseShader();
                     Minecraft.getMinecraft().entityRenderer.loadShader(new ResourceLocation("min/shaders/post/motion_blur_" + amplifier.getValue() + "x.json"));
                 }
                 super.setValue(value);
@@ -31,7 +31,7 @@ public class MotionBlur extends RenderModule {
 
     @Override
     public void onDisable() {
-        mc.entityRenderer.getShaderGroup().deleteShaderGroup();
+        mc.entityRenderer.stopUseShader();
     }
 
     @Override

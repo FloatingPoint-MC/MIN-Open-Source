@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.Objects;
 
 import cn.floatingpoint.min.MIN;
+import cn.floatingpoint.min.management.Managers;
 import cn.floatingpoint.min.utils.client.WebUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.achievement.GuiStats;
@@ -54,6 +55,7 @@ public class GuiIngameMenu extends GuiScreen {
                 });
                 this.mc.world.sendQuittingDisconnectingPacket();
                 this.mc.loadWorld(null);
+                Managers.replayManager.setPlaying(false);
 
                 if (flag) {
                     this.mc.displayGuiScreen(mc.mainMenu);

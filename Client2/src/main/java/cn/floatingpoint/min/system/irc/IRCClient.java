@@ -41,7 +41,8 @@ public class IRCClient extends WebSocketClient {
     private boolean firstConnect;
 
     public IRCClient() throws URISyntaxException, IOException {
-        super(new URI("wss://irc.minclient.xyz"));
+        super(new URI("ws://irc-test.minclient.xyz"));
+        //super(new URI("wss://irc.minclient.xyz"));
         //super(new URI("ws://118.193.46.31:65535"));
         setTcpNoDelay(true);
         theIRC = this;
@@ -157,7 +158,7 @@ public class IRCClient extends WebSocketClient {
     @Override
     @Native
     public void onClose(int code, String reason, boolean remote) {
-        IRCClient.getInstance().startReconnection();
+        startReconnection();
     }
 
     /**

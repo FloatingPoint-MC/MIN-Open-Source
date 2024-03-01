@@ -60,7 +60,9 @@ public abstract class TabCompleter {
     private void requestCompletions(String prefix) {
         if (!prefix.isEmpty()) {
             Minecraft.getMinecraft().player.connection.sendPacket(new CPacketTabComplete(prefix, this.getTargetBlockPos(), this.hasTargetBlock));
-            IRCClient.getInstance().addToSendQueue(new cn.floatingpoint.min.system.irc.packet.impl.CPacketTabComplete(prefix));
+            if (this.textField.getText().toLowerCase().startsWith("/irc")) {
+                IRCClient.getInstance().addToSendQueue(new cn.floatingpoint.min.system.irc.packet.impl.CPacketTabComplete(prefix));
+            }
             this.requestedCompletions = true;
         }
     }
