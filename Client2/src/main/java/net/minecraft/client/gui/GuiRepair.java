@@ -1,7 +1,10 @@
 package net.minecraft.client.gui;
 
+import cn.floatingpoint.min.management.Managers;
 import io.netty.buffer.Unpooled;
+
 import java.io.IOException;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -20,8 +23,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import org.lwjglx.input.Keyboard;
 
-public class GuiRepair extends GuiContainer implements IContainerListener
-{
+public class GuiRepair extends GuiContainer implements IContainerListener {
     private static final ResourceLocation ANVIL_RESOURCE = new ResourceLocation("textures/gui/container/anvil.png");
 
     /**
@@ -31,19 +33,17 @@ public class GuiRepair extends GuiContainer implements IContainerListener
     private GuiTextField nameField;
     private final InventoryPlayer playerInventory;
 
-    public GuiRepair(InventoryPlayer inventoryIn, World worldIn)
-    {
+    public GuiRepair(InventoryPlayer inventoryIn, World worldIn) {
         super(new ContainerRepair(inventoryIn, worldIn, Minecraft.getMinecraft().player));
         this.playerInventory = inventoryIn;
-        this.anvil = (ContainerRepair)this.inventorySlots;
+        this.anvil = (ContainerRepair) this.inventorySlots;
     }
 
     /**
      * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
      * window resizes, the buttonList is cleared beforehand.
      */
-    public void initGui()
-    {
+    public void initGui() {
         super.initGui();
         Keyboard.enableRepeatEvents(true);
         int i = (this.width - this.xSize) / 2;
@@ -60,8 +60,7 @@ public class GuiRepair extends GuiContainer implements IContainerListener
     /**
      * Called when the screen is unloaded. Used to disable keyboard repeat events
      */
-    public void onGuiClosed()
-    {
+    public void onGuiClosed() {
         super.onGuiClosed();
         Keyboard.enableRepeatEvents(false);
         this.inventorySlots.removeListener(this);
@@ -70,45 +69,34 @@ public class GuiRepair extends GuiContainer implements IContainerListener
     /**
      * Draw the foreground layer for the GuiContainer (everything in front of the items)
      */
-    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
-    {
+    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
         GlStateManager.disableLighting();
         GlStateManager.disableBlend();
         this.fontRenderer.drawString(I18n.format("container.repair"), 60, 6, 4210752);
 
-        if (this.anvil.maximumCost > 0)
-        {
+        if (this.anvil.maximumCost > 0) {
             int i = 8453920;
             boolean flag = true;
             String s = I18n.format("container.repair.cost", this.anvil.maximumCost);
 
-            if (this.anvil.maximumCost >= 40 && !this.mc.player.capabilities.isCreativeMode)
-            {
+            if (this.anvil.maximumCost >= 40 && !this.mc.player.capabilities.isCreativeMode) {
                 s = I18n.format("container.repair.expensive");
                 i = 16736352;
-            }
-            else if (!this.anvil.getSlot(2).getHasStack())
-            {
+            } else if (!this.anvil.getSlot(2).getHasStack()) {
                 flag = false;
-            }
-            else if (!this.anvil.getSlot(2).canTakeStack(this.playerInventory.player))
-            {
+            } else if (!this.anvil.getSlot(2).canTakeStack(this.playerInventory.player)) {
                 i = 16736352;
             }
 
-            if (flag)
-            {
+            if (flag) {
                 int j = -16777216 | (i & 16579836) >> 2 | i & -16777216;
                 int k = this.xSize - 8 - this.fontRenderer.getStringWidth(s);
                 int l = 67;
 
-                if (this.fontRenderer.getUnicodeFlag())
-                {
+                if (this.fontRenderer.getUnicodeFlag()) {
                     drawRect(k - 3, 65, this.xSize - 7, 77, -16777216);
                     drawRect(k - 2, 66, this.xSize - 8, 76, -12895429);
-                }
-                else
-                {
+                } else {
                     this.fontRenderer.drawString(s, k, 68, j);
                     this.fontRenderer.drawString(s, k + 1, 67, j);
                     this.fontRenderer.drawString(s, k + 1, 68, j);
@@ -125,25 +113,19 @@ public class GuiRepair extends GuiContainer implements IContainerListener
      * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
      * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
      */
-    protected void keyTyped(char typedChar, int keyCode) throws IOException
-    {
-        if (this.nameField.textboxKeyTyped(typedChar, keyCode))
-        {
+    protected void keyTyped(char typedChar, int keyCode) throws IOException {
+        if (this.nameField.textboxKeyTyped(typedChar, keyCode)) {
             this.renameItem();
-        }
-        else
-        {
+        } else {
             super.keyTyped(typedChar, keyCode);
         }
     }
 
-    private void renameItem()
-    {
+    private void renameItem() {
         String s = this.nameField.getText();
         Slot slot = this.anvil.getSlot(0);
 
-        if (slot != null && slot.getHasStack() && !slot.getStack().hasDisplayName() && s.equals(slot.getStack().getDisplayName()))
-        {
+        if (slot != null && slot.getHasStack() && !slot.getStack().hasDisplayName() && s.equals(slot.getStack().getDisplayName())) {
             s = "";
         }
 
@@ -154,8 +136,7 @@ public class GuiRepair extends GuiContainer implements IContainerListener
     /**
      * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
      */
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
-    {
+    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         this.nameField.mouseClicked(mouseX, mouseY, mouseButton);
     }
@@ -163,9 +144,10 @@ public class GuiRepair extends GuiContainer implements IContainerListener
     /**
      * Draws the screen and all the components in it.
      */
-    public void drawScreen(int mouseX, int mouseY, float partialTicks)
-    {
-        this.drawDefaultBackground();
+    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+        if (!Managers.moduleManager.renderModules.get("RemoveBackground").isEnabled()) {
+            this.drawDefaultBackground();
+        }
         super.drawScreen(mouseX, mouseY, partialTicks);
         this.renderHoveredToolTip(mouseX, mouseY);
         GlStateManager.disableLighting();
@@ -176,8 +158,7 @@ public class GuiRepair extends GuiContainer implements IContainerListener
     /**
      * Draws the background layer of this container (behind the items).
      */
-    protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY)
-    {
+    protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         this.mc.getTextureManager().bindTexture(ANVIL_RESOURCE);
         int i = (this.width - this.xSize) / 2;
@@ -185,8 +166,7 @@ public class GuiRepair extends GuiContainer implements IContainerListener
         this.drawTexturedModalRect(i, j, 0, 0, this.xSize, this.ySize);
         this.drawTexturedModalRect(i + 59, j + 20, 0, this.ySize + (this.anvil.getSlot(0).getHasStack() ? 0 : 16), 110, 16);
 
-        if ((this.anvil.getSlot(0).getHasStack() || this.anvil.getSlot(1).getHasStack()) && !this.anvil.getSlot(2).getHasStack())
-        {
+        if ((this.anvil.getSlot(0).getHasStack() || this.anvil.getSlot(1).getHasStack()) && !this.anvil.getSlot(2).getHasStack()) {
             this.drawTexturedModalRect(i + 99, j + 45, this.xSize, 0, 28, 21);
         }
     }
@@ -194,8 +174,7 @@ public class GuiRepair extends GuiContainer implements IContainerListener
     /**
      * update the crafting window inventory with the items in the list
      */
-    public void sendAllContents(Container containerToSend, NonNullList<ItemStack> itemsList)
-    {
+    public void sendAllContents(Container containerToSend, NonNullList<ItemStack> itemsList) {
         this.sendSlotContents(containerToSend, 0, containerToSend.getSlot(0).getStack());
     }
 
@@ -203,15 +182,12 @@ public class GuiRepair extends GuiContainer implements IContainerListener
      * Sends the contents of an inventory slot to the client-side Container. This doesn't have to match the actual
      * contents of that slot.
      */
-    public void sendSlotContents(Container containerToSend, int slotInd, ItemStack stack)
-    {
-        if (slotInd == 0)
-        {
+    public void sendSlotContents(Container containerToSend, int slotInd, ItemStack stack) {
+        if (slotInd == 0) {
             this.nameField.setText(stack.isEmpty() ? "" : stack.getDisplayName());
             this.nameField.setEnabled(!stack.isEmpty());
 
-            if (!stack.isEmpty())
-            {
+            if (!stack.isEmpty()) {
                 this.renameItem();
             }
         }
@@ -222,11 +198,9 @@ public class GuiRepair extends GuiContainer implements IContainerListener
      * and enchanting level. Normally the first int identifies which variable to update, and the second contains the new
      * value. Both are truncated to shorts in non-local SMP.
      */
-    public void sendWindowProperty(Container containerIn, int varToUpdate, int newValue)
-    {
+    public void sendWindowProperty(Container containerIn, int varToUpdate, int newValue) {
     }
 
-    public void sendAllWindowProperties(Container containerIn, IInventory inventory)
-    {
+    public void sendAllWindowProperties(Container containerIn, IInventory inventory) {
     }
 }

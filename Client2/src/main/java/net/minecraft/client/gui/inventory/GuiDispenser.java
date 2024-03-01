@@ -1,23 +1,26 @@
 package net.minecraft.client.gui.inventory;
 
+import cn.floatingpoint.min.management.Managers;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ContainerDispenser;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.util.ResourceLocation;
 
-public class GuiDispenser extends GuiContainer
-{
+public class GuiDispenser extends GuiContainer {
     private static final ResourceLocation DISPENSER_GUI_TEXTURES = new ResourceLocation("textures/gui/container/dispenser.png");
 
-    /** The player inventory bound to this GUI. */
+    /**
+     * The player inventory bound to this GUI.
+     */
     private final InventoryPlayer playerInventory;
 
-    /** The inventory contained within the corresponding Dispenser. */
+    /**
+     * The inventory contained within the corresponding Dispenser.
+     */
     public IInventory dispenserInventory;
 
-    public GuiDispenser(InventoryPlayer playerInv, IInventory dispenserInv)
-    {
+    public GuiDispenser(InventoryPlayer playerInv, IInventory dispenserInv) {
         super(new ContainerDispenser(playerInv, dispenserInv));
         this.playerInventory = playerInv;
         this.dispenserInventory = dispenserInv;
@@ -26,9 +29,10 @@ public class GuiDispenser extends GuiContainer
     /**
      * Draws the screen and all the components in it.
      */
-    public void drawScreen(int mouseX, int mouseY, float partialTicks)
-    {
-        this.drawDefaultBackground();
+    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+        if (!Managers.moduleManager.renderModules.get("RemoveBackground").isEnabled()) {
+            this.drawDefaultBackground();
+        }
         super.drawScreen(mouseX, mouseY, partialTicks);
         this.renderHoveredToolTip(mouseX, mouseY);
     }
@@ -36,8 +40,7 @@ public class GuiDispenser extends GuiContainer
     /**
      * Draw the foreground layer for the GuiContainer (everything in front of the items)
      */
-    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
-    {
+    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
         String s = this.dispenserInventory.getDisplayName().getUnformattedText();
         this.fontRenderer.drawString(s, this.xSize / 2 - this.fontRenderer.getStringWidth(s) / 2, 6, 4210752);
         this.fontRenderer.drawString(this.playerInventory.getDisplayName().getUnformattedText(), 8, this.ySize - 96 + 2, 4210752);
@@ -46,8 +49,7 @@ public class GuiDispenser extends GuiContainer
     /**
      * Draws the background layer of this container (behind the items).
      */
-    protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY)
-    {
+    protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         this.mc.getTextureManager().bindTexture(DISPENSER_GUI_TEXTURES);
         int i = (this.width - this.xSize) / 2;

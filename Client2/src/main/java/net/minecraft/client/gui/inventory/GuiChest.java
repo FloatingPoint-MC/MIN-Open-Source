@@ -1,5 +1,6 @@
 package net.minecraft.client.gui.inventory;
 
+import cn.floatingpoint.min.management.Managers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.inventory.ContainerChest;
@@ -36,7 +37,9 @@ public class GuiChest extends GuiContainer {
      * Draws the screen and all the components in it.
      */
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        this.drawDefaultBackground();
+        if (!Managers.moduleManager.renderModules.get("RemoveBackground").isEnabled()) {
+            this.drawDefaultBackground();
+        }
         super.drawScreen(mouseX, mouseY, partialTicks);
         this.renderHoveredToolTip(mouseX, mouseY);
     }

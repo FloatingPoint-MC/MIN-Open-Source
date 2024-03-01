@@ -9,6 +9,7 @@ import cn.floatingpoint.min.system.irc.IRCClient;
 import cn.floatingpoint.min.system.irc.connection.NetworkManager;
 import cn.floatingpoint.min.system.irc.packet.Encoder;
 import cn.floatingpoint.min.system.irc.packet.impl.*;
+import cn.floatingpoint.min.system.module.impl.render.impl.Scoreboard;
 import cn.floatingpoint.min.utils.client.ChatUtil;
 import cn.floatingpoint.min.utils.client.PacketThreadUtil;
 import me.konago.nativeobfuscator.Native;
@@ -260,6 +261,18 @@ public class NetHandlerClient implements INetHandlerClient {
         if (info != null) {
             info.setPlayerTexturesLoaded(false);
             Managers.clientManager.clientMateUuids.put(packetIn.getUniqueId(), new ClientManager.ClientMate(packetIn.getSkinName(), packetIn.getSkinId(), packetIn.getRank()));
+            if (packetIn.getUniqueId() == mc.player.getUniqueID()) {
+                switch (packetIn.getRank()) {
+                    case 1 -> {
+                        if (!Client.isUnlockFeatures()) {
+                            ChatUtil.printToChatWithPrefix("\247a您是\247f主\247c播\247a，已自动为您关闭计分板底部网址显示\2477(如有需要可自行开启)！");
+                            Scoreboard.hideUnderUrl.setValue(true);
+                            Client.setUnlockFeatures(true);
+                        }
+                    }
+                    case 2, 3 -> Client.setUnlockFeatures(true);
+                }
+            }
         }
     }
 

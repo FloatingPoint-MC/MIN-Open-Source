@@ -79,6 +79,7 @@ public class ModuleManager implements Manager {
         renderModules.put("NoHurtCam", new NoHurtCam());
         renderModules.put("Particles", new Particles());
         renderModules.put("PotionDisplay", new PotionDisplay());
+        renderModules.put("RemoveBackground", new RemoveBackground());
         renderModules.put("Scoreboard", new Scoreboard());
         renderModules.put("Zoom", new Zoom());
         renderModules.put("Spinning", new Spinning());

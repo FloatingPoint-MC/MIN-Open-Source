@@ -13,6 +13,7 @@ public class Client {
     private static List<String> status = Collections.singletonList("\247e" + Managers.i18NManager.getTranslation("idle"));
     private static String vexViewVersion;
     private static byte[] modList;
+    private static boolean unlockFeatures;
 
     public static String getUsername() {
         return username;
@@ -60,5 +61,13 @@ public class Client {
 
     public static byte[] getModList() {
         return modList;
+    }
+
+    public static boolean isUnlockFeatures() {
+        return unlockFeatures;
+    }
+
+    public static void setUnlockFeatures(boolean unlockFeatures) {
+        Client.unlockFeatures = unlockFeatures;
     }
 }

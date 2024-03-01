@@ -1,8 +1,11 @@
 package net.minecraft.client.gui;
 
+import cn.floatingpoint.min.management.Managers;
 import io.netty.buffer.Unpooled;
+
 import java.io.IOException;
 import javax.annotation.Nullable;
+
 import net.minecraft.client.resources.I18n;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.CPacketCustomPayload;
@@ -14,14 +17,17 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import org.lwjglx.input.Keyboard;
 
-public class GuiCommandBlock extends GuiScreen implements ITabCompleter
-{
-    /** Text field containing the command block's command. */
+public class GuiCommandBlock extends GuiScreen implements ITabCompleter {
+    /**
+     * Text field containing the command block's command.
+     */
     private GuiTextField commandTextField;
     private GuiTextField previousOutputTextField;
     private final TileEntityCommandBlock commandBlock;
 
-    /** "Done" button for the GUI. */
+    /**
+     * "Done" button for the GUI.
+     */
     private GuiButton doneBtn;
     private GuiButton cancelBtn;
     private GuiButton outputBtn;
@@ -34,16 +40,14 @@ public class GuiCommandBlock extends GuiScreen implements ITabCompleter
     private boolean conditional;
     private boolean automatic;
 
-    public GuiCommandBlock(TileEntityCommandBlock commandBlockIn)
-    {
+    public GuiCommandBlock(TileEntityCommandBlock commandBlockIn) {
         this.commandBlock = commandBlockIn;
     }
 
     /**
      * Called from the main game loop to update the screen.
      */
-    public void updateScreen()
-    {
+    public void updateScreen() {
         this.commandTextField.updateCursorCounter();
     }
 
@@ -51,8 +55,7 @@ public class GuiCommandBlock extends GuiScreen implements ITabCompleter
      * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
      * window resizes, the buttonList is cleared beforehand.
      */
-    public void initGui()
-    {
+    public void initGui() {
         final CommandBlockBaseLogic commandblockbaselogic = this.commandBlock.getCommandBlockLogic();
         Keyboard.enableRepeatEvents(true);
         this.buttonList.clear();
@@ -74,18 +77,15 @@ public class GuiCommandBlock extends GuiScreen implements ITabCompleter
         this.modeBtn.enabled = false;
         this.conditionalBtn.enabled = false;
         this.autoExecBtn.enabled = false;
-        this.tabCompleter = new TabCompleter(this.commandTextField, true)
-        {
+        this.tabCompleter = new TabCompleter(this.commandTextField, true) {
             @Nullable
-            public BlockPos getTargetBlockPos()
-            {
+            public BlockPos getTargetBlockPos() {
                 return commandblockbaselogic.getPosition();
             }
         };
     }
 
-    public void updateGui()
-    {
+    public void updateGui() {
         CommandBlockBaseLogic commandblockbaselogic = this.commandBlock.getCommandBlockLogic();
         this.commandTextField.setText(commandblockbaselogic.getCommand());
         this.trackOutput = commandblockbaselogic.shouldTrackOutput();
@@ -106,27 +106,21 @@ public class GuiCommandBlock extends GuiScreen implements ITabCompleter
     /**
      * Called when the screen is unloaded. Used to disable keyboard repeat events
      */
-    public void onGuiClosed()
-    {
+    public void onGuiClosed() {
         Keyboard.enableRepeatEvents(false);
     }
 
     /**
      * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
      */
-    protected void actionPerformed(GuiButton button) throws IOException
-    {
-        if (button.enabled)
-        {
+    protected void actionPerformed(GuiButton button) throws IOException {
+        if (button.enabled) {
             CommandBlockBaseLogic commandblockbaselogic = this.commandBlock.getCommandBlockLogic();
 
-            if (button.id == 1)
-            {
+            if (button.id == 1) {
                 commandblockbaselogic.setTrackOutput(this.trackOutput);
                 this.mc.displayGuiScreen(null);
-            }
-            else if (button.id == 0)
-            {
+            } else if (button.id == 0) {
                 PacketBuffer packetbuffer = new PacketBuffer(Unpooled.buffer());
                 commandblockbaselogic.fillInInfo(packetbuffer);
                 packetbuffer.writeString(this.commandTextField.getText());
@@ -136,30 +130,21 @@ public class GuiCommandBlock extends GuiScreen implements ITabCompleter
                 packetbuffer.writeBoolean(this.automatic);
                 this.mc.getConnection().sendPacket(new CPacketCustomPayload("MC|AutoCmd", packetbuffer));
 
-                if (!commandblockbaselogic.shouldTrackOutput())
-                {
+                if (!commandblockbaselogic.shouldTrackOutput()) {
                     commandblockbaselogic.setLastOutput(null);
                 }
 
                 this.mc.displayGuiScreen(null);
-            }
-            else if (button.id == 4)
-            {
+            } else if (button.id == 4) {
                 commandblockbaselogic.setTrackOutput(!commandblockbaselogic.shouldTrackOutput());
                 this.updateCmdOutput();
-            }
-            else if (button.id == 5)
-            {
+            } else if (button.id == 5) {
                 this.nextMode();
                 this.updateMode();
-            }
-            else if (button.id == 6)
-            {
+            } else if (button.id == 6) {
                 this.conditional = !this.conditional;
                 this.updateConditional();
-            }
-            else if (button.id == 7)
-            {
+            } else if (button.id == 7) {
                 this.automatic = !this.automatic;
                 this.updateAutoExec();
             }
@@ -170,31 +155,23 @@ public class GuiCommandBlock extends GuiScreen implements ITabCompleter
      * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
      * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
      */
-    protected void keyTyped(char typedChar, int keyCode) throws IOException
-    {
+    protected void keyTyped(char typedChar, int keyCode) throws IOException {
         this.tabCompleter.resetRequested();
 
-        if (keyCode == 15)
-        {
+        if (keyCode == 15) {
             this.tabCompleter.complete();
-        }
-        else
-        {
+        } else {
             this.tabCompleter.resetDidComplete();
         }
 
         this.commandTextField.textboxKeyTyped(typedChar, keyCode);
         this.previousOutputTextField.textboxKeyTyped(typedChar, keyCode);
 
-        if (keyCode != 28 && keyCode != 156)
-        {
-            if (keyCode == 1)
-            {
+        if (keyCode != 28 && keyCode != 156) {
+            if (keyCode == 1) {
                 this.actionPerformed(this.cancelBtn);
             }
-        }
-        else
-        {
+        } else {
             this.actionPerformed(this.doneBtn);
         }
     }
@@ -202,8 +179,7 @@ public class GuiCommandBlock extends GuiScreen implements ITabCompleter
     /**
      * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
      */
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
-    {
+    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         this.commandTextField.mouseClicked(mouseX, mouseY, mouseButton);
         this.previousOutputTextField.mouseClicked(mouseX, mouseY, mouseButton);
@@ -212,9 +188,10 @@ public class GuiCommandBlock extends GuiScreen implements ITabCompleter
     /**
      * Draws the screen and all the components in it.
      */
-    public void drawScreen(int mouseX, int mouseY, float partialTicks)
-    {
-        this.drawDefaultBackground();
+    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+        if (!Managers.moduleManager.renderModules.get("RemoveBackground").isEnabled()) {
+            this.drawDefaultBackground();
+        }
         this.drawCenteredString(this.fontRenderer, I18n.format("advMode.setCommand"), this.width / 2, 20, 16777215);
         this.drawString(this.fontRenderer, I18n.format("advMode.command"), this.width / 2 - 150, 40, 10526880);
         this.commandTextField.drawTextBox();
@@ -226,8 +203,7 @@ public class GuiCommandBlock extends GuiScreen implements ITabCompleter
         this.drawString(this.fontRenderer, I18n.format("advMode.allEntities"), this.width / 2 - 140, i + j++ * this.fontRenderer.FONT_HEIGHT, 10526880);
         this.drawString(this.fontRenderer, I18n.format("advMode.self"), this.width / 2 - 140, i + j++ * this.fontRenderer.FONT_HEIGHT, 10526880);
 
-        if (!this.previousOutputTextField.getText().isEmpty())
-        {
+        if (!this.previousOutputTextField.getText().isEmpty()) {
             i = i + j * this.fontRenderer.FONT_HEIGHT + 1;
             this.drawString(this.fontRenderer, I18n.format("advMode.previousOutput"), this.width / 2 - 150, i + 4, 10526880);
             this.previousOutputTextField.drawTextBox();
@@ -236,30 +212,23 @@ public class GuiCommandBlock extends GuiScreen implements ITabCompleter
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
-    private void updateCmdOutput()
-    {
+    private void updateCmdOutput() {
         CommandBlockBaseLogic commandblockbaselogic = this.commandBlock.getCommandBlockLogic();
 
-        if (commandblockbaselogic.shouldTrackOutput())
-        {
+        if (commandblockbaselogic.shouldTrackOutput()) {
             this.outputBtn.displayString = "O";
 
-            if (commandblockbaselogic.getLastOutput() != null)
-            {
+            if (commandblockbaselogic.getLastOutput() != null) {
                 this.previousOutputTextField.setText(commandblockbaselogic.getLastOutput().getUnformattedText());
             }
-        }
-        else
-        {
+        } else {
             this.outputBtn.displayString = "X";
             this.previousOutputTextField.setText("-");
         }
     }
 
-    private void updateMode()
-    {
-        switch (this.commandBlockMode)
-        {
+    private void updateMode() {
+        switch (this.commandBlockMode) {
             case SEQUENCE:
                 this.modeBtn.displayString = I18n.format("advMode.mode.sequence");
                 break;
@@ -273,10 +242,8 @@ public class GuiCommandBlock extends GuiScreen implements ITabCompleter
         }
     }
 
-    private void nextMode()
-    {
-        switch (this.commandBlockMode)
-        {
+    private void nextMode() {
+        switch (this.commandBlockMode) {
             case SEQUENCE:
                 this.commandBlockMode = TileEntityCommandBlock.Mode.AUTO;
                 break;
@@ -290,26 +257,18 @@ public class GuiCommandBlock extends GuiScreen implements ITabCompleter
         }
     }
 
-    private void updateConditional()
-    {
-        if (this.conditional)
-        {
+    private void updateConditional() {
+        if (this.conditional) {
             this.conditionalBtn.displayString = I18n.format("advMode.mode.conditional");
-        }
-        else
-        {
+        } else {
             this.conditionalBtn.displayString = I18n.format("advMode.mode.unconditional");
         }
     }
 
-    private void updateAutoExec()
-    {
-        if (this.automatic)
-        {
+    private void updateAutoExec() {
+        if (this.automatic) {
             this.autoExecBtn.displayString = I18n.format("advMode.mode.autoexec.bat");
-        }
-        else
-        {
+        } else {
             this.autoExecBtn.displayString = I18n.format("advMode.mode.redstoneTriggered");
         }
     }
@@ -317,8 +276,7 @@ public class GuiCommandBlock extends GuiScreen implements ITabCompleter
     /**
      * Sets the list of tab completions, as long as they were previously requested.
      */
-    public void setCompletions(String... newCompletions)
-    {
+    public void setCompletions(String... newCompletions) {
         this.tabCompleter.setCompletions(newCompletions);
     }
 }
