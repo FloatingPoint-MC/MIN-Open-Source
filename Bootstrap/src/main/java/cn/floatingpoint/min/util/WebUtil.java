@@ -123,6 +123,7 @@ public class WebUtil {
                 result.append(line);
             }
             reader.close();
+            System.out.println(result.toString());
             JSONObject jsStr = new JSONObject(result.toString());
             JSONArray jsData = (JSONArray) jsStr.get("data");
             JSONObject data = (JSONObject) jsData.get(0);//位置
@@ -168,5 +169,9 @@ public class WebUtil {
             }
         }
         return inputLine.toString().replace("\r", "").replace("\n", "");
+    }
+
+    public static void main(String[] args) {
+        System.out.println(getOutIPV4());
     }
 }
