@@ -42,7 +42,7 @@ public class CustomSkin extends MiscModule {
     @Override
     public void tick() {
         if (mc.player != null && mc.player.connection != null) {
-            NetworkPlayerInfo info = mc.player.connection.getPlayerInfo(mc.player.getUniqueID());
+            NetworkPlayerInfo info = mc.player.connection.getPlayerInfo(Managers.replayManager.isPlaying() ? Managers.replayManager.getReplayServer().self.getUniqueID() : mc.player.getUniqueID());
             if (info != null) {
                 if (timer.isDelayComplete(3000L)) {
                     if (!cacheUsername.equals(username.getValue())) {

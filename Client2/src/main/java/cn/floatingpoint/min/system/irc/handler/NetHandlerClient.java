@@ -257,20 +257,22 @@ public class NetHandlerClient implements INetHandlerClient {
 
     @Override
     public void handlePlayer(SPacketPlayer packetIn) {
-        NetworkPlayerInfo info = mc.player.connection.getPlayerInfo(packetIn.getUniqueId());
-        if (info != null) {
-            info.setPlayerTexturesLoaded(false);
-            Managers.clientManager.clientMateUuids.put(packetIn.getUniqueId(), new ClientManager.ClientMate(packetIn.getSkinName(), packetIn.getSkinId(), packetIn.getRank()));
-            if (packetIn.getUniqueId() == mc.player.getUniqueID()) {
-                switch (packetIn.getRank()) {
-                    case 1 -> {
-                        if (!Client.isUnlockFeatures()) {
-                            ChatUtil.printToChatWithPrefix("\247a您是\247f主\247c播\247a，已自动为您关闭计分板底部网址显示\2477(如有需要可自行开启)！");
-                            Scoreboard.hideUnderUrl.setValue(true);
-                            Client.setUnlockFeatures(true);
+        if (mc.player.connection != null) {
+            NetworkPlayerInfo info = mc.player.connection.getPlayerInfo(packetIn.getUniqueId());
+            if (info != null) {
+                info.setPlayerTexturesLoaded(false);
+                Managers.clientManager.clientMateUuids.put(packetIn.getUniqueId(), new ClientManager.ClientMate(packetIn.getSkinName(), packetIn.getSkinId(), packetIn.getRank()));
+                if (packetIn.getUniqueId().equals(mc.player.getUniqueID())) {
+                    switch (packetIn.getRank()) {
+                        case 1 -> {
+                            if (!Client.isUnlockFeatures()) {
+                                ChatUtil.printToChatWithPrefix("\247a您是\247f主\247c播\247a，已自动为您关闭计分板底部网址显示\2477(如有需要可自行开启)！");
+                                Scoreboard.hideUnderUrl.setValue(true);
+                                Client.setUnlockFeatures(true);
+                            }
                         }
+                        case 2, 3 -> Client.setUnlockFeatures(true);
                     }
-                    case 2, 3 -> Client.setUnlockFeatures(true);
                 }
             }
         }

@@ -24,7 +24,6 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.entity.player.PlayerCapabilities;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.InventoryBasic;
-import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -281,8 +280,7 @@ public class ReplayServer {
                         if (packet.getClickedItem() != ItemStack.EMPTY) {
                             Item item = packet.getClickedItem().getItem();
                             if (item == Items.DYE) {
-                                boolean isPlaying = Managers.replayManager.isPlaying();
-                                Managers.replayManager.setPlaying(false);
+                                Managers.replayManager.setLocked(true);
                                 try {
                                     replay.tick = -2;
                                     readTick();
@@ -292,10 +290,9 @@ public class ReplayServer {
                                 } catch (IOException e) {
                                     throw new RuntimeException(e);
                                 }
-                                Managers.replayManager.setPlaying(isPlaying);
+                                Managers.replayManager.setLocked(false);
                             } else if (item == Items.SUGAR) {
-                                boolean isPlaying = Managers.replayManager.isPlaying();
-                                Managers.replayManager.setPlaying(false);
+                                Managers.replayManager.setLocked(true);
                                 int dest = Math.max(0, replay.tick - 200);
                                 try {
                                     for (int i = -2; i < dest; i++) {
@@ -305,10 +302,9 @@ public class ReplayServer {
                                 } catch (IOException e) {
                                     throw new RuntimeException(e);
                                 }
-                                Managers.replayManager.setPlaying(isPlaying);
+                                Managers.replayManager.setLocked(false);
                             } else if (item == Items.GLOWSTONE_DUST) {
-                                boolean isPlaying = Managers.replayManager.isPlaying();
-                                Managers.replayManager.setPlaying(false);
+                                Managers.replayManager.setLocked(true);
                                 int currentTick = replay.tick;
                                 int dest = Math.max(0, currentTick + 200);
                                 try {
@@ -319,7 +315,7 @@ public class ReplayServer {
                                 } catch (IOException e) {
                                     throw new RuntimeException(e);
                                 }
-                                Managers.replayManager.setPlaying(isPlaying);
+                                Managers.replayManager.setLocked(false);
                             }
                             mc.displayGuiScreen(null);
                         }
@@ -367,6 +363,21 @@ public class ReplayServer {
     public void handleSPacket(Packet<INetHandlerPlayClient> inPacket) {
         if (inPacket instanceof SPacketUnloadChunk) {
             return;
+        }
+        if (inPacket instanceof SPacketRespawn) {
+            self = new EntityOtherPlayerMP(mc.world, new GameProfile(PlayerUtil.formUUID(replay.getUuid()), replay.getEntityName())) {
+                @Override
+                public boolean isSpectator() {
+                    return false;
+                }
+
+                @Override
+                public boolean isCreative() {
+                    return false;
+                }
+            };
+            self.setEntityId(replay.getEntityId());
+            mc.world.addEntityToWorld(replay.getEntityId(), self);
         }
         try {
             inPacket.processPacket(netHandler);

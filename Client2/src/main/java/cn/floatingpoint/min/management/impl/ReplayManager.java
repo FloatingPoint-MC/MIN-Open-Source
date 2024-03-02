@@ -28,7 +28,7 @@ import java.util.zip.ZipFile;
 public class ReplayManager implements Manager {
     private LinkedHashMap<String, Recording> recordings;
     private ReplayServer replayServer;
-    private boolean playing;
+    private boolean playing, locked;
 
     @Override
     public String getName() {
@@ -214,6 +214,14 @@ public class ReplayManager implements Manager {
 
     public void setPlaying(boolean playing) {
         this.playing = playing;
+    }
+
+    public boolean isPlayable() {
+        return !locked && playing;
+    }
+
+    public void setLocked(boolean locked) {
+        this.locked = locked;
     }
 
     public ReplayServer getReplayServer() {

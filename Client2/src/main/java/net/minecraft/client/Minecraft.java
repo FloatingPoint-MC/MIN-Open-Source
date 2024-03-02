@@ -1634,7 +1634,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
                 ++recording.tick;
             }
         });
-        if (Managers.replayManager.isPlaying()) {
+        if (Managers.replayManager.isPlayable()) {
             Managers.replayManager.getReplayServer().readTick();
             ++Managers.replayManager.getReplayServer().getReplay().tick;
         }
