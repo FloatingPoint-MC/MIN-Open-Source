@@ -135,4 +135,10 @@ public class Launcher {
     private static boolean isNotEmpty(String str) {
         return !str.isEmpty();
     }
+
+    public static void main(String[] args) {
+        if (Minecraft.DEBUG_MODE()) {
+            launch(args);
+        }
+    }
 }

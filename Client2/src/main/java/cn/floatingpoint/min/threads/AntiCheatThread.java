@@ -24,7 +24,6 @@ public class AntiCheatThread extends Thread {
                         Thread.sleep(5000L);
                         continue;
                     }
-                    // HIGH Priority
                     Check.Executable executable = executables.stream().findAny().get();
                     executables.remove(executable);
                     Managers.antiCheatManager.execute(executable);
