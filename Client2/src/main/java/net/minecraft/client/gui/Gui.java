@@ -14,6 +14,7 @@ public class Gui {
     public static final ResourceLocation STAT_ICONS = new ResourceLocation("textures/gui/container/stats_icons.png");
     public static final ResourceLocation ICONS = new ResourceLocation("textures/gui/icons.png");
     public static final ArrayDeque<String> toSentGiant = new ArrayDeque<>();
+    public static boolean giantAll;
     protected float zLevel;
 
     /**

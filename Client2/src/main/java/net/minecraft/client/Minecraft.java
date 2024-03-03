@@ -1703,7 +1703,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
 
         if (!Gui.toSentGiant.isEmpty()) {
             if (player != null && player.ticksExisted % 101 == 0) {
-                player.sendChatMessage(Objects.requireNonNull(Gui.toSentGiant.poll()));
+                player.sendChatMessage((Gui.giantAll ? "@" : "") + Gui.toSentGiant.poll());
             }
         }
 

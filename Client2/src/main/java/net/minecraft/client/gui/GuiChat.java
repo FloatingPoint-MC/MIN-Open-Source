@@ -125,6 +125,7 @@ public class GuiChat extends GuiScreen implements ITabCompleter {
                 if (!s.isEmpty()) {
                     if (Managers.clientManager.channel == Channel.WORLD && Managers.clientManager.giantText && !s.startsWith("/")) {
                         this.mc.ingameGUI.getChatGUI().addToSentMessages(s);
+                        giantAll = s.startsWith("@");
                         if (s.length() > 8) {
                             ChatUtil.printToChatWithPrefix("\247c" + Managers.i18NManager.getTranslation("text.giant.limit"));
                         } else {
