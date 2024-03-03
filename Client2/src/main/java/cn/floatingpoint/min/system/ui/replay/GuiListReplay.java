@@ -29,7 +29,7 @@ public class GuiListReplay extends GuiListExtended {
     }
 
     public void refreshList() {
-        File dir = Managers.fileManager.getConfigFile("replay");
+        File dir = Managers.fileManager.getConfigFile("replay", false);
         if (!dir.exists() && !dir.mkdir()) {
             return;
         }
