@@ -305,8 +305,8 @@
                                 <includes>
                                     <include>org.json:*</include>
                                     <include>org.yaml:*</include>
-                                    <include>org.java-websocket:*</include>
-                                    <include>org.slf4j:*</include>
+<!--                                    <include>org.java-websocket:*</include>-->
+<!--                                    <include>org.slf4j:*</include>-->
                                 </includes>
                             </artifactSet>
                             <filters>
