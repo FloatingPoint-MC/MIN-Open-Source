@@ -740,7 +740,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 
         if (Animation.sneakAnimation.getValue()) {
             if (eyeHeightAnimation != f) {
-                eyeHeightAnimation = FunctionUtil.increasedSpeed(eyeHeightAnimation, prevEyeHeight, f, 0.00625f * 200 / Minecraft.getDebugFPS());
+                eyeHeightAnimation = FunctionUtil.increasedSpeed(eyeHeightAnimation, prevEyeHeight, f, 0.875f / Minecraft.getDebugFPS());
             }
         } else {
             eyeHeightAnimation = f;
