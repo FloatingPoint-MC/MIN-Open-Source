@@ -5,10 +5,7 @@ import cn.floatingpoint.min.system.boost.EntityCulling;
 import cn.floatingpoint.min.system.module.Module;
 import cn.floatingpoint.min.system.module.impl.hundredpercentlegal.impl.XRay;
 import cn.floatingpoint.min.system.module.impl.render.RenderModule;
-import cn.floatingpoint.min.system.module.impl.render.impl.Animation;
-import cn.floatingpoint.min.system.module.impl.render.impl.FreeLook;
-import cn.floatingpoint.min.system.module.impl.render.impl.Particles;
-import cn.floatingpoint.min.system.module.impl.render.impl.Zoom;
+import cn.floatingpoint.min.system.module.impl.render.impl.*;
 import cn.floatingpoint.min.utils.math.FunctionUtil;
 import cn.floatingpoint.min.utils.render.RenderUtil;
 import com.google.gson.JsonSyntaxException;
@@ -222,7 +219,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
     private static final ResourceLocation[] SHADERS_TEXTURES = new ResourceLocation[]{new ResourceLocation("shaders/post/notch.json"), new ResourceLocation("shaders/post/fxaa.json"), new ResourceLocation("shaders/post/art.json"), new ResourceLocation("shaders/post/bumpy.json"), new ResourceLocation("shaders/post/blobs2.json"), new ResourceLocation("shaders/post/pencil.json"), new ResourceLocation("shaders/post/color_convolve.json"), new ResourceLocation("shaders/post/deconverge.json"), new ResourceLocation("shaders/post/flip.json"), new ResourceLocation("shaders/post/invert.json"), new ResourceLocation("shaders/post/ntsc.json"), new ResourceLocation("shaders/post/outline.json"), new ResourceLocation("shaders/post/phosphor.json"), new ResourceLocation("shaders/post/scan_pincushion.json"), new ResourceLocation("shaders/post/sobel.json"), new ResourceLocation("shaders/post/bits.json"), new ResourceLocation("shaders/post/desaturate.json"), new ResourceLocation("shaders/post/green.json"), new ResourceLocation("shaders/post/blur.json"), new ResourceLocation("shaders/post/wobble.json"), new ResourceLocation("shaders/post/blobs.json"), new ResourceLocation("shaders/post/antialias.json"), new ResourceLocation("shaders/post/creeper.json"), new ResourceLocation("shaders/post/spider.json")};
     public static final int SHADER_COUNT = SHADERS_TEXTURES.length;
     private int shaderIndex;
-    private boolean useShader;
+    public boolean useShader;
     public int frameCount;
     private boolean initialized = false;
     private World updatedWorld = null;
@@ -384,6 +381,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
         }
     }
 
+    @Nullable
     public ShaderGroup getShaderGroup() {
         return this.shaderGroup;
     }
@@ -2229,7 +2227,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
             this.updatedWorld = world;
         }
 
-        if (!this.setFxaaShader(Shaders.configAntialiasingLevel)) {
+        if (((MotionBlur) Managers.moduleManager.renderModules.get("MotionBlur")).setMotionBlurShader() || !this.setFxaaShader(Shaders.configAntialiasingLevel)) {
             Shaders.configAntialiasingLevel = 0;
         }
 

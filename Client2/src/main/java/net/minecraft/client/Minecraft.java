@@ -604,8 +604,8 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
                 if (!DEBUG_MODE()) {
                     this.displayGuiScreen(new GuiLoading(new GuiLogin()));
                 } else {
-                    this.displayGuiScreen(new GuiLogin());
-                    //this.displayGuiScreen(mainMenu);
+                    //this.displayGuiScreen(new GuiLogin());
+                    this.displayGuiScreen(mainMenu);
                 }
             }
         } catch (IOException ignored) {
