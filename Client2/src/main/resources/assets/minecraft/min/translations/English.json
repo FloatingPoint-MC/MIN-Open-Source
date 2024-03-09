@@ -424,6 +424,7 @@
   "irc.reason": "Reason",
   "irc.disconnect": "Disconnected from the server, please retry.",
   "irc.connection.lost": "Connection Lost",
+  "irc.connecting": "Connecting to the server...",
   "irc.fail": "Unable to connect to the server, please try again in several minutes!",
   "skin.tip": "Activate code/Skin IGN",
   "skin.buy": "Buy",

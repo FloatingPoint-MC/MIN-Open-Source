@@ -424,6 +424,7 @@
   "irc.reason": "原因",
   "irc.disconnect": "从服务器断开连接，请重试！",
   "irc.connection.lost": "连接已丢失",
+  "irc.connecting": "正在连接至服务器...",
   "irc.fail": "无法连接至服务器，请几分钟后再试！",
   "skin.tip": "激活码/正版ID",
   "skin.buy": "购买",

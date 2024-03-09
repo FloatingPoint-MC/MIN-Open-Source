@@ -13,7 +13,7 @@ import java.util.Map;
 public class I18NManager implements Manager {
     private final HashMap<String, Map<String, Object>> translations = new HashMap<>();
     private final ArrayList<String> translationKeys = new ArrayList<>();
-    private String selectedLanguage = "English";
+    private String selectedLanguage = "简体中文";
 
     @Override
     public String getName() {

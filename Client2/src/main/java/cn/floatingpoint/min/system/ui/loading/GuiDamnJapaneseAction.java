@@ -1,7 +1,7 @@
 package cn.floatingpoint.min.system.ui.loading;
 
 import cn.floatingpoint.min.management.Managers;
-import cn.floatingpoint.min.system.irc.GuiLogin;
+import cn.floatingpoint.min.system.ui.connection.GuiLogin;
 import cn.floatingpoint.min.utils.render.RenderUtil;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.ResourceLocation;

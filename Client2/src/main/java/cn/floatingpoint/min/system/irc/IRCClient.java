@@ -1,5 +1,6 @@
 package cn.floatingpoint.min.system.irc;
 
+import cn.floatingpoint.min.MIN;
 import cn.floatingpoint.min.management.Managers;
 import cn.floatingpoint.min.system.irc.connection.NetworkManager;
 import cn.floatingpoint.min.system.irc.handler.INetHandler;
@@ -11,6 +12,9 @@ import cn.floatingpoint.min.system.irc.packet.impl.CPacketAdmin;
 import cn.floatingpoint.min.system.irc.packet.impl.CPacketChat;
 import cn.floatingpoint.min.system.irc.packet.impl.CPacketKey;
 import cn.floatingpoint.min.system.irc.packet.impl.CPacketLogin;
+import cn.floatingpoint.min.system.ui.connection.GuiConnecting;
+import cn.floatingpoint.min.system.ui.connection.GuiFailedConnect;
+import cn.floatingpoint.min.system.ui.connection.GuiStatus;
 import cn.floatingpoint.min.utils.client.ChatUtil;
 import cn.floatingpoint.min.utils.client.HWIDUtil;
 import cn.floatingpoint.min.utils.client.Pair;
@@ -38,7 +42,6 @@ public class IRCClient extends WebSocketClient {
     public NetworkManager netManager;
     public boolean connect;
     public boolean connectedUser;
-    private boolean firstConnect;
 
     public IRCClient() throws URISyntaxException, IOException {
         //super(new URI("ws://irc.minclient.xyz"));
@@ -46,7 +49,6 @@ public class IRCClient extends WebSocketClient {
         //super(new URI("ws://118.193.46.31:65535"));
         setTcpNoDelay(true);
         theIRC = this;
-        firstConnect = true;
         count = 0;
         this.connect = this.startConnection();
     }
@@ -55,6 +57,7 @@ public class IRCClient extends WebSocketClient {
     @SuppressWarnings("all")
     private boolean startConnection() throws IOException {
         try {
+            Minecraft.getMinecraft().displayGuiScreen(new GuiConnecting());
             System.out.println("Try connecting IRC server...");
             this.netManager = new NetworkManager(this);
             connect();
@@ -78,17 +81,19 @@ public class IRCClient extends WebSocketClient {
             Minecraft.getMinecraft().setIngameNotInFocus();
             return false;
         }
-        while (!this.isOpen() && firstConnect) {
-            try {
-                Thread.sleep(1000L);
-                count++;
-                if (count > 30) {
-                    break;
+        MIN.runAsync(() -> {
+            while (!this.isOpen()) {
+                try {
+                    Thread.sleep(1000L);
+                    count++;
+                    if (count > 30) {
+                        break;
+                    }
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
             }
-        }
+        });
         if (count > 30) {
             System.out.println("[MIN] Failed in connecting!");
             if (Minecraft.getMinecraft().currentScreen == null || !(Minecraft.getMinecraft().currentScreen instanceof GuiFailedConnect)) {
@@ -96,7 +101,6 @@ public class IRCClient extends WebSocketClient {
             }
             throw new IOException("Failed to connect server");
         }
-        firstConnect = false;
         return true;
     }
 
@@ -143,7 +147,7 @@ public class IRCClient extends WebSocketClient {
         try {
             ((Packet<INetHandler>) Decoder.decode(Unpooled.wrappedBuffer(bytes))).processPacket(netManager.packetListener);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            //throw new RuntimeException(e);
         }
     }
 
@@ -171,12 +175,10 @@ public class IRCClient extends WebSocketClient {
      **/
     @Override
     public void onError(Exception ex) {
-        if (firstConnect) {
-            if (Minecraft.DEBUG_MODE()) {
-                ex.printStackTrace();
-            }
-            count = 31;
+        if (Minecraft.DEBUG_MODE()) {
+            ex.printStackTrace();
         }
+        count = 31;
     }
 
     public static IRCClient getInstance() {

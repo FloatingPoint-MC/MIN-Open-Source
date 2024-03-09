@@ -1,6 +1,8 @@
-package cn.floatingpoint.min.system.irc;
+package cn.floatingpoint.min.system.ui.connection;
 
 import cn.floatingpoint.min.management.Managers;
+import cn.floatingpoint.min.system.irc.Client;
+import cn.floatingpoint.min.system.irc.IRCClient;
 import cn.floatingpoint.min.system.irc.packet.impl.CPacketRegister;
 import cn.floatingpoint.min.system.ui.components.ClickableButton;
 import cn.floatingpoint.min.system.ui.components.InputField;

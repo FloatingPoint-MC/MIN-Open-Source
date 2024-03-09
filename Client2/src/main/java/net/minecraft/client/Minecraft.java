@@ -6,7 +6,7 @@ import cn.floatingpoint.min.system.anticheat.check.Check;
 import cn.floatingpoint.min.system.boost.EntityCulling;
 import cn.floatingpoint.min.system.hyt.packet.impl.Hyt0Packet;
 import cn.floatingpoint.min.system.hyt.world.HYTChunkExecutor;
-import cn.floatingpoint.min.system.irc.GuiLogin;
+import cn.floatingpoint.min.system.ui.connection.GuiLogin;
 import cn.floatingpoint.min.system.irc.IRCClient;
 import cn.floatingpoint.min.system.irc.packet.impl.CPacketJoinServer;
 import cn.floatingpoint.min.system.module.Module;
@@ -3002,6 +3002,6 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
 
     @Native
     public static boolean DEBUG_MODE() {
-        return false;
+        return true;
     }
 }

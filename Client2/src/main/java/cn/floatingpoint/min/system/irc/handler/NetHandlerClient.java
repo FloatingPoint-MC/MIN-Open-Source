@@ -4,7 +4,7 @@ import cn.floatingpoint.min.MIN;
 import cn.floatingpoint.min.management.Managers;
 import cn.floatingpoint.min.management.impl.ClientManager;
 import cn.floatingpoint.min.system.irc.Client;
-import cn.floatingpoint.min.system.irc.GuiStatus;
+import cn.floatingpoint.min.system.ui.connection.GuiStatus;
 import cn.floatingpoint.min.system.irc.IRCClient;
 import cn.floatingpoint.min.system.irc.connection.NetworkManager;
 import cn.floatingpoint.min.system.irc.packet.Encoder;

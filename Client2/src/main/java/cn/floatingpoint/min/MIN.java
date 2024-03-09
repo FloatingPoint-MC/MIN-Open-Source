@@ -33,8 +33,7 @@ public class MIN {
         antiCheatThread.start();
         try {
             new IRCClient();
-        } catch (URISyntaxException e) {
-            Minecraft.getMinecraft().shutdown();
+        } catch (URISyntaxException | IOException ignored) {
         }
     }
 

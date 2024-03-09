@@ -1,5 +1,6 @@
-package cn.floatingpoint.min.system.irc;
+package cn.floatingpoint.min.system.ui.connection;
 
+import cn.floatingpoint.min.system.irc.Client;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 
