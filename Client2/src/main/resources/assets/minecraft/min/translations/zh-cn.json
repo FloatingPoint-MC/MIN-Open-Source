@@ -327,6 +327,7 @@
   "idle": "空闲中...",
   "back": "返回",
   "success": "成功",
+  "warning": "警告",
   "on": "开",
   "off": "关",
   "clickgui.bind": "按下一个按键(按下Esc解绑按键)...",
@@ -439,5 +440,16 @@
   "skin.changed": "成功将皮肤更换为{0}。",
   "skin.bought": "成功购买皮肤使用权限，到期时间: {0}",
   "skin.renewed": "成功续费皮肤使用权限，到期时间: {0}",
-  "text.giant.limit": "你最多可以输入8个字符。"
+  "text.giant.limit": "你最多可以输入8个字符。",
+  "hard": "困难模式",
+  "hard.tip": "困难模式已开启，小心！",
+  "hard.warning": "启用困难模式将进入外挂对局，慎用！",
+  "hard.confirm": "我已了解风险并确认启用",
+  "hard.enabled": "困难模式已经启用，请重新进入服务器！",
+  "hard.disabled": "困难模式已经关闭，请重新进入服务器！",
+  "hard.cancel": "不启用",
+  "hard.selection.0": "关闭",
+  "hard.selection.1": "移除标识",
+  "hard.selection.2": "移除FML注册",
+  "hard.selection.3": "移除所有"
 }

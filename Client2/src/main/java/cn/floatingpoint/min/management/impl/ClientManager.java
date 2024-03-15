@@ -36,6 +36,7 @@ public class ClientManager implements Manager {
     public boolean vexGui;
     public GuiChat.Channel channel;
     public boolean giantText;
+    public int hardMode; // 0 - Off;1 - No Brand;2 - No FML Registration;3 - All
 
     @Override
     public String getName() {
@@ -86,6 +87,8 @@ public class ClientManager implements Manager {
                             shortcuts.add(new Shortcut(json.getString("Name"), Keyboard.getKeyIndex(json.getString("KeyBind").toUpperCase()), actions));
                         }
                     }
+                } else if (version < 211) {
+                    giantText = jsonObject.getBoolean("GiantText");
                 }
             } else {
                 adsorption = jsonObject.getBoolean("Adsorption");
@@ -105,6 +108,7 @@ public class ClientManager implements Manager {
                     }
                 }
                 giantText = jsonObject.getBoolean("GiantText");
+                hardMode = jsonObject.getInt("HardMode");
             }
             Managers.i18NManager.setSelectedLanguage(jsonObject.getString("Language"));
             titleSize = jsonObject.getFloat("Title-Size");

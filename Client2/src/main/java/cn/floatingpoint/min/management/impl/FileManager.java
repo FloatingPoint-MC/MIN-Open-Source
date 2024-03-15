@@ -20,7 +20,7 @@ import java.util.Map;
 
 
 public class FileManager implements Manager {
-    public static final int VERSION = 210;
+    public static final int VERSION = 211;
     public boolean shouldSave = false;
     private File dir;
 
@@ -205,7 +205,8 @@ public class FileManager implements Manager {
                 .put("Adsorption", Managers.clientManager.adsorption)
                 .put("Chat-Channel", Managers.clientManager.channel.name())
                 .put("Shortcuts", shortcuts)
-                .put("GiantText", false)
+                .put("GiantText", Managers.clientManager.giantText)
+                .put("HardMode", Managers.clientManager.hardMode)
                 .toString(), false);
     }
 

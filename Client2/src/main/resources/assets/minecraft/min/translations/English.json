@@ -327,6 +327,7 @@
   "idle": "Idle...",
   "back": "Back",
   "success": "Success",
+  "warning": "Warning",
   "on": "On",
   "off": "Off",
   "clickgui.bind": "Press a key(Press Escape to unbind key)...",
@@ -439,5 +440,16 @@
   "skin.changed": "Successfully changed skin to {0}.",
   "skin.bought": "Successfully bought permission of skin, expired at: {0}",
   "skin.renewed": "Successfully renewed permission of skin, expired at: {0}",
-  "text.giant.limit": "You can type only up to 8 characters."
+  "text.giant.limit": "You can type only up to 8 characters.",
+  "hard": "Hard Mode",
+  "hard.tip": "HardMode is active, be cautious!",
+  "hard.warning": "Enabling hard mode means playing with hackers, use with caution!",
+  "hard.confirm": "I know exactly what I'm doing",
+  "hard.cancel": "Leave and do nothing",
+  "hard.enabled": "HardMode enabled, please rejoin server!",
+  "hard.disabled": "HardMode disabled, please rejoin server!",
+  "hard.selection.0": "Disabled",
+  "hard.selection.1": "Remove Brand",
+  "hard.selection.2": "Remove FML Registration",
+  "hard.selection.3": "Remove All"
 }

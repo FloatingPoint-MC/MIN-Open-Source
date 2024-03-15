@@ -1,16 +1,19 @@
 package cn.floatingpoint.min.system.ui.clickgui;
 
 import cn.floatingpoint.min.management.Managers;
+import cn.floatingpoint.min.system.irc.Client;
 import cn.floatingpoint.min.system.module.Category;
 import cn.floatingpoint.min.system.module.Module;
 import cn.floatingpoint.min.system.module.value.Value;
 import cn.floatingpoint.min.system.module.value.impl.*;
+import cn.floatingpoint.min.system.ui.connection.GuiStatus;
 import cn.floatingpoint.min.system.ui.shortcut.GuiManageShortcut;
 import cn.floatingpoint.min.utils.math.FunctionUtil;
 import cn.floatingpoint.min.utils.math.Vec3f;
 import cn.floatingpoint.min.utils.render.RenderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
@@ -52,11 +55,19 @@ public class ClickUI extends GuiScreen {
     private final DecimalFormat decimalFormat = new DecimalFormat("#.##");
     private Value<?> selectedValue;
     private int selectType = -1;
+    private boolean enablingHardMode;
+    private int toSelect = -1;
+    private GuiButton confirmHardMode;
+    private GuiButton leaveHardMode;
 
     @Override
     public void initGui() {
         animationLeft = 0;
         animationRight = width;
+        confirmHardMode = new GuiButton(1, width / 2 - 202, height / 2 + 14, 200, 20, "");
+        leaveHardMode = new GuiButton(2, width / 2 + 2, height / 2 + 14, 200, 20, "");
+        buttonList.add(confirmHardMode);
+        buttonList.add(leaveHardMode);
     }
 
     @Override
@@ -367,14 +378,32 @@ public class ClickUI extends GuiScreen {
 
             Managers.fontManager.sourceHansSansCN_Regular_20.drawString(Managers.i18NManager.getTranslation("clickgui.adsorption"), animationRight + 150, height / 2 + 10, textColor);
             RenderUtil.drawRoundedRect(animationRight + 394, height / 2 + 13, animationRight + 400, height / 2 + 19, 3, Managers.clientManager.adsorption ? enableColor : disableColor);
+
             RenderUtil.drawRoundedRect(animationRight + 150, height / 2 + 39, animationRight + 250, height / 2 + 49, 3, categoryColor);
             Managers.fontManager.sourceHansSansCN_Regular_20.drawCenteredString(Managers.i18NManager.getTranslation("clickgui.shortcut"), animationRight + 200, height / 2 + 40, textColor);
+
+            String hardMode = Managers.i18NManager.getTranslation("hard") + ": ";
+            Managers.fontManager.sourceHansSansCN_Regular_20.drawString(hardMode, animationRight + 310 - Managers.fontManager.sourceHansSansCN_Regular_20.getStringWidth(hardMode), height / 2 + 41, textColor);
+            if (toSelect == -1) {
+                toSelect = Managers.clientManager.hardMode;
+            }
+            for (int selection = 0; selection <= 3; selection++) {
+                RenderUtil.drawRoundedRect(animationRight + 312, height / 2 + 41 + 10 * selection, animationRight + 318, height / 2 + 47 + 10 * selection, 3, toSelect == selection ? enableColor : disableColor);
+                Managers.fontManager.sourceHansSansCN_Regular_20.drawString(Managers.i18NManager.getTranslation("hard.selection." + selection), animationRight + 320, height / 2 + 41 + 10 * selection, textColor);
+            }
         }
         RenderUtil.drawImage(new ResourceLocation("min/logo.png"), animationLeft - 110, height / 2 - 140, 100, 100);
         RenderUtil.drawImage(new ResourceLocation("min/uis/clickgui/setting.png"), animationLeft - 118, height / 2 + 142, 16, 16);
         if (moduleToBindKey != null) {
             drawRect(0, 0, width, height, categoryColor);
             Managers.fontManager.sourceHansSansCN_Regular_30.drawCenteredString(Managers.i18NManager.getTranslation("clickgui.bind"), width / 2, height / 2 - 8, brightTextColor);
+        } else if (enablingHardMode) {
+            drawRect(0, 0, width, height, new Color(40, 40, 40, 200).getRGB());
+            Managers.fontManager.sourceHansSansCN_Regular_26.drawCenteredString("\247e" + Managers.i18NManager.getTranslation("warning"), width / 2, height / 2 - 10, brightTextColor);
+            Managers.fontManager.sourceHansSansCN_Regular_26.drawCenteredString("\2474" + Managers.i18NManager.getTranslation("hard.warning"), width / 2, height / 2 + 2, brightTextColor);
+            confirmHardMode.displayString = "\247c" + Managers.i18NManager.getTranslation("hard.confirm");
+            leaveHardMode.displayString = "\247a" + Managers.i18NManager.getTranslation("hard.cancel");
+            super.drawScreen(mouseX, mouseY, partialTicks);
         }
         GlStateManager.disableBlend();
     }
@@ -397,6 +426,10 @@ public class ClickUI extends GuiScreen {
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         if (moduleToBindKey != null) return;
+        if (enablingHardMode) {
+            super.mouseClicked(mouseX, mouseY, mouseButton);
+            return;
+        }
         int y = height / 2 - 10;
         for (Category category : Category.values()) {
             if (!Minecraft.DEBUG_MODE() && category == Category.HUNDRED_PERCENT_LEGAL) continue;
@@ -510,6 +543,27 @@ public class ClickUI extends GuiScreen {
                     Managers.clientManager.adsorption = !Managers.clientManager.adsorption;
                 } else if (isHovered(animationRight + 150, height / 2 + 39, animationRight + 250, height / 2 + 49, mouseX, mouseY)) {
                     mc.displayGuiScreen(new GuiManageShortcut(this));
+                } else {
+                    for (int selection = 0; selection <= 3; selection++) {
+                        if (isHovered(animationRight + 312, height / 2 + 41 + 10 * selection, animationRight + 318, height / 2 + 47 + 10 * selection, mouseX, mouseY)) {
+                            if (selection != Managers.clientManager.hardMode) {
+                                if (selection == 0) {
+                                    Managers.clientManager.hardMode = 0;
+                                    GuiStatus gui = new GuiStatus(null, mc.player.connection.guiScreenServer, Managers.i18NManager.getTranslation("back"), Managers.i18NManager.getTranslation("back"));
+                                    gui.setTitle(Managers.i18NManager.getTranslation("irc.connection.lost"));
+                                    Client.setStatus("\247a" + Managers.i18NManager.getTranslation("hard.disabled"));
+                                    gui.pass();
+                                    mc.world.sendQuittingDisconnectingPacket();
+                                    mc.loadWorld(null);
+                                    mc.displayGuiScreen(gui);
+                                } else {
+                                    toSelect = selection;
+                                    enablingHardMode = true;
+                                }
+                            }
+                            break;
+                        }
+                    }
                 }
             } else {
                 selectedCategory = null;
@@ -517,6 +571,24 @@ public class ClickUI extends GuiScreen {
                     openSetting = false;
                 }
             }
+        }
+    }
+
+    @Override
+    protected void actionPerformed(GuiButton button) throws IOException {
+        switch (button.id) {
+            case 1 -> {
+                Managers.clientManager.hardMode = toSelect;
+                enablingHardMode = false;
+                GuiStatus gui = new GuiStatus(null, mc.player.connection.guiScreenServer, Managers.i18NManager.getTranslation("back"), Managers.i18NManager.getTranslation("back"));
+                gui.setTitle(Managers.i18NManager.getTranslation("irc.connection.lost"));
+                Client.setStatus("\247c" + Managers.i18NManager.getTranslation("hard.enabled"));
+                gui.pass();
+                mc.world.sendQuittingDisconnectingPacket();
+                mc.loadWorld(null);
+                mc.displayGuiScreen(gui);
+            }
+            case 2 -> cancelHardMode();
         }
     }
 
@@ -538,7 +610,18 @@ public class ClickUI extends GuiScreen {
             moduleToBindKey = null;
             return;
         }
+        if (enablingHardMode) {
+            if (keyCode == 1) {
+                cancelHardMode();
+                return;
+            }
+        }
         super.keyTyped(typedChar, keyCode);
+    }
+
+    private void cancelHardMode() {
+        toSelect = Managers.clientManager.hardMode;
+        enablingHardMode = false;
     }
 
     @Override

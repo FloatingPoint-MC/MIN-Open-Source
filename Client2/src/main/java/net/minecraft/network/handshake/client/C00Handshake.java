@@ -2,6 +2,7 @@ package net.minecraft.network.handshake.client;
 
 import java.io.IOException;
 
+import cn.floatingpoint.min.management.Managers;
 import net.minecraft.network.EnumConnectionState;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
@@ -38,7 +39,11 @@ public class C00Handshake implements Packet<INetHandlerHandshakeServer> {
      */
     public void writePacketData(PacketBuffer buf) throws IOException {
         buf.writeVarInt(this.protocolVersion);
-        buf.writeString(this.ip + "\u0000FML\u0000");
+        if (Managers.clientManager.hardMode > 1) {
+            buf.writeString(this.ip);
+        } else {
+            buf.writeString(this.ip + "\u0000FML\u0000");
+        }
         buf.writeShort(this.port);
         buf.writeVarInt(this.requestedState.getId());
     }

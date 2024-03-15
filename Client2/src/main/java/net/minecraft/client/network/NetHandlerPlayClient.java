@@ -263,7 +263,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      * or GuiScreenReamlsTOS (when connecting to MCO server)
      */
     @Nullable
-    private final GuiScreen guiScreenServer;
+    public final GuiScreen guiScreenServer;
 
     /**
      * Reference to the Minecraft instance, which many handler methods operate on
@@ -345,7 +345,9 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
         Managers.clientManager.clientMateUuids.clear();
         Managers.clientManager.cooldown.clear();
         Managers.clientManager.lock = false;
-        this.netManager.sendPacket(new CPacketCustomPayload("MC|Brand", (new PacketBuffer(Unpooled.buffer())).writeString(ClientBrandRetriever.getClientModName())));
+        if (Managers.clientManager.hardMode == 0 || Managers.clientManager.hardMode == 2) {
+            this.netManager.sendPacket(new CPacketCustomPayload("MC|Brand", (new PacketBuffer(Unpooled.buffer())).writeString(ClientBrandRetriever.getClientModName())));
+        }
     }
 
     /**
@@ -836,27 +838,31 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
      */
     public void handleChat(SPacketChat packetIn) {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.client);
-        Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
-        String text = packetIn.getChatComponent().getUnformattedText();
-        // AutoText
-        if (Managers.moduleManager.miscModules.get("AutoText").isEnabled()) {
-            if (AutoText.whenToSend.isCurrentMode("End")) {
-                if (text.equals("花雨庭>> You lost the fight.")) {
-                    AutoText.timeToSendGG = true;
-                } else if (Pattern.compile("起床战争>> 恭喜 ！(.*?)之队队获得胜利!").matcher(text).matches()) {
+        try {
+            Managers.replayManager.getRecordings().values().forEach(recording -> recording.addPacket(packetIn, EnumPacketDirection.CLIENTBOUND));
+            String text = packetIn.getChatComponent().getUnformattedText();
+            // AutoText
+            if (Managers.moduleManager.miscModules.get("AutoText").isEnabled()) {
+                if (AutoText.whenToSend.isCurrentMode("End")) {
+                    if (text.equals("花雨庭>> You lost the fight.")) {
+                        AutoText.timeToSendGG = true;
+                    } else if (Pattern.compile("起床战争>> 恭喜 ！(.*?)之队队获得胜利!").matcher(text).matches()) {
+                        AutoText.timeToSendGG = true;
+                    }
+                }
+                if (text.equals("花雨庭>> You won the fight!")) {
                     AutoText.timeToSendGG = true;
                 }
             }
-            if (text.equals("花雨庭>> You won the fight!")) {
-                AutoText.timeToSendGG = true;
+            EntityPlayer player = Managers.replayManager.isPlaying() ? Managers.replayManager.getReplayServer().self : this.client.player;
+            // Kill Effect
+            if (player != null && Managers.moduleManager.renderModules.get("KillEffect").isEnabled()) {
+                KillEffect.makeEffect(Pattern.compile("(.*?)" + player.getName() + "\\[❤.*] \\(.?之队\\)杀死了 (.*?)\\(").matcher(text));
             }
+            this.client.ingameGUI.addChatMessage(packetIn.getType(), packetIn.getChatComponent());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        EntityPlayer player = Managers.replayManager.isPlaying() ? Managers.replayManager.getReplayServer().self : this.client.player;
-        // Kill Effect
-        if (player != null && Managers.moduleManager.renderModules.get("KillEffect").isEnabled()) {
-            KillEffect.makeEffect(Pattern.compile("(.*?)" + player.getName() + "\\[❤.*] \\(.?之队\\)杀死了 (.*?)\\(").matcher(text));
-        }
-        this.client.ingameGUI.addChatMessage(packetIn.getType(), packetIn.getChatComponent());
     }
 
     /**
@@ -1803,34 +1809,36 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
                 this.client.getSoundHandler().stop(s1, SoundCategory.getByName(s));
                 break;
             case "FML|HS":
-                switch (phase) {
-                    case 1 -> {
-                        Set<String> channels = new LinkedHashSet<>();
-                        channels.add("ChatVexView");
-                        channels.add("Base64VexView");
-                        channels.add("FORGE");
-                        channels.add("germplugin-netease");
-                        channels.add("VexView");
-                        channels.add("hyt0");
-                        channels.add("armourers");
-                        channels.add("promotion");
-                        byte[] modList = Arrays.copyOfRange(Client.getModList(), 1, Client.getModList().length);
-                        this.netManager.sendPacket(new CPacketCustomPayload("REGISTER", (new PacketBuffer(Unpooled.buffer().writeBytes(
-                                Joiner.on('\0').join(Iterables.concat(Arrays.asList("FML|HS", "FML", "FML|MP"), channels)).getBytes(StandardCharsets.UTF_8)
-                        )))));
-                        this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeByte(1).writeByte(2))));
-                        this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeBytes(modList))));
+                if (Managers.clientManager.hardMode < 2) {
+                    switch (phase) {
+                        case 1 -> {
+                            Set<String> channels = new LinkedHashSet<>();
+                            channels.add("ChatVexView");
+                            channels.add("Base64VexView");
+                            channels.add("FORGE");
+                            channels.add("germplugin-netease");
+                            channels.add("VexView");
+                            channels.add("hyt0");
+                            channels.add("armourers");
+                            channels.add("promotion");
+                            byte[] modList = Arrays.copyOfRange(Client.getModList(), 1, Client.getModList().length);
+                            this.netManager.sendPacket(new CPacketCustomPayload("REGISTER", (new PacketBuffer(Unpooled.buffer().writeBytes(
+                                    Joiner.on('\0').join(Iterables.concat(Arrays.asList("FML|HS", "FML", "FML|MP"), channels)).getBytes(StandardCharsets.UTF_8)
+                            )))));
+                            this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeByte(1).writeByte(2))));
+                            this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeBytes(modList))));
+                        }
+                        case 2, 4, 5 ->
+                                this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeByte(-1).writeByte(phase))));
+                        case 3 -> {
+                            PacketBuffer buffer = packetIn.getBufferData();
+                            boolean hasMore = buffer.readBoolean();
+                            if (hasMore) return;
+                            this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeByte(-1).writeByte(3))));
+                        }
                     }
-                    case 2, 4, 5 ->
-                            this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeByte(-1).writeByte(phase))));
-                    case 3 -> {
-                        PacketBuffer buffer = packetIn.getBufferData();
-                        boolean hasMore = buffer.readBoolean();
-                        if (hasMore) return;
-                        this.netManager.sendPacket(new CPacketCustomPayload("FML|HS", new PacketBuffer(Unpooled.buffer().writeByte(-1).writeByte(3))));
-                    }
+                    phase++;
                 }
-                phase++;
                 break;
         }
     }
