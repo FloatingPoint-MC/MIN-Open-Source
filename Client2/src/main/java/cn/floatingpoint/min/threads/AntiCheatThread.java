@@ -5,6 +5,7 @@ import cn.floatingpoint.min.system.anticheat.check.Check;
 import net.minecraft.client.Minecraft;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 /**
  * @projectName: MINPrivate
@@ -12,7 +13,7 @@ import java.util.HashSet;
  * @date: 2024-02-08 20:50:26
  */
 public class AntiCheatThread extends Thread {
-    public final HashSet<Check.Executable> executables = new HashSet<>();
+    public final HashSet<Check.Executable> executables = new LinkedHashSet<>();
 
     @SuppressWarnings("all")
     @Override

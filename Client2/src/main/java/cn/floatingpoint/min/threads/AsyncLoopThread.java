@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Optional;
 
 /**
@@ -14,7 +15,7 @@ import java.util.Optional;
  * @date: 2023-07-22 15:18:57
  */
 public class AsyncLoopThread extends Thread {
-    public final static HashSet<Runnable> runnableSet = new HashSet<>();
+    public final static HashSet<Runnable> runnableSet = new LinkedHashSet<>();
     private final Logger logger = LogManager.getLogger();
 
     @Override

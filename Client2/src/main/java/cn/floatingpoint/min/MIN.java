@@ -5,11 +5,15 @@ import cn.floatingpoint.min.runnable.Runnable;
 import cn.floatingpoint.min.system.anticheat.check.Check;
 import cn.floatingpoint.min.system.irc.IRCClient;
 import cn.floatingpoint.min.system.ui.client.GuiError;
+import cn.floatingpoint.min.system.ui.connection.GuiLogin;
+import cn.floatingpoint.min.system.ui.loading.GuiEula;
+import cn.floatingpoint.min.system.ui.loading.GuiLoading;
 import cn.floatingpoint.min.threads.AntiCheatThread;
 import cn.floatingpoint.min.threads.AsyncLoopThread;
 import cn.floatingpoint.min.threads.MouseHandlerThread;
 import me.konago.nativeobfuscator.Native;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.GuiConnecting;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

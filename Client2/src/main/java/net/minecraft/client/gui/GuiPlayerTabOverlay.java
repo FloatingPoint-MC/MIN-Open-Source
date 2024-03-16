@@ -132,7 +132,7 @@ public class GuiPlayerTabOverlay extends Gui {
 
         if (this.footer != null) {
             list2 = new ArrayList<>(this.mc.fontRenderer.listFormattedStringToWidth(this.footer.getFormattedText(), width - 50));
-            list2.add("\247aRank，Booster以及更多！\247c\247c请访问STORE.MINCLIENT.XYZ");
+            list2.add("\247aRank， Booster以及更多！\247c\247c请访问SHOP.MINCLIENT.XYZ");
 
             for (String s1 : list2) {
                 l1 = Math.max(l1, this.mc.fontRenderer.getStringWidth(s1));

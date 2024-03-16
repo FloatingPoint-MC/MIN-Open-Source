@@ -14,7 +14,10 @@ import cn.floatingpoint.min.system.irc.packet.impl.CPacketKey;
 import cn.floatingpoint.min.system.irc.packet.impl.CPacketLogin;
 import cn.floatingpoint.min.system.ui.connection.GuiConnecting;
 import cn.floatingpoint.min.system.ui.connection.GuiFailedConnect;
+import cn.floatingpoint.min.system.ui.connection.GuiLogin;
 import cn.floatingpoint.min.system.ui.connection.GuiStatus;
+import cn.floatingpoint.min.system.ui.loading.GuiEula;
+import cn.floatingpoint.min.system.ui.loading.GuiLoading;
 import cn.floatingpoint.min.utils.client.ChatUtil;
 import cn.floatingpoint.min.utils.client.HWIDUtil;
 import cn.floatingpoint.min.utils.client.Pair;
@@ -56,8 +59,9 @@ public class IRCClient extends WebSocketClient {
     @Native
     @SuppressWarnings("all")
     private boolean startConnection() throws IOException {
+        Minecraft mc = Minecraft.getMinecraft();
         try {
-            Minecraft.getMinecraft().displayGuiScreen(new GuiConnecting());
+            mc.displayGuiScreen(new GuiConnecting());
             System.out.println("Try connecting IRC server...");
             this.netManager = new NetworkManager(this);
             connect();
@@ -70,15 +74,15 @@ public class IRCClient extends WebSocketClient {
             new Thread(() -> {
                 while (true) {
                     try {
-                        if (Minecraft.getMinecraft().currentScreen == null || !(Minecraft.getMinecraft().currentScreen instanceof GuiFailedConnect)) {
-                            Minecraft.getMinecraft().displayGuiScreen(new GuiFailedConnect(Managers.i18NManager.getTranslation("irc.fail")));
+                        if (mc.currentScreen == null || !(mc.currentScreen instanceof GuiFailedConnect)) {
+                            mc.displayGuiScreen(new GuiFailedConnect(Managers.i18NManager.getTranslation("irc.fail")));
                         }
                     } catch (Exception exception) {
                         break;
                     }
                 }
             }).start();
-            Minecraft.getMinecraft().setIngameNotInFocus();
+            mc.setIngameNotInFocus();
             return false;
         }
         MIN.runAsync(() -> {
@@ -86,21 +90,28 @@ public class IRCClient extends WebSocketClient {
                 try {
                     Thread.sleep(1000L);
                     count++;
-                    if (count > 30) {
-                        break;
-                    }
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
+                if (count > 30) {
+                    System.out.println("[MIN] Failed in connecting!");
+                    if (mc.currentScreen == null || !(mc.currentScreen instanceof GuiFailedConnect)) {
+                        mc.displayGuiScreen(new GuiFailedConnect(Managers.i18NManager.getTranslation("irc.fail")));
+                    }
+                    return;
+                }
+            }
+            if (mc.serverName != null) {
+                mc.displayGuiScreen(new GuiEula(new GuiLogin(new net.minecraft.client.multiplayer.GuiConnecting(mc.mainMenu, mc, mc.serverName, mc.serverPort))));
+            } else {
+                if (!Minecraft.DEBUG_MODE()) {
+                    mc.displayGuiScreen(new GuiLoading(new GuiLogin()));
+                } else {
+                    //this.displayGuiScreen(new GuiLogin());
+                    mc.displayGuiScreen(mc.mainMenu);
+                }
             }
         });
-        if (count > 30) {
-            System.out.println("[MIN] Failed in connecting!");
-            if (Minecraft.getMinecraft().currentScreen == null || !(Minecraft.getMinecraft().currentScreen instanceof GuiFailedConnect)) {
-                Minecraft.getMinecraft().displayGuiScreen(new GuiFailedConnect(Managers.i18NManager.getTranslation("irc.fail")));
-            }
-            throw new IOException("Failed to connect server");
-        }
         return true;
     }
 

@@ -342,8 +342,8 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
      * When you place a block, it's set to 6, decremented once per tick, when it's 0, you can place another block.
      */
     private int rightClickDelayTimer;
-    private String serverName;
-    private int serverPort;
+    public String serverName;
+    public int serverPort;
 
     /**
      * Does the actual gameplay have focus. If so then mouse and keys will affect the player instead of menus.
@@ -597,17 +597,6 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
         setMainMenu();
         try {
             MIN.init();
-
-            if (this.serverName != null) {
-                this.displayGuiScreen(new GuiEula(new GuiLogin(new GuiConnecting(this.mainMenu, this, this.serverName, this.serverPort))));
-            } else {
-                if (!DEBUG_MODE()) {
-                    this.displayGuiScreen(new GuiLoading(new GuiLogin()));
-                } else {
-                    //this.displayGuiScreen(new GuiLogin());
-                    this.displayGuiScreen(mainMenu);
-                }
-            }
         } catch (IOException ignored) {
         }
         this.renderEngine.deleteTexture(this.mojangLogo);
