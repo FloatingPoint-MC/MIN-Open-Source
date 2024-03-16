@@ -11,10 +11,12 @@ import cn.floatingpoint.min.utils.client.Pair;
  */
 public class AttackIndicator extends RenderModule {
     public static final OptionValue showInThirdPerson = new OptionValue(false);
+    public static final OptionValue opaque = new OptionValue(false);
 
     public AttackIndicator() {
         addValues(
-                new Pair<>("ShowInThirdPerson", showInThirdPerson)
+                new Pair<>("ShowInThirdPerson", showInThirdPerson),
+                new Pair<>("Opaque", opaque)
         );
         setCanBeEnabled(false);
     }

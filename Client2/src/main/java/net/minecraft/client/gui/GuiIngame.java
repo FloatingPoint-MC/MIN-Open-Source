@@ -531,8 +531,10 @@ public class GuiIngame extends Gui {
                 OpenGlHelper.renderDirections(10);
                 GlStateManager.popMatrix();
             } else {
-                GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-                GlStateManager.enableAlpha();
+                if (!AttackIndicator.opaque.getValue()) {
+                    GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+                    GlStateManager.enableAlpha();
+                }
                 this.drawTexturedModalRect(l / 2 - 7, i1 / 2 - 7, 0, 0, 16, 16);
             }
         }

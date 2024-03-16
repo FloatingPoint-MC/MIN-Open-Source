@@ -5,10 +5,12 @@ import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityArmorStand;
+import net.minecraft.scoreboard.Team;
 import net.minecraft.util.math.AxisAlignedBB;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
@@ -110,7 +112,8 @@ public class EntityCulling {
      * If it can see an entity, continue to render the entity, otherwise save some time
      * performing rendering and cancel the entity render.
      */
-    public static boolean shouldCancelRenderEntity(EntityLivingBase entity) {
+    @SuppressWarnings("all")
+    public static boolean shouldCancelRenderEntity(EntityLivingBase entity, double x, double y, double z, RenderLivingBase renderer) {
         if (!shouldPerformCulling) {
             return false;
         }
@@ -123,7 +126,37 @@ public class EntityCulling {
             return false;
         }
 
-        return checkEntity(entity);
+        if (checkEntity(entity)) {
+            if (!canRenderName(entity)) {
+                return true;
+            }
+            renderer.renderName(entity, x, y, z);
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean canRenderName(EntityLivingBase entity) {
+        if (mc.player != null) {
+            final Team otherEntityTeam = entity.getTeam();
+            final Team playerTeam = mc.player.getTeam();
+
+            if (otherEntityTeam != null) {
+                final Team.EnumVisible teamVisibilityRule = otherEntityTeam.getNameTagVisibility();
+
+                return switch (teamVisibilityRule) {
+                    case NEVER -> false;
+                    case HIDE_FOR_OTHER_TEAMS -> playerTeam == null || otherEntityTeam.isSameTeam(playerTeam);
+                    case HIDE_FOR_OWN_TEAM -> playerTeam == null || !otherEntityTeam.isSameTeam(playerTeam);
+                    default -> true;
+                };
+            }
+        }
+
+        return Minecraft.isGuiEnabled()
+                && entity != mc.getRenderManager().renderViewEntity
+                && ((entity instanceof EntityArmorStand) || entity.isVisibleToPlayer(mc.player)) &&
+                !entity.isBeingRidden();
     }
 
     public static void check() {

@@ -5,6 +5,7 @@ import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Ordering;
 import com.mojang.authlib.GameProfile;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -119,17 +120,19 @@ public class GuiPlayerTabOverlay extends Gui {
         List<String> list1 = null;
 
         if (this.header != null) {
-            list1 = this.mc.fontRenderer.listFormattedStringToWidth(this.header.getFormattedText(), width - 50);
+            list1 = new ArrayList<>(this.mc.fontRenderer.listFormattedStringToWidth(this.header.getFormattedText(), width - 50));
 
             for (String s : list1) {
                 l1 = Math.max(l1, this.mc.fontRenderer.getStringWidth(s));
             }
         }
 
+
         List<String> list2 = null;
 
         if (this.footer != null) {
-            list2 = this.mc.fontRenderer.listFormattedStringToWidth(this.footer.getFormattedText(), width - 50);
+            list2 = new ArrayList<>(this.mc.fontRenderer.listFormattedStringToWidth(this.footer.getFormattedText(), width - 50));
+            list2.add("\247aRank，Booster以及更多！\247c\247c请访问STORE.MINCLIENT.XYZ");
 
             for (String s1 : list2) {
                 l1 = Math.max(l1, this.mc.fontRenderer.getStringWidth(s1));
@@ -137,12 +140,16 @@ public class GuiPlayerTabOverlay extends Gui {
         }
 
         if (list1 != null) {
-            drawRect(width / 2 - l1 / 2 - 1, k1 - 1, width / 2 + l1 / 2 + 1, k1 + list1.size() * this.mc.fontRenderer.FONT_HEIGHT, Integer.MIN_VALUE);
-
+            drawRect(width / 2 - l1 / 2 - 1, k1 - 1, width / 2 + l1 / 2 + 1, k1 + 2 * this.mc.fontRenderer.FONT_HEIGHT, Integer.MIN_VALUE);
+            String title = "\247b你正在\247eMINCLIENT\247b上进行游戏";
+            int i2 = this.mc.fontRenderer.getStringWidth(title);
+            this.mc.fontRenderer.drawStringWithShadow(title, (float) (width / 2 - i2 / 2), (float) k1, -1);
+            k1 += this.mc.fontRenderer.FONT_HEIGHT;
             for (String s2 : list1) {
-                int i2 = this.mc.fontRenderer.getStringWidth(s2);
+                i2 = this.mc.fontRenderer.getStringWidth(s2);
                 this.mc.fontRenderer.drawStringWithShadow(s2, (float) (width / 2 - i2 / 2), (float) k1, -1);
                 k1 += this.mc.fontRenderer.FONT_HEIGHT;
+                break;
             }
 
             ++k1;

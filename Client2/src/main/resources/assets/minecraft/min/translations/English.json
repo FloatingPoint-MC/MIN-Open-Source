@@ -1,7 +1,7 @@
 {
   "WARNING": "DO NOT MODIFY THIS LANGUAGE FILE OR YOUR LANGUAGE MIGHT BE REPLACED!",
   "language.identity": "English",
-  "language.version": "210",
+  "language.version": "211",
   "module.category.Boost": "Boost",
   "module.category.Misc": "Misc",
   "module.category.Render": "Render",
@@ -106,6 +106,8 @@
   "module.implement.AttackIndicator.description": "Modify the front sight.",
   "module.implement.AttackIndicator.ShowInThirdPerson": "Show in Third Person",
   "module.implement.AttackIndicator.ShowInThirdPerson.description": "Not hiding the front sight in third person.",
+  "module.implement.AttackIndicator.Opaque": "Opaque",
+  "module.implement.AttackIndicator.Opaque.description": "Make the color of indicator not decide on the environment.",
   "module.implement.AttackParticles": "Attack Particles",
   "module.implement.AttackParticles.description": "Modify the particles when you attack other entity.",
   "module.implement.AttackParticles.MoreCritParticle": "More Crit Particle",
