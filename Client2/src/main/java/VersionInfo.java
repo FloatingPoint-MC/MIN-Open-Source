@@ -9,6 +9,6 @@ import javax.annotation.Nonnull;
 public class VersionInfo {
     @Nonnull
     public static String getVersion() {
-        return "2.16.1";
+        return "2.16.2";
     }
 }
