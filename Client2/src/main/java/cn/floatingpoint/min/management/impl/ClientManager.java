@@ -36,7 +36,7 @@ public class ClientManager implements Manager {
     public boolean vexGui;
     public GuiChat.Channel channel;
     public boolean giantText;
-    public int hardMode; // 0 - Off;1 - No Brand;2 - No FML Registration;3 - All
+    public int hardMode; // 0 - Off;1 - No Brand;2 - No FML Registration;3 - Only Brand;4 - All
 
     @Override
     public String getName() {
@@ -89,6 +89,11 @@ public class ClientManager implements Manager {
                     }
                 } else if (version < 211) {
                     giantText = jsonObject.getBoolean("GiantText");
+                } else if (version < 212) {
+                    hardMode = jsonObject.getInt("HardMode");
+                    if (hardMode == 3) {
+                        hardMode = 4;
+                    }
                 }
             } else {
                 adsorption = jsonObject.getBoolean("Adsorption");

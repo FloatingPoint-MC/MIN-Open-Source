@@ -175,7 +175,7 @@ public class GuiPlayerTabOverlay extends Gui {
                 addition = 0;
                 int id = Managers.clientManager.isClientMate(networkplayerinfo1.getGameProfile().getId());
                 if (id != -1) {
-                    Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(id == 0 ? "min/name_icon.png" : id == 1 ? "min/name_icon_admin.png" : "min/name_icon_developer.png"));
+                    Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(id == 0 ? "min/name_icon.png" : id == 1 ? "min/name_icon_youtuber.png" : id == 2 ? "min/name_icon_admin.png" : "min/name_icon_developer.png"));
                     Gui.drawModalRectWithCustomSizedTexture(j2, k2, 0, 0, 8, 8, 8, 8);
                     GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
                     addition = 10;

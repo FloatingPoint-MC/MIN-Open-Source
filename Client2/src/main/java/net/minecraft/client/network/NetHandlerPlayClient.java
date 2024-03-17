@@ -1809,18 +1809,22 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
                 this.client.getSoundHandler().stop(s1, SoundCategory.getByName(s));
                 break;
             case "FML|HS":
-                if (Managers.clientManager.hardMode < 2) {
+                if (Managers.clientManager.hardMode < 2 || Managers.clientManager.hardMode == 3) {
                     switch (phase) {
                         case 1 -> {
                             Set<String> channels = new LinkedHashSet<>();
-                            channels.add("ChatVexView");
-                            channels.add("Base64VexView");
-                            channels.add("FORGE");
-                            channels.add("germplugin-netease");
-                            channels.add("VexView");
-                            channels.add("hyt0");
-                            channels.add("armourers");
-                            channels.add("promotion");
+                            if (Managers.clientManager.hardMode == 3) {
+                                channels.add("FORGE");
+                            } else {
+                                channels.add("ChatVexView");
+                                channels.add("Base64VexView");
+                                channels.add("FORGE");
+                                channels.add("germplugin-netease");
+                                channels.add("VexView");
+                                channels.add("hyt0");
+                                channels.add("armourers");
+                                channels.add("promotion");
+                            }
                             byte[] modList = Arrays.copyOfRange(Client.getModList(), 1, Client.getModList().length);
                             this.netManager.sendPacket(new CPacketCustomPayload("REGISTER", (new PacketBuffer(Unpooled.buffer().writeBytes(
                                     Joiner.on('\0').join(Iterables.concat(Arrays.asList("FML|HS", "FML", "FML|MP"), channels)).getBytes(StandardCharsets.UTF_8)

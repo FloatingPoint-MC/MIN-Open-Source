@@ -387,7 +387,7 @@ public class ClickUI extends GuiScreen {
             if (toSelect == -1) {
                 toSelect = Managers.clientManager.hardMode;
             }
-            for (int selection = 0; selection <= 3; selection++) {
+            for (int selection = 0; selection <= 4; selection++) {
                 RenderUtil.drawRoundedRect(animationRight + 312, height / 2 + 41 + 10 * selection, animationRight + 318, height / 2 + 47 + 10 * selection, 3, toSelect == selection ? enableColor : disableColor);
                 Managers.fontManager.sourceHansSansCN_Regular_20.drawString(Managers.i18NManager.getTranslation("hard.selection." + selection), animationRight + 320, height / 2 + 41 + 10 * selection, textColor);
             }
@@ -544,7 +544,7 @@ public class ClickUI extends GuiScreen {
                 } else if (isHovered(animationRight + 150, height / 2 + 39, animationRight + 250, height / 2 + 49, mouseX, mouseY)) {
                     mc.displayGuiScreen(new GuiManageShortcut(this));
                 } else {
-                    for (int selection = 0; selection <= 3; selection++) {
+                    for (int selection = 0; selection <= 4; selection++) {
                         if (isHovered(animationRight + 312, height / 2 + 41 + 10 * selection, animationRight + 318, height / 2 + 47 + 10 * selection, mouseX, mouseY)) {
                             if (selection != Managers.clientManager.hardMode) {
                                 if (selection == 0) {

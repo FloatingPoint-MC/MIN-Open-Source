@@ -453,5 +453,6 @@
   "hard.selection.0": "Disabled",
   "hard.selection.1": "Remove Brand",
   "hard.selection.2": "Remove FML Registration",
-  "hard.selection.3": "Remove All"
+  "hard.selection.3": "Only Brand",
+  "hard.selection.4": "Remove All"
 }

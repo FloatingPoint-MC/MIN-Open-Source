@@ -453,5 +453,6 @@
   "hard.selection.0": "关闭",
   "hard.selection.1": "移除标识",
   "hard.selection.2": "移除FML注册",
-  "hard.selection.3": "移除所有"
+  "hard.selection.3": "只保留标识",
+  "hard.selection.4": "移除所有"
 }

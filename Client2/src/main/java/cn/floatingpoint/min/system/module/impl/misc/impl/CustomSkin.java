@@ -2,6 +2,9 @@ package cn.floatingpoint.min.system.module.impl.misc.impl;
 
 import cn.floatingpoint.min.MIN;
 import cn.floatingpoint.min.management.Managers;
+import cn.floatingpoint.min.management.impl.ClientManager;
+import cn.floatingpoint.min.system.irc.IRCClient;
+import cn.floatingpoint.min.system.irc.packet.impl.CPacketPlayer;
 import cn.floatingpoint.min.system.module.impl.misc.MiscModule;
 import cn.floatingpoint.min.system.module.value.impl.TextValue;
 import cn.floatingpoint.min.utils.client.Pair;
@@ -59,6 +62,10 @@ public class CustomSkin extends MiscModule {
                                 String raw = json.getString("id");
                                 GameProfile gameProfile = new GameProfile(PlayerUtil.formUUID(raw), json.getString("name"));
                                 gameProfile = mc.getSessionService().fillProfileProperties(gameProfile, false);
+                                ClientManager.ClientMate clientMate = Managers.clientManager.clientMateUuids.get(mc.player.getUniqueID());
+                                if (clientMate == null) {
+                                    IRCClient.getInstance().addToSendQueue(new CPacketPlayer(mc.player.getUniqueID()));
+                                }
                                 mc.getSkinManager().loadProfileTextures(gameProfile, (typeIn, location, profileTexture) -> {
                                     switch (typeIn) {
                                         case SKIN:

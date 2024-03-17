@@ -20,7 +20,7 @@ import java.util.Map;
 
 
 public class FileManager implements Manager {
-    public static final int VERSION = 211;
+    public static final int VERSION = 212;
     public boolean shouldSave = false;
     private File dir;
 
