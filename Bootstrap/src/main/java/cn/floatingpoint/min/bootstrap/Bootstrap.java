@@ -13,6 +13,7 @@ import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.MessageDigest;
@@ -31,6 +32,8 @@ public class Bootstrap extends JFrame {
     private boolean canLaunch = false;
     private int length = 0;
     private String sha1;
+    private long timer;
+    private boolean startTimer;
 
     public Bootstrap(String[] args) {
         instance = this;
@@ -96,34 +99,35 @@ public class Bootstrap extends JFrame {
     }
 
     private void clientStart() {
-        //new Thread(() -> {
-        //    try {
-        //        label.setText("Checking java: ");
-        //        if (Integer.parseInt(System.getProperty("java.version").split("\\.")[0]) < 17) {
-        //            JOptionPane.showMessageDialog(this, "请使用Java17以上版本启动。Please use Java(version upper 17) to launch me!", "ERROR", JOptionPane.ERROR_MESSAGE);
-        //            System.exit(0);
-        //        }
-        //        label.setText("Checking status: ");
-        //        String url = WebUtil.getPlatform() + "data.json";
-        //        progressBar.setValue(33);
-        //        JSONObject jsonObject = WebUtil.getJSON(url);
-        //        progressBar.setValue(66);
-        //        String remoteVersion = jsonObject.getString("CurrentVersion");
-        //        progressBar.setValue(99);
-        //        sha1 = jsonObject.getString("Sha-1");
-        //        if (!remoteVersion.equalsIgnoreCase(getVersion()) || checkSha1NonRight(sha1)) {
-        //            progressBar.setValue(100);
-        //            deleteJarFile();
-        //            downloadJarFile(remoteVersion);
-        //        } else {
-        //            progressBar.setValue(100);
-        //            canLaunch = true;
-        //        }
-        //    } catch (Exception e) {
-        //        JOptionPane.showMessageDialog(this, "Error while grabbing data.", "Error", JOptionPane.ERROR_MESSAGE);
-        //        System.exit(0);
-        //    }
-        //}).start();
+        new Thread(() -> {
+            try {
+                label.setText("Checking java: ");
+                if (Integer.parseInt(System.getProperty("java.version").split("\\.")[0]) < 17) {
+                    JOptionPane.showMessageDialog(this, "请使用Java17以上版本启动。Please use Java(version upper 17) to launch me!", "ERROR", JOptionPane.ERROR_MESSAGE);
+                    System.exit(0);
+                }
+                label.setText("Checking status: ");
+                String url = WebUtil.getPlatform() + "data.json";
+                progressBar.setValue(33);
+                JSONObject jsonObject = WebUtil.getJSON(url);
+                progressBar.setValue(66);
+                String remoteVersion = jsonObject.getString("CurrentVersion");
+                progressBar.setValue(99);
+                label.setText("Checking status: ");
+                sha1 = jsonObject.getString("Sha-1");
+                if (!remoteVersion.equalsIgnoreCase(getVersion()) || checkSha1NonRight(sha1)) {
+                    progressBar.setValue(100);
+                    deleteJarFile();
+                    downloadJarFile(remoteVersion);
+                } else {
+                    progressBar.setValue(100);
+                    canLaunch = true;
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error while grabbing data.", "Error", JOptionPane.ERROR_MESSAGE);
+                System.exit(0);
+            }
+        }).start();
     }
 
     private void downloadJarFile(String version) {
@@ -166,25 +170,39 @@ public class Bootstrap extends JFrame {
 
     @SuppressWarnings("all")
     private void prepareGame(String[] args) {
-        //while (!this.canLaunch) {
-        //    try {
-        //        Thread.sleep(1000L);
-        //    } catch (InterruptedException e) {
-        //        JOptionPane.showMessageDialog(this, "Error.", "Error", JOptionPane.ERROR_MESSAGE);
-        //        System.exit(0);
-        //    }
-        //}
-        System.out.println(getSha1ByFile(new File(this.dir, "output.jar")));
+        while (!this.canLaunch) {
+            try {
+                Thread.sleep(1000L);
+            } catch (InterruptedException e) {
+                JOptionPane.showMessageDialog(this, "Error.", "Error", JOptionPane.ERROR_MESSAGE);
+                System.exit(0);
+            }
+        }
+        //System.out.println(getSha1ByFile(new File(this.dir, "output.jar")));
         this.launchGame(args);
     }
 
     private void launchGame(String[] args) {
-        label.setText("                  Launching client...                  ");
+        label.setText("                  Launching client...                   ");
         progressBar.setVisible(false);
-        File jar = new File(this.dir, "output.jar");
-        try (URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{jar.toURI().toURL()})) {
+        try (URLClassLoader urlClassLoader = accessJar()) {
             Class<?> launcherClass = urlClassLoader.loadClass("cn.floatingpoint.min.launcher.Launcher");
+            this.timer = System.currentTimeMillis();
+            this.startTimer = true;
+            new Thread(() -> {
+                while (System.currentTimeMillis() - timer < 2000L) {
+                    try {
+                        Thread.sleep(1000L);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                if (!startTimer) return;
+                JOptionPane.showMessageDialog(Bootstrap.instance, "启动游戏超时！\n请检查JVM虚拟机参数是否添加了\"-noverify\"！\nPCL II用户: 版本设置-最底下JVM参数首\nHMCL用户: 游戏管理-最底下修改高级设置-Java虚拟机参数\n保证这里面含有\"-noverify\"字样！", "Error", JOptionPane.ERROR_MESSAGE);
+                System.exit(0);
+            }).start();
             Method launchMethod = launcherClass.getMethod("launch", String[].class);
+            startTimer = false;
             this.setVisible(false);
             launchMethod.invoke(launcherClass, (Object) args);
         } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
@@ -198,11 +216,39 @@ public class Bootstrap extends JFrame {
         System.exit(0);
     }
 
-    private String getVersion() {
+    private URLClassLoader accessJar() throws MalformedURLException {
         File jar = new File(this.dir, "Game.jar");
-        try (URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{jar.toURI().toURL()})) {
+        return new URLClassLoader(new URL[]{jar.toURI().toURL()});
+    }
+
+    private Object accessJar(Class<?> classFile) {
+        try {
+            this.timer = System.currentTimeMillis();
+            this.startTimer = true;
+            new Thread(() -> {
+                while (System.currentTimeMillis() - timer < 2000L) {
+                    try {
+                        Thread.sleep(1000L);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                if (!startTimer) return;
+                JOptionPane.showMessageDialog(Bootstrap.instance, "检查版本超时！\n请检查JVM虚拟机参数是否添加了\"-noverify\"！\nPCL II用户: 版本设置-最底下JVM参数首\nHMCL用户: 游戏管理-最底下修改高级设置-Java虚拟机参数\n保证这里面含有\"-noverify\"字样！", "Error", JOptionPane.ERROR_MESSAGE);
+                System.exit(0);
+            }).start();
+            Method method1 = classFile.getMethod("getVersion");
+            startTimer = false;
+            return method1.invoke(classFile);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private String getVersion() {
+        try (URLClassLoader urlClassLoader = accessJar()) {
             Class<?> versionClass = urlClassLoader.loadClass("VersionInfo");
-            return (String) versionClass.getMethod("getVersion").invoke(versionClass);
+            return (String) accessJar(versionClass);
         } catch (Exception e) {
             return "Unknown";
         }

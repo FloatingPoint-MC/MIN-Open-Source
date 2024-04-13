@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  */
 public class WebUtil {
     private static final SSLContext context;
-    private static final int abroad;
+    private static int abroad = Boolean.parseBoolean(System.getProperty("useGlobalServer")) ? 1 : 0;
 
     static {
         SSLContext ctx = null;
@@ -85,7 +85,7 @@ public class WebUtil {
         } catch (Throwable ignored) {
         }
         context = ctx;
-        abroad = getAddressByIP(getOutIPV4());
+        new Thread(() -> abroad = getAddressByIP(getOutIPV4())).start();
     }
 
     public static String getPlatform() {
