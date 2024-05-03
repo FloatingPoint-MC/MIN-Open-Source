@@ -141,16 +141,15 @@ public class PlayerChunkMap {
         if (j - this.previousTotalWorldTime > 8000L) {
             this.previousTotalWorldTime = j;
 
-            for (int k = 0; k < this.entries.size(); ++k) {
-                PlayerChunkMapEntry playerchunkmapentry1 = this.entries.get(k);
-                playerchunkmapentry1.update();
-                playerchunkmapentry1.updateChunkInhabitedTime();
+            for (PlayerChunkMapEntry entry : this.entries) {
+                entry.update();
+                entry.updateChunkInhabitedTime();
             }
         }
 
         if (!this.dirtyEntries.isEmpty()) {
-            for (PlayerChunkMapEntry playerchunkmapentry2 : this.dirtyEntries) {
-                playerchunkmapentry2.update();
+            for (PlayerChunkMapEntry entry : this.dirtyEntries) {
+                entry.update();
             }
 
             this.dirtyEntries.clear();

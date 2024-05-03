@@ -4,9 +4,9 @@ import cn.floatingpoint.min.MIN;
 import cn.floatingpoint.min.management.Managers;
 import cn.floatingpoint.min.system.anticheat.check.Check;
 import cn.floatingpoint.min.system.boost.EntityCulling;
-import cn.floatingpoint.min.system.hyt.packet.impl.Hyt0Packet;
+//import cn.floatingpoint.min.system.hyt.packet.impl.Hyt0Packet;
 import cn.floatingpoint.min.system.hyt.world.HYTChunkExecutor;
-import cn.floatingpoint.min.system.ui.connection.GuiLogin;
+//import cn.floatingpoint.min.system.ui.connection.GuiLogin;
 import cn.floatingpoint.min.system.irc.IRCClient;
 import cn.floatingpoint.min.system.irc.packet.impl.CPacketJoinServer;
 import cn.floatingpoint.min.system.module.Module;
@@ -17,8 +17,8 @@ import cn.floatingpoint.min.system.module.impl.render.impl.KeyStrokes;
 import cn.floatingpoint.min.system.module.impl.render.impl.Spinning;
 import cn.floatingpoint.min.system.replay.recording.State;
 import cn.floatingpoint.min.system.shortcut.Shortcut;
-import cn.floatingpoint.min.system.ui.loading.GuiEula;
-import cn.floatingpoint.min.system.ui.loading.GuiLoading;
+//import cn.floatingpoint.min.system.ui.loading.GuiEula;
+//import cn.floatingpoint.min.system.ui.loading.GuiLoading;
 import cn.floatingpoint.min.system.ui.mainmenu.DebugMainMenu;
 import cn.floatingpoint.min.system.ui.mainmenu.MINMainMenu;
 import cn.floatingpoint.min.utils.client.ChatUtil;
@@ -70,7 +70,7 @@ import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.gui.recipebook.RecipeList;
 import net.minecraft.client.gui.toasts.GuiToast;
 import net.minecraft.client.main.GameConfiguration;
-import net.minecraft.client.multiplayer.GuiConnecting;
+//import net.minecraft.client.multiplayer.GuiConnecting;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.WorldClient;
@@ -1736,12 +1736,12 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
             this.soundHandler.update();
         }
 
-        if (!DEBUG_MODE() && player != null && player.ticksExisted > 10) {
-            if (!Hyt0Packet.loadChunk && !Managers.replayManager.isPlaying()) {
-                world.sendQuittingDisconnectingPacket();
-                player.connection.onDisconnect(new TextComponentString("\247c请进入花雨庭服务器!"));
-            }
-        }
+//        if (!DEBUG_MODE() && player != null && player.ticksExisted > 10) {
+//            if (!Hyt0Packet.loadChunk && !Managers.replayManager.isPlaying()) {
+//                world.sendQuittingDisconnectingPacket();
+//                player.connection.onDisconnect(new TextComponentString("\247c请进入花雨庭服务器!"));
+//            }
+//        }
 
         if (this.world != null) {
             if (!this.isGamePaused) {

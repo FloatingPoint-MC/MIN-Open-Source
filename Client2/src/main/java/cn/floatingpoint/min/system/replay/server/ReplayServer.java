@@ -33,6 +33,8 @@ import net.minecraft.network.*;
 import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraft.network.play.client.*;
 import net.minecraft.network.play.server.*;
+import net.minecraft.server.management.PlayerChunkMap;
+import net.minecraft.server.management.PlayerChunkMapEntry;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.DimensionType;
@@ -53,7 +55,7 @@ public class ReplayServer {
     private final Minecraft mc = Minecraft.getMinecraft();
     private final Replay replay;
     private NetHandlerPlayClient netHandler;
-
+       
     // Net Handler Replay Server
     private int slot = 0;
     private final ArrayList<Entity> entities = new ArrayList<>();
@@ -247,6 +249,7 @@ public class ReplayServer {
         public void dispatchPacket(@Nonnull Packet<?> inPacket, @Nullable GenericFutureListener<? extends Future<? super Void>>[] futureListeners) {
             mc.addScheduledTask(() -> {
                 if (inPacket instanceof CPacketPlayer) {
+                    // To fix the chunk issue
                 } else if (inPacket instanceof CPacketPlayerTryUseItem) {
                     switch (slot) {
                         case 0 ->

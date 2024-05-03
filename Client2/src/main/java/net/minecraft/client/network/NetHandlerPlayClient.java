@@ -843,15 +843,16 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
             String text = packetIn.getChatComponent().getUnformattedText();
             // AutoText
             if (Managers.moduleManager.miscModules.get("AutoText").isEnabled()) {
-                if (AutoText.whenToSend.isCurrentMode("End")) {
-                    if (text.equals("花雨庭>> You lost the fight.")) {
-                        AutoText.timeToSendGG = true;
-                    } else if (Pattern.compile("起床战争>> 恭喜 ！(.*?)之队队获得胜利!").matcher(text).matches()) {
-                        AutoText.timeToSendGG = true;
+                if (AutoText.endMessage.getValue()) {
+                    if (text.equals("花雨庭>> You lost the fight.") || text.equals("花雨庭>> You won the fight!")) {
+                        AutoText.endToSend = true;
+                    }
+                    if (Pattern.compile("起床战争>> 恭喜 ！(.*?)之队队获得胜利!").matcher(text).matches()) {
+                        AutoText.endToSend = true;
                     }
                 }
-                if (text.equals("花雨庭>> You won the fight!")) {
-                    AutoText.timeToSendGG = true;
+                if (AutoText.winMessage.getValue() && text.equals("花雨庭>> You won the fight!")) {
+                    AutoText.winToSend = true;
                 }
             }
             EntityPlayer player = Managers.replayManager.isPlaying() ? Managers.replayManager.getReplayServer().self : this.client.player;
@@ -1502,19 +1503,19 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
         switch (spackettitle$type) {
             case TITLE:
                 s = s2;
-                if (Managers.moduleManager.miscModules.get("AutoText").isEnabled() && AutoText.whenToSend.isCurrentMode("Win")) {
+                if (Managers.moduleManager.miscModules.get("AutoText").isEnabled() && AutoText.winMessage.getValue()) {
                     if (s.equals("\247aVICTORY\247r")) {
-                        AutoText.timeToSendGG = true;
+                        AutoText.winToSend = true;
                     }
                 }
                 break;
 
             case SUBTITLE:
                 s1 = s2;
-                if (Managers.moduleManager.miscModules.get("AutoText").isEnabled() && AutoText.whenToSend.isCurrentMode("Win")) {
+                if (Managers.moduleManager.miscModules.get("AutoText").isEnabled() && AutoText.winMessage.getValue()) {
                     Pattern pattern = Pattern.compile("(.*?)\2476队获得胜利，用时\247e(.*?)");
                     if (pattern.matcher(s1).matches()) {
-                        AutoText.timeToSendGG = true;
+                        AutoText.winToSend = true;
                     }
                 }
                 break;
