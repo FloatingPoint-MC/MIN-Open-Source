@@ -67,7 +67,7 @@ public abstract class ClickableButton {
         int endX = x + width / 2;
         int startY = y - height / 2;
         int endY = y + height / 2;
-        Gui.drawRect(startX, startY, endX, endY, new Color(0, 0, 0, 102).getRGB());
+        Gui.drawRect(startX, startY, endX, endY, new Color(30, 30, 30, 102).getRGB());
         Gui.drawRect(startX, startY, startX + 0.5D, endY, new Color(44, 44, 44, 102).getRGB());
         Gui.drawRect(startX + 0.5D, endY - 0.5D, endX - 0.5D, endY, new Color(44, 44, 44, 102).getRGB());
         Gui.drawRect(endX - 0.5D, startY, endX, endY, new Color(44, 44, 44, 102).getRGB());

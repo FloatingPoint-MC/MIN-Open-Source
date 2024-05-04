@@ -1,8 +1,10 @@
 package cn.floatingpoint.min.system.ui.connection;
 
 import cn.floatingpoint.min.system.irc.Client;
+import cn.floatingpoint.min.utils.render.RenderUtil;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.util.ResourceLocation;
 
 import java.awt.*;
 import java.io.IOException;
@@ -26,7 +28,7 @@ public class GuiStatus extends GuiScreen {
 
     @Override
     public void initGui() {
-        this.button = new GuiButton(0, width / 2 - 100, Math.min(this.height / 2 + Client.getStatus().size() * this.fontRenderer.FONT_HEIGHT / 2 + this.fontRenderer.FONT_HEIGHT, this.height - 30), "");
+        this.button = new GuiButton(0, width / 2 - 60, Math.min(this.height / 2 + Client.getStatus().size() * this.fontRenderer.FONT_HEIGHT / 2 + this.fontRenderer.FONT_HEIGHT, this.height - 30), 120, 20, "");
         this.button.visible = false;
         this.buttonList.add(this.button);
         super.initGui();
@@ -34,7 +36,8 @@ public class GuiStatus extends GuiScreen {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        drawRect(0, 0, width, height, new Color(0, 0, 0).getRGB());
+        drawRect(0, 0, width, height, new Color(50, 50, 50).getRGB());
+        RenderUtil.drawImage(new ResourceLocation("min/square.png"), (width - 236) / 2, (height - 236) / 2, 236, 236);
         if (!title.isEmpty()) {
             this.drawCenteredString(this.fontRenderer, this.title, this.width / 2, this.height / 2 - Client.getStatus().size() * this.fontRenderer.FONT_HEIGHT / 2 - this.fontRenderer.FONT_HEIGHT * 2, 11184810);
         }

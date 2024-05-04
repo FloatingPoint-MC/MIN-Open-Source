@@ -4,6 +4,7 @@ import cn.floatingpoint.min.MIN;
 import cn.floatingpoint.min.management.Managers;
 import cn.floatingpoint.min.management.impl.ClientManager;
 import cn.floatingpoint.min.system.irc.Client;
+import cn.floatingpoint.min.system.ui.connection.GuiBan;
 import cn.floatingpoint.min.system.ui.connection.GuiStatus;
 import cn.floatingpoint.min.system.irc.IRCClient;
 import cn.floatingpoint.min.system.irc.connection.NetworkManager;
@@ -13,7 +14,6 @@ import cn.floatingpoint.min.system.module.impl.render.impl.Scoreboard;
 import cn.floatingpoint.min.utils.client.ChatUtil;
 import cn.floatingpoint.min.utils.client.PacketThreadUtil;
 import me.konago.nativeobfuscator.Native;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.util.text.TextComponentString;
@@ -71,21 +71,7 @@ public class NetHandlerClient implements INetHandlerClient {
                     mc.world.sendQuittingDisconnectingPacket();
                     mc.loadWorld(null);
                 }
-                GuiStatus gui = new GuiStatus(null, null, Managers.i18NManager.getTranslation("back"), Managers.i18NManager.getTranslation("back")) {
-                    @Override
-                    protected void actionPerformed(GuiButton button) {
-                        if (button.id == 0) {
-                            mc.shutdown();
-                        }
-                    }
-
-                    @Override
-                    public void onGuiClosed() {
-                        mc.shutdown();
-                    }
-                };
-                gui.setTitle(Managers.i18NManager.getTranslation("irc.connection.lost"));
-                mc.displayGuiScreen(gui);
+                mc.displayGuiScreen(new GuiBan());
             }
             case FORCE_KICK -> {
                 if (!packetIn.getReason().isEmpty()) {
@@ -149,27 +135,27 @@ public class NetHandlerClient implements INetHandlerClient {
                 }
             }
             case FAIL_BANNED -> {
+                String reason = Managers.i18NManager.getTranslation("irc.banned.reason." + packetIn.getReason());
+                String last = getDisplayFromDuration(packetIn.getDuration());
+                if (reason.length() > 18 && reason.substring(18).equals(packetIn.getReason())) {
+                    reason = packetIn.getReason();
+                }
+                Client.setStatus(
+                        "\247c" + Managers.i18NManager.getTranslation("irc.banned") + "\247c" + last,
+                        "",
+                        "\2477" + Managers.i18NManager.getTranslation("irc.reason") + "\2477: \247f" + reason,
+                        "\2477" + Managers.i18NManager.getTranslation("irc.more") + "\247: \247b\247nhttps://appeal.minclient.xyz/",
+                        "",
+                        "\2477" + Managers.i18NManager.getTranslation("irc.id") + "\2477: \247f#" + packetIn.getUsername(),
+                        "\2477" + Managers.i18NManager.getTranslation("irc.tip")
+                );
+                Client.setLoggedIn(false);
+                Client.setUsername(null);
+                Client.setPassword(null);
                 if (this.mc.currentScreen instanceof GuiStatus gui) {
-                    String last = getDisplayFromDuration(packetIn.getDuration());
-                    if (!gui.getTitle().isEmpty()) {
+                    if (gui.getTitle().isEmpty()) {
                         gui.setTitle(Managers.i18NManager.getTranslation("login.fail.login"));
                     }
-                    String reason = Managers.i18NManager.getTranslation("irc.banned.reason." + packetIn.getReason());
-                    if (reason.length() > 18 && reason.substring(18).equals(packetIn.getReason())) {
-                        reason = packetIn.getReason();
-                    }
-                    Client.setStatus(
-                            "\247c" + Managers.i18NManager.getTranslation("irc.banned") + "\247c" + last,
-                            "",
-                            "\2477" + Managers.i18NManager.getTranslation("irc.reason") + "\2477: \247f" + reason,
-                            "\2477" + Managers.i18NManager.getTranslation("irc.more") + "\247: \247b\247nhttps://appeal.minclient.xyz/",
-                            "",
-                            "\2477" + Managers.i18NManager.getTranslation("irc.id") + "\2477: \247f#" + packetIn.getUsername(),
-                            "\2477" + Managers.i18NManager.getTranslation("irc.tip")
-                    );
-                    Client.setLoggedIn(false);
-                    Client.setUsername(null);
-                    Client.setPassword(null);
                     gui.fail();
                 }
             }

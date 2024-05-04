@@ -94,12 +94,6 @@ public class DebugMainMenu extends GuiMainMenu {
     private static final ResourceLocation MINECRAFT_TITLE_TEXTURES = new ResourceLocation("textures/gui/title/minecraft.png");
     private static final ResourceLocation field_194400_H = new ResourceLocation("textures/gui/title/edition.png");
 
-    /**
-     * An array of all the paths to the panorama pictures.
-     */
-    private static final ResourceLocation[] TITLE_PANORAMA_PATHS = new ResourceLocation[]{new ResourceLocation("textures/gui/title/background/panorama_0.png"), new ResourceLocation("textures/gui/title/background/panorama_1.png"), new ResourceLocation("textures/gui/title/background/panorama_2.png"), new ResourceLocation("textures/gui/title/background/panorama_3.png"), new ResourceLocation("textures/gui/title/background/panorama_4.png"), new ResourceLocation("textures/gui/title/background/panorama_5.png")};
-    private ResourceLocation backgroundTexture;
-
     private int widthCopyright;
     private int widthCopyrightRest;
 

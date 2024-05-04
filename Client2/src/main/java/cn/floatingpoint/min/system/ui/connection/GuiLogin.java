@@ -9,6 +9,7 @@ import cn.floatingpoint.min.utils.client.RegistryEditUtil;
 import cn.floatingpoint.min.utils.render.RenderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.util.ResourceLocation;
 import org.lwjglx.input.Keyboard;
 
 import java.awt.*;
@@ -33,8 +34,9 @@ public class GuiLogin extends GuiScreen {
 
     @Override
     public void initGui() {
-        username = new InputField(width / 2 - 90, 70, 180, 20);
-        password = new InputField(width / 2 - 90, 100, 180, 20, '*');
+        System.out.println(height / 2);
+        username = new InputField(width / 2 - 90, height / 2 - 50, 180, 20);
+        password = new InputField(width / 2 - 90, height / 2 - 20, 180, 20, '*');
         this.rememberPassword = RegistryEditUtil.getValue("FloatingPoint/MINClient", "remember").equalsIgnoreCase("1");
         this.username.setText(RegistryEditUtil.getValue("FloatingPoint/MINClient", "username"));
         if (this.rememberPassword) {
@@ -42,7 +44,7 @@ public class GuiLogin extends GuiScreen {
         }
         username.setMaxStringLength(16);
         password.setMaxStringLength(256);
-        login = new ClickableButton(width / 2, 150, 100, 20, Managers.i18NManager.getTranslation("login.login")) {
+        login = new ClickableButton(width / 2, height / 2 + 30, 100, 20, Managers.i18NManager.getTranslation("login.login")) {
             @Override
             public void clicked() {
                 login();
@@ -56,36 +58,37 @@ public class GuiLogin extends GuiScreen {
         drawRect(0, 0, width, height, new Color(50, 50, 50).getRGB());
         username.drawTextBox();
         password.drawTextBox();
-        Managers.fontManager.sourceHansSansCN_Regular_34.drawCenteredString(Managers.i18NManager.getTranslation("login.title"), width / 2, 30, -1);
-        Managers.fontManager.sourceHansSansCN_Regular_20.drawCenteredString(Client.getStatus().get(0), width / 2, 50, -1);
+        Managers.fontManager.sourceHansSansCN_Regular_34.drawCenteredString(Managers.i18NManager.getTranslation("login.title"), width / 2, height / 2 - 84, -1);
+        Managers.fontManager.sourceHansSansCN_Regular_20.drawCenteredString(Client.getStatus().get(0), width / 2, height / 2 - 70, -1);
         int white = new Color(236, 236, 236).getRGB();
         int grey = new Color(158, 158, 158).getRGB();
         if (username.getText().isEmpty() && !username.isFocused()) {
-            Managers.fontManager.sourceHansSansCN_Regular_20.drawString(Managers.i18NManager.getTranslation("login.username"), width / 2 - 84, 76, white);
+            Managers.fontManager.sourceHansSansCN_Regular_20.drawString(Managers.i18NManager.getTranslation("login.username"), width / 2 - 84, height / 2 - 44, white);
         }
         if (password.getText().isEmpty() && !password.isFocused()) {
-            Managers.fontManager.sourceHansSansCN_Regular_20.drawString(Managers.i18NManager.getTranslation("login.password"), width / 2 - 84, 106, white);
+            Managers.fontManager.sourceHansSansCN_Regular_20.drawString(Managers.i18NManager.getTranslation("login.password"), width / 2 - 84, height / 2 - 14, white);
         }
-        RenderUtil.drawRoundedRect(width / 2 - 88, 127, width / 2 - 80, 135, 4, white);
-        Managers.fontManager.sourceHansSansCN_Regular_18.drawString(Managers.i18NManager.getTranslation("login.remember"), width / 2 - 77, 127, white);
+        RenderUtil.drawRoundedRect(width / 2 - 88, height / 2 + 7, width / 2 - 80, height / 2 + 15, 4, white);
+        Managers.fontManager.sourceHansSansCN_Regular_18.drawString(Managers.i18NManager.getTranslation("login.remember"), width / 2 - 77, height / 2 + 7, white);
         if (this.rememberPassword) {
-            RenderUtil.drawRoundedRect(width / 2 - 86, 129, width / 2 - 82, 133, 2, grey);
+            RenderUtil.drawRoundedRect(width / 2 - 86, height / 2 + 9, width / 2 - 82, height / 2 + 13, 2, grey);
         }
         login.drawScreen();
         String regText = Managers.i18NManager.getTranslation("login.register.to");
         int regLength = Managers.fontManager.sourceHansSansCN_Regular_18.getStringWidth(regText);
-        if (!isHovered(width / 2 - 89, 164, width / 2 - 89 + regLength, 173, mouseX, mouseY)) {
-            Managers.fontManager.sourceHansSansCN_Regular_18.drawString("\247n" + regText, width / 2 - 89, 164, grey);
+        if (!isHovered(width / 2 - 89, height / 2 + 44, width / 2 - 89 + regLength, height / 2 + 53, mouseX, mouseY)) {
+            Managers.fontManager.sourceHansSansCN_Regular_18.drawString("\247n" + regText, width / 2 - 89, height / 2 + 44, grey);
         } else {
-            Managers.fontManager.sourceHansSansCN_Regular_18.drawString("\247n" + regText, width / 2 - 89, 164, white);
+            Managers.fontManager.sourceHansSansCN_Regular_18.drawString("\247n" + regText, width / 2 - 89, height / 2 + 44, white);
         }
         if (startUp > 0) {
             drawRect(0, 0, width, height, new Color(0, 0, 0, startUp).getRGB());
-            startUp -= 10;
+            startUp -= 15;
         }
         if (startUp < 0) {
             startUp = 0;
         }
+        RenderUtil.drawImage(new ResourceLocation("min/square.png"), (width - 236) / 2, (height - 236) / 2, 236, 236);
     }
 
     @Override
@@ -120,12 +123,12 @@ public class GuiLogin extends GuiScreen {
         }
         this.username.mouseClicked(mouseX, mouseY, mouseButton);
         this.password.mouseClicked(mouseX, mouseY, mouseButton);
-        if (isHovered(width / 2 - 88, 127, width / 2 - 80, 135, mouseX, mouseY)) {
+        if (isHovered(width / 2 - 88, height / 2 + 7, width / 2 - 80, height / 2 + 15, mouseX, mouseY)) {
             this.rememberPassword = !this.rememberPassword;
         } else {
             String regText = Managers.i18NManager.getTranslation("login.register.to");
             int regLength = Managers.fontManager.sourceHansSansCN_Regular_18.getStringWidth(regText);
-            if (isHovered(width / 2 - 89, 164, width / 2 - 89 + regLength, 173, mouseX, mouseY)) {
+            if (isHovered(width / 2 - 89, height / 2 + 44, width / 2 - 89 + regLength, height / 2 + 53, mouseX, mouseY)) {
                 mc.displayGuiScreen(new GuiRegister(this));
             } else {
                 Client.setStatus("\247e" + Managers.i18NManager.getTranslation("idle"));

@@ -396,7 +396,7 @@ public class InputField {
      */
     public void drawTextBox() {
         if (this.getVisible()) {
-            Gui.drawRect(x, y, x + width, y + height, new Color(0, 0, 0, 102).getRGB());
+            Gui.drawRect(x, y, x + width, y + height, new Color(30, 30, 30, 102).getRGB());
             Gui.drawRect(x, y, x + 0.5D, y + height, new Color(44, 44, 44, 102).getRGB());
             Gui.drawRect(x + 0.5D, y + height - 0.5D, x + width - 0.5D, y + height, new Color(44, 44, 44, 102).getRGB());
             Gui.drawRect(x + width - 0.5D, y, x + width, y + height, new Color(44, 44, 44, 102).getRGB());

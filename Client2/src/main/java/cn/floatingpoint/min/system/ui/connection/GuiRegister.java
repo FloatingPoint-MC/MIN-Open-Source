@@ -7,7 +7,9 @@ import cn.floatingpoint.min.system.irc.packet.impl.CPacketRegister;
 import cn.floatingpoint.min.system.ui.components.ClickableButton;
 import cn.floatingpoint.min.system.ui.components.InputField;
 import cn.floatingpoint.min.utils.client.HWIDUtil;
+import cn.floatingpoint.min.utils.render.RenderUtil;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.util.ResourceLocation;
 import org.lwjglx.input.Keyboard;
 
 import java.awt.*;
@@ -18,7 +20,7 @@ public class GuiRegister extends GuiScreen {
     private InputField username;
     private InputField password;
     private InputField confirmPassword;
-    private ClickableButton register;
+    private ClickableButton register, back;
     private final GuiScreen parent;
 
     public GuiRegister(GuiScreen parent) {
@@ -27,16 +29,22 @@ public class GuiRegister extends GuiScreen {
 
     @Override
     public void initGui() {
-        username = new InputField(width / 2 - 90, 70, 180, 20);
-        password = new InputField(width / 2 - 90, 100, 180, 20, '*');
-        confirmPassword = new InputField(width / 2 - 90, 130, 180, 20, '*');
+        username = new InputField(width / 2 - 90, height / 2 - 50, 180, 20);
+        password = new InputField(width / 2 - 90, height / 2 - 26, 180, 20, '*');
+        confirmPassword = new InputField(width / 2 - 90, height / 2 - 2, 180, 20, '*');
         username.setMaxStringLength(16);
         password.setMaxStringLength(256);
         confirmPassword.setMaxStringLength(256);
-        register = new ClickableButton(width / 2, 170, 100, 20, Managers.i18NManager.getTranslation("login.register.do")) {
+        register = new ClickableButton(width / 2, height / 2 + 36, 100, 20, Managers.i18NManager.getTranslation("login.register.do")) {
             @Override
             public void clicked() {
                 register();
+            }
+        };
+        back = new ClickableButton(width / 2, height / 2 + 60, 100, 20, Managers.i18NManager.getTranslation("login.register.do")) {
+            @Override
+            public void clicked() {
+                mc.displayGuiScreen(parent);
             }
         };
         Keyboard.enableRepeatEvents(true);
@@ -45,22 +53,24 @@ public class GuiRegister extends GuiScreen {
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         drawRect(0, 0, width, height, new Color(50, 50, 50).getRGB());
+        RenderUtil.drawImage(new ResourceLocation("min/square.png"), (width - 236) / 2, (height - 236) / 2, 236, 236);
         username.drawTextBox();
         password.drawTextBox();
         confirmPassword.drawTextBox();
-        Managers.fontManager.sourceHansSansCN_Regular_34.drawCenteredString(Managers.i18NManager.getTranslation("login.registration"), width / 2, 30, -1);
-        Managers.fontManager.sourceHansSansCN_Regular_20.drawCenteredString(Client.getStatus().get(0), width / 2, 50, -1);
+        Managers.fontManager.sourceHansSansCN_Regular_34.drawCenteredString(Managers.i18NManager.getTranslation("login.registration"), width / 2, height / 2 - 84, -1);
+        Managers.fontManager.sourceHansSansCN_Regular_20.drawCenteredString(Client.getStatus().get(0), width / 2, height / 2 - 70, -1);
         int white = new Color(236, 236, 236).getRGB();
         if (username.getText().isEmpty() && !username.isFocused()) {
-            Managers.fontManager.sourceHansSansCN_Regular_20.drawString(Managers.i18NManager.getTranslation("login.username"), width / 2 - 84, 76, white);
+            Managers.fontManager.sourceHansSansCN_Regular_20.drawString(Managers.i18NManager.getTranslation("login.username"), width / 2 - 84, height / 2 - 44, white);
         }
         if (password.getText().isEmpty() && !password.isFocused()) {
-            Managers.fontManager.sourceHansSansCN_Regular_20.drawString(Managers.i18NManager.getTranslation("login.password"), width / 2 - 84, 106, white);
+            Managers.fontManager.sourceHansSansCN_Regular_20.drawString(Managers.i18NManager.getTranslation("login.password"), width / 2 - 84, height / 2 - 20, white);
         }
         if (confirmPassword.getText().isEmpty() && !confirmPassword.isFocused()) {
-            Managers.fontManager.sourceHansSansCN_Regular_20.drawString(Managers.i18NManager.getTranslation("login.confirm"), width / 2 - 84, 136, white);
+            Managers.fontManager.sourceHansSansCN_Regular_20.drawString(Managers.i18NManager.getTranslation("login.confirm"), width / 2 - 84, height / 2 + 4, white);
         }
         register.drawScreen();
+        back.drawScreen();
     }
 
     @Override
@@ -99,6 +109,7 @@ public class GuiRegister extends GuiScreen {
         confirmPassword.mouseClicked(mouseX, mouseY, mouseButton);
         Client.setStatus("\247e" + Managers.i18NManager.getTranslation("idle"));
         register.mouseClicked(mouseX, mouseY, mouseButton);
+        back.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
     private void register() {
