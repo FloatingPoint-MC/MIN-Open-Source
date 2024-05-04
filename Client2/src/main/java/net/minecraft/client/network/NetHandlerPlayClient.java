@@ -854,6 +854,11 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
                 if (AutoText.winMessage.getValue() && text.equals("花雨庭>> You won the fight!")) {
                     AutoText.winToSend = true;
                 }
+                if (AutoText.startMessage.getValue()) {
+                    if (text.equals("起床战争>> 游戏开始 ...")) {
+                        AutoText.startToSend = true;
+                    }
+                }
             }
             EntityPlayer player = Managers.replayManager.isPlaying() ? Managers.replayManager.getReplayServer().self : this.client.player;
             // Kill Effect
