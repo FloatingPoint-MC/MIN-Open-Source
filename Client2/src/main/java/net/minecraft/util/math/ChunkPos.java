@@ -52,13 +52,12 @@ public class ChunkPos
         {
             return true;
         }
-        else if (!(p_equals_1_ instanceof ChunkPos))
+        else if (!(p_equals_1_ instanceof ChunkPos chunkpos))
         {
             return false;
         }
         else
         {
-            ChunkPos chunkpos = (ChunkPos)p_equals_1_;
             return this.x == chunkpos.x && this.z == chunkpos.z;
         }
     }

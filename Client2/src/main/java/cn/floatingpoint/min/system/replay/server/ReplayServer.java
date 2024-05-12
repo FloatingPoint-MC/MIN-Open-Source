@@ -4,7 +4,7 @@ import cn.floatingpoint.min.management.Managers;
 import cn.floatingpoint.min.system.hyt.packet.impl.Hyt0Packet;
 import cn.floatingpoint.min.system.replay.Replay;
 import cn.floatingpoint.min.system.replay.packet.C2SPacket;
-import cn.floatingpoint.min.system.replay.packet.ChunkPacket;
+import cn.floatingpoint.min.system.replay.packet.InitialChunkPacket;
 import cn.floatingpoint.min.system.replay.packet.RecordedPacket;
 import cn.floatingpoint.min.system.replay.packet.S2CPacket;
 import cn.floatingpoint.min.system.ui.replay.GuiManageTick;
@@ -18,7 +18,6 @@ import io.netty.util.concurrent.GenericFutureListener;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.client.network.NetHandlerPlayClient;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.entity.player.PlayerCapabilities;
@@ -33,8 +32,7 @@ import net.minecraft.network.*;
 import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraft.network.play.client.*;
 import net.minecraft.network.play.server.*;
-import net.minecraft.server.management.PlayerChunkMap;
-import net.minecraft.server.management.PlayerChunkMapEntry;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.DimensionType;
@@ -49,6 +47,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.UUID;
 
 public class ReplayServer {
@@ -57,14 +56,10 @@ public class ReplayServer {
     private NetHandlerPlayClient netHandler;
        
     // Net Handler Replay Server
-    private int slot = 0;
-    private final ArrayList<Entity> entities = new ArrayList<>();
+    private final HashSet<ChunkPos> loadedChunks;
     public EntityOtherPlayerMP self;
-
-    private boolean running;
+    private int slot = 0;
     private State state;
-    private int updateCounter;
-    private long encodedPosX, encodedPosY, encodedPosZ;
 
 
     public ReplayServer(Replay replay) {
@@ -74,10 +69,10 @@ public class ReplayServer {
             System.gc();
         }
         Managers.replayManager.loadReplay(this);
-        running = true;
         state = State.PAUSED;
         Managers.replayManager.setPlaying(false);
         Hyt0Packet.loadChunk = true;
+        loadedChunks = new HashSet<>();
         Thread replayServerThread = new Thread("Replay Server Thread") {
             @Override
             public void run() {
@@ -109,6 +104,7 @@ public class ReplayServer {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+            loadedChunks.add(new ChunkPos(data.getChunkX(), data.getChunkZ()));
             netHandler.handleChunkData(data);
         }
         netHandler.handlePlayerPosLook(new SPacketPlayerPosLook(replay.getSpawnPos().getX(), replay.getSpawnPos().getY(), replay.getSpawnPos().getZ(), 0.0f, 0.0f, Collections.emptySet(), 0));
@@ -164,13 +160,11 @@ public class ReplayServer {
     @SuppressWarnings("unchecked")
     public void readTick() throws IOException {
         if (replay.tick == -2) {
-            ArrayList<RecordedPacket> packets = replay.getPackets().get(-1);
-            for (RecordedPacket recordedPacket : packets) {
-                SPacketChunkData data = new SPacketChunkData();
-                data.readPacketData(new PacketBuffer(recordedPacket.packetBuffer().copy()));
-                SPacketUnloadChunk unload = new SPacketUnloadChunk(data.getChunkX(), data.getChunkZ());
+            for (ChunkPos chunkPos : loadedChunks) {
+                SPacketUnloadChunk unload = new SPacketUnloadChunk(chunkPos.x, chunkPos.z);
                 netHandler.processChunkUnload(unload);
             }
+            loadedChunks.clear();
             mc.world.removeAllEntities();
         } else {
             ArrayList<RecordedPacket> packets = replay.getPackets().get(replay.tick);
@@ -226,9 +220,10 @@ public class ReplayServer {
                         assert packet != null;
                         packet.readPacketData(new PacketBuffer(recordedPacket.packetBuffer().copy()));
                         handleSPacket(packet);
-                    } else if (recordedPacket instanceof ChunkPacket) {
+                    } else if (recordedPacket instanceof InitialChunkPacket) {
                         SPacketChunkData data = new SPacketChunkData();
                         data.readPacketData(new PacketBuffer(recordedPacket.packetBuffer().copy()));
+                        loadedChunks.add(new ChunkPos(data.getChunkX(), data.getChunkZ()));
                         netHandler.handleChunkData(data);
                     }
                 }

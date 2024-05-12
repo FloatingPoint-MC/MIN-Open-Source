@@ -12,10 +12,10 @@ import java.util.ArrayDeque;
 import java.util.LinkedHashSet;
 
 public class Recording {
-    public final ArrayDeque<RecordedPacket> packets;
-    public int tick;
     private final ReplayRecordingThread recordingThread;
-    private LinkedHashSet<Long> chunkLoaded;
+    public final ArrayDeque<RecordedPacket> packets;
+    private final LinkedHashSet<Long> chunkLoaded;
+    public int tick;
     private final String name;
     private BlockPos spawnPos;
     private String entityName, uuid;
@@ -87,5 +87,14 @@ public class Recording {
 
     public String getName() {
         return name;
+    }
+
+    public boolean hasChunk(long seed) {
+        if (chunkLoaded.contains(seed)) {
+            return true;
+        } else {
+            chunkLoaded.add(seed);
+            return false;
+        }
     }
 }

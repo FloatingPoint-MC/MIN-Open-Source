@@ -2,7 +2,7 @@ package cn.floatingpoint.min.system.replay.packet;
 
 import net.minecraft.network.PacketBuffer;
 
-public record ChunkPacket(PacketBuffer packetBuffer) implements RecordedPacket {
+public record InitialChunkPacket(PacketBuffer packetBuffer) implements RecordedPacket {
 
     @Override
     public int tick() {

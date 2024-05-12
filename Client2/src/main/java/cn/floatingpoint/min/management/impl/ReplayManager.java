@@ -9,7 +9,7 @@ import cn.floatingpoint.min.system.replay.recording.Recording;
 import cn.floatingpoint.min.system.replay.recording.State;
 import cn.floatingpoint.min.system.replay.server.ReplayServer;
 import cn.floatingpoint.min.system.ui.replay.GuiLoadingReplay;
-import cn.floatingpoint.min.system.replay.packet.ChunkPacket;
+import cn.floatingpoint.min.system.replay.packet.InitialChunkPacket;
 import cn.floatingpoint.min.utils.client.ChatUtil;
 import cn.floatingpoint.min.utils.client.IOUtil;
 import io.netty.buffer.Unpooled;
@@ -196,7 +196,7 @@ public class ReplayManager implements Manager {
                         int tick = packet.getInt("tick");
                         replay.addPacket(new S2CPacket(tick, id, packetBuffer));
                     }
-                    case "Chunk" -> replay.addPacket(new ChunkPacket(packetBuffer));
+                    case "Chunk" -> replay.addPacket(new InitialChunkPacket(packetBuffer));
                     default -> throw new IllegalStateException("Unexpected value: " + type);
                 }
             }

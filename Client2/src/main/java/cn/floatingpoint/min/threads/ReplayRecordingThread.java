@@ -2,7 +2,7 @@ package cn.floatingpoint.min.threads;
 
 import cn.floatingpoint.min.management.Managers;
 import cn.floatingpoint.min.system.replay.packet.C2SPacket;
-import cn.floatingpoint.min.system.replay.packet.ChunkPacket;
+import cn.floatingpoint.min.system.replay.packet.InitialChunkPacket;
 import cn.floatingpoint.min.system.replay.packet.RecordedPacket;
 import cn.floatingpoint.min.system.replay.packet.S2CPacket;
 import cn.floatingpoint.min.system.replay.recording.Recording;
@@ -16,6 +16,7 @@ import net.minecraft.network.EnumPacketDirection;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.server.SPacketChunkData;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.event.ClickEvent;
 import org.json.JSONArray;
@@ -55,8 +56,8 @@ public class ReplayRecordingThread extends Thread {
                         }
                         PacketBuffer packetBuffer = new PacketBuffer(Unpooled.buffer());
                         packet.writePacketData(packetBuffer);
-                        if (packet instanceof SPacketChunkData data) {
-                            recording.packets.add(new ChunkPacket(packetBuffer));
+                        if (packet instanceof SPacketChunkData data && !recording.hasChunk(ChunkPos.asLong(data.getChunkX(), data.getChunkZ()))) {
+                            recording.packets.add(new InitialChunkPacket(packetBuffer));
                         } else {
                             switch (pair.getValue()) {
                                 case SERVERBOUND ->
@@ -205,7 +206,7 @@ public class ReplayRecordingThread extends Thread {
                                         dataArray.put("O" + Arrays.toString(bytes));
                                     }
                                 }
-                            } else if (recordedPacket instanceof ChunkPacket) {
+                            } else if (recordedPacket instanceof InitialChunkPacket) {
                                 packetJson.put("type", "Chunk");
                                 byte[] bytes = new byte[packetBuffer.readableBytes()];
                                 packetBuffer.readBytes(bytes);
