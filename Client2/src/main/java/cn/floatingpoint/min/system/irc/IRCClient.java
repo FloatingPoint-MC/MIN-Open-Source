@@ -48,8 +48,8 @@ public class IRCClient extends WebSocketClient {
 
     public IRCClient() throws URISyntaxException, IOException {
         //super(new URI("ws://irc.minclient.xyz"));
-        //super(new URI("wss://irc.minclient.xyz"));
-        super(new URI("ws://118.193.46.31:65535"));
+        super(new URI("wss://irc.minclient.xyz"));
+        //super(new URI("ws://118.193.46.31:65535"));
         setTcpNoDelay(true);
         theIRC = this;
         count = 0;

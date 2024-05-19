@@ -1,11 +1,14 @@
 package net.minecraft.client.gui;
 
+import cn.floatingpoint.min.utils.render.RenderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
+import org.lwjgl.opengl.GL11;
 import org.lwjglx.input.Mouse;
 
 public abstract class GuiSlot {
@@ -234,10 +237,20 @@ public abstract class GuiSlot {
                 this.drawListHeader(k, l, tessellator);
             }
 
+            if (this instanceof ServerSelectionList) {
+                mc.mainMenu.renderBackground(this.width, this.height, partialTicks);
+                GL11.glEnable(GL11.GL_SCISSOR_TEST);
+                RenderUtil.doGlScissor(this.left, this.top, this.right - this.left, this.bottom - this.top - 8);
+            }
             this.drawSelectionBox(k, l, mouseXIn, mouseYIn, partialTicks);
+            if (this instanceof ServerSelectionList) {
+                GL11.glDisable(GL11.GL_SCISSOR_TEST);
+            }
             GlStateManager.disableDepth();
-            this.overlayBackground(0, this.top, 255, 255);
-            this.overlayBackground(this.bottom, this.height, 255, 255);
+            if (!(this instanceof ServerSelectionList)) {
+                this.overlayBackground(0, this.top, 255, 255);
+                this.overlayBackground(this.bottom, this.height, 255, 255);
+            }
             GlStateManager.enableBlend();
             GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
             GlStateManager.disableAlpha();
@@ -246,12 +259,12 @@ public abstract class GuiSlot {
             bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
             bufferbuilder.pos(this.left, this.top + 4, 0.0D).tex(0.0D, 1.0D).color(0, 0, 0, 0).endVertex();
             bufferbuilder.pos(this.right, this.top + 4, 0.0D).tex(1.0D, 1.0D).color(0, 0, 0, 0).endVertex();
-            bufferbuilder.pos(this.right, this.top, 0.0D).tex(1.0D, 0.0D).color(0, 0, 0, 255).endVertex();
-            bufferbuilder.pos(this.left, this.top, 0.0D).tex(0.0D, 0.0D).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.pos(this.right, this.top, 0.0D).tex(1.0D, 0.0D).color(0, 0, 0, 50).endVertex();
+            bufferbuilder.pos(this.left, this.top, 0.0D).tex(0.0D, 0.0D).color(0, 0, 0, 50).endVertex();
             tessellator.draw();
             bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-            bufferbuilder.pos(this.left, this.bottom, 0.0D).tex(0.0D, 1.0D).color(0, 0, 0, 255).endVertex();
-            bufferbuilder.pos(this.right, this.bottom, 0.0D).tex(1.0D, 1.0D).color(0, 0, 0, 255).endVertex();
+            bufferbuilder.pos(this.left, this.bottom, 0.0D).tex(0.0D, 1.0D).color(0, 0, 0, 50).endVertex();
+            bufferbuilder.pos(this.right, this.bottom, 0.0D).tex(1.0D, 1.0D).color(0, 0, 0, 50).endVertex();
             bufferbuilder.pos(this.right, this.bottom - 4, 0.0D).tex(1.0D, 0.0D).color(0, 0, 0, 0).endVertex();
             bufferbuilder.pos(this.left, this.bottom - 4, 0.0D).tex(0.0D, 0.0D).color(0, 0, 0, 0).endVertex();
             tessellator.draw();

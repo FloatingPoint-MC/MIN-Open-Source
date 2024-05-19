@@ -2,24 +2,17 @@ package cn.floatingpoint.min.system.ui.mainmenu;
 
 import com.google.common.util.concurrent.Runnables;
 import net.minecraft.client.gui.*;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.storage.ISaveFormat;
 import net.minecraft.world.storage.WorldInfo;
-import net.optifine.CustomPanorama;
-import net.optifine.CustomPanoramaProperties;
 import org.lwjglx.input.Mouse;
 import org.lwjglx.opengl.GLContext;
-import org.lwjglx.util.glu.Project;
 
 import java.io.IOException;
 import java.net.URI;
@@ -40,11 +33,6 @@ public class DebugMainMenu extends GuiMainMenu {
      * construction; if the value is less than .0001, then Minceraft is displayed.
      */
     private final float minceraftRoll;
-
-    /**
-     * Timer used to rotate the panorama, increases every tick.
-     */
-    private float panoramaTimer;
 
     /**
      * The Object utilized as a thread lock when performing non thread-safe operations
@@ -196,204 +184,11 @@ public class DebugMainMenu extends GuiMainMenu {
     }
 
     /**
-     * Draws the main menu panorama
-     */
-    private void drawPanorama() {
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
-        GlStateManager.matrixMode(5889);
-        GlStateManager.pushMatrix();
-        GlStateManager.loadIdentity();
-        Project.gluPerspective(120.0F, 1.0F, 0.05F, 10.0F);
-        GlStateManager.matrixMode(5888);
-        GlStateManager.pushMatrix();
-        GlStateManager.loadIdentity();
-        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.rotate(180.0F, 1.0F, 0.0F, 0.0F);
-        GlStateManager.rotate(90.0F, 0.0F, 0.0F, 1.0F);
-        GlStateManager.enableBlend();
-        GlStateManager.disableAlpha();
-        GlStateManager.disableCull();
-        GlStateManager.depthMask(false);
-        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-        int j = 64;
-        CustomPanoramaProperties custompanoramaproperties = CustomPanorama.getCustomPanoramaProperties();
-
-        if (custompanoramaproperties != null) {
-            j = custompanoramaproperties.getBlur1();
-        }
-
-        for (int k = 0; k < j; ++k) {
-            GlStateManager.pushMatrix();
-            float f = ((float) (k % 8) / 8.0F - 0.5F) / 64.0F;
-            float f1 = ((float) (k / 8) / 8.0F - 0.5F) / 64.0F;
-            GlStateManager.translate(f, f1, 0.0F);
-            GlStateManager.rotate(MathHelper.sin(this.panoramaTimer / 400.0F) * 25.0F + 20.0F, 1.0F, 0.0F, 0.0F);
-            GlStateManager.rotate(-this.panoramaTimer * 0.1F, 0.0F, 1.0F, 0.0F);
-
-            for (int l = 0; l < 6; ++l) {
-                GlStateManager.pushMatrix();
-
-                if (l == 1) {
-                    GlStateManager.rotate(90.0F, 0.0F, 1.0F, 0.0F);
-                }
-
-                if (l == 2) {
-                    GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);
-                }
-
-                if (l == 3) {
-                    GlStateManager.rotate(-90.0F, 0.0F, 1.0F, 0.0F);
-                }
-
-                if (l == 4) {
-                    GlStateManager.rotate(90.0F, 1.0F, 0.0F, 0.0F);
-                }
-
-                if (l == 5) {
-                    GlStateManager.rotate(-90.0F, 1.0F, 0.0F, 0.0F);
-                }
-
-                ResourceLocation[] aresourcelocation = TITLE_PANORAMA_PATHS;
-
-                if (custompanoramaproperties != null) {
-                    aresourcelocation = custompanoramaproperties.getPanoramaLocations();
-                }
-
-                this.mc.getTextureManager().bindTexture(aresourcelocation[l]);
-                bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-                int i1 = 255 / (k + 1);
-                bufferbuilder.pos(-1.0D, -1.0D, 1.0D).tex(0.0D, 0.0D).color(255, 255, 255, i1).endVertex();
-                bufferbuilder.pos(1.0D, -1.0D, 1.0D).tex(1.0D, 0.0D).color(255, 255, 255, i1).endVertex();
-                bufferbuilder.pos(1.0D, 1.0D, 1.0D).tex(1.0D, 1.0D).color(255, 255, 255, i1).endVertex();
-                bufferbuilder.pos(-1.0D, 1.0D, 1.0D).tex(0.0D, 1.0D).color(255, 255, 255, i1).endVertex();
-                tessellator.draw();
-                GlStateManager.popMatrix();
-            }
-
-            GlStateManager.popMatrix();
-            GlStateManager.colorMask(true, true, true, false);
-        }
-
-        bufferbuilder.setTranslation(0.0D, 0.0D, 0.0D);
-        GlStateManager.colorMask(true, true, true, true);
-        GlStateManager.matrixMode(5889);
-        GlStateManager.popMatrix();
-        GlStateManager.matrixMode(5888);
-        GlStateManager.popMatrix();
-        GlStateManager.depthMask(true);
-        GlStateManager.enableCull();
-        GlStateManager.enableDepth();
-    }
-
-    /**
-     * Rotate and blurs the skybox view in the main menu
-     */
-    private void rotateAndBlurSkybox() {
-        this.mc.getTextureManager().bindTexture(this.backgroundTexture);
-        GlStateManager.glTexParameteri(3553, 10241, 9729);
-        GlStateManager.glTexParameteri(3553, 10240, 9729);
-        GlStateManager.glCopyTexSubImage2D(3553, 0, 0, 0, 0, 0, 256, 256);
-        GlStateManager.enableBlend();
-        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-        GlStateManager.colorMask(true, true, true, false);
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-        GlStateManager.disableAlpha();
-        int j = 3;
-        CustomPanoramaProperties custompanoramaproperties = CustomPanorama.getCustomPanoramaProperties();
-
-        if (custompanoramaproperties != null) {
-            j = custompanoramaproperties.getBlur2();
-        }
-
-        for (int k = 0; k < j; ++k) {
-            float f = 1.0F / (float) (k + 1);
-            int l = this.width;
-            int i1 = this.height;
-            float f1 = (float) (k - 1) / 256.0F;
-            bufferbuilder.pos(l, i1, this.zLevel).tex(0.0F + f1, 1.0D).color(1.0F, 1.0F, 1.0F, f).endVertex();
-            bufferbuilder.pos(l, 0.0D, this.zLevel).tex(1.0F + f1, 1.0D).color(1.0F, 1.0F, 1.0F, f).endVertex();
-            bufferbuilder.pos(0.0D, 0.0D, this.zLevel).tex(1.0F + f1, 0.0D).color(1.0F, 1.0F, 1.0F, f).endVertex();
-            bufferbuilder.pos(0.0D, i1, this.zLevel).tex(0.0F + f1, 0.0D).color(1.0F, 1.0F, 1.0F, f).endVertex();
-        }
-
-        tessellator.draw();
-        GlStateManager.enableAlpha();
-        GlStateManager.colorMask(true, true, true, true);
-    }
-
-    /**
-     * Renders the skybox in the main menu
-     */
-    private void renderSkybox() {
-        this.mc.getFramebuffer().unbindFramebuffer();
-        GlStateManager.viewport(0, 0, 256, 256);
-        this.drawPanorama();
-        this.rotateAndBlurSkybox();
-        int i = 3;
-        CustomPanoramaProperties custompanoramaproperties = CustomPanorama.getCustomPanoramaProperties();
-
-        if (custompanoramaproperties != null) {
-            i = custompanoramaproperties.getBlur3();
-        }
-
-        for (int j = 0; j < i; ++j) {
-            this.rotateAndBlurSkybox();
-            this.rotateAndBlurSkybox();
-        }
-
-        this.mc.getFramebuffer().bindFramebuffer(true);
-        GlStateManager.viewport(0, 0, this.mc.displayWidth, this.mc.displayHeight);
-        float f2 = 120.0F / (float) (Math.max(this.width, this.height));
-        float f = (float) this.height * f2 / 256.0F;
-        float f1 = (float) this.width * f2 / 256.0F;
-        int k = this.width;
-        int l = this.height;
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-        bufferbuilder.pos(0.0D, l, this.zLevel).tex(0.5F - f, 0.5F + f1).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
-        bufferbuilder.pos(k, l, this.zLevel).tex(0.5F - f, 0.5F - f1).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
-        bufferbuilder.pos(k, 0.0D, this.zLevel).tex(0.5F + f, 0.5F - f1).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
-        bufferbuilder.pos(0.0D, 0.0D, this.zLevel).tex(0.5F + f, 0.5F + f1).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
-        tessellator.draw();
-    }
-
-    /**
      * Draws the screen and all the components in it.
      */
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        this.panoramaTimer += partialTicks;
-        GlStateManager.disableAlpha();
-        this.renderSkybox();
-        GlStateManager.enableAlpha();
+        this.renderBackground(this.width, this.height, partialTicks);
         int j = this.width / 2 - 137;
-        int l = -2130706433;
-        int i1 = 16777215;
-        int j1 = 0;
-        int k1 = Integer.MIN_VALUE;
-        CustomPanoramaProperties custompanoramaproperties = CustomPanorama.getCustomPanoramaProperties();
-
-        if (custompanoramaproperties != null) {
-            l = custompanoramaproperties.getOverlay1Top();
-            i1 = custompanoramaproperties.getOverlay1Bottom();
-            j1 = custompanoramaproperties.getOverlay2Top();
-            k1 = custompanoramaproperties.getOverlay2Bottom();
-        }
-
-        if (l != 0 || i1 != 0) {
-            this.drawGradientRect(0, 0, this.width, this.height, l, i1);
-        }
-
-        if (j1 != 0 || k1 != 0) {
-            this.drawGradientRect(0, 0, this.width, this.height, j1, k1);
-        }
-
-        this.mc.getTextureManager().bindTexture(MINECRAFT_TITLE_TEXTURES);
-        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-
         if ((double) this.minceraftRoll < 0.5D) {
             this.drawTexturedModalRect(j, 30, 0, 0, 99, 44);
             this.drawTexturedModalRect(j + 99, 30, 129, 0, 27, 44);
@@ -404,6 +199,9 @@ public class DebugMainMenu extends GuiMainMenu {
             this.drawTexturedModalRect(j, 30, 0, 0, 155, 44);
             this.drawTexturedModalRect(j + 155, 30, 0, 45, 155, 44);
         }
+
+        this.mc.getTextureManager().bindTexture(MINECRAFT_TITLE_TEXTURES);
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
         this.mc.getTextureManager().bindTexture(field_194400_H);
         drawModalRectWithCustomSizedTexture(j + 88, 67, 0.0F, 0.0F, 98, 14, 128.0F, 16.0F);
