@@ -1,3 +1,5 @@
+# ⚠WARNING⚠: MIN has reached its End Of Life.
+
 ![LOGO.png](.github/LOGO.png)
 # MIN(Minecraft in Netease)
 一个完全免费的客户端软件
